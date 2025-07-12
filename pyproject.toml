@@ -1,0 +1,37 @@
+[project]
+name = "tikorgzo"
+version = "0.1.0"
+description = "A TikTok video downloader using source quality."
+readme = "README.md"
+authors = [
+    { name = "Scoofszlo", email = "scoofszlo@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "aiohttp>=3.12.13",
+    "pip>=25.1.1",
+    "platformdirs>=4.3.8",
+    "playwright>=1.53.0",
+    "requests>=2.32.4",
+    "rich>=14.0.0",
+    "rich-argparse>=1.7.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.7.19,<0.8.0"]
+build-backend = "uv_build"
+
+[project.scripts]
+tikorgzo = "tikorgzo:run"
+
+[tool.ruff]
+line-length = 200
+
+[tool.ruff.lint]
+extend-select = [
+    "E", "W"
+]
+preview = true
+
+[tool.ruff.format]
+preview = true

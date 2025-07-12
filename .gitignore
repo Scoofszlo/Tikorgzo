@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+.idea/
+
+# Virtual environments
+.venv
+
+user_data
+playground
+.coverage
+
+# setuptools_scm
+_version.py
