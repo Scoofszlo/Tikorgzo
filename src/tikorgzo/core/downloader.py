@@ -2,21 +2,22 @@ import requests
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
 from tikorgzo.console import console
-from tikorgzo.core.video_info import FileSize
+from tikorgzo.core.video.model import FileSize
+from tikorgzo.exceptions import DownloadError
 
 
 class Downloader:
     def download(
             self,
-            link: str,
-            video_file: str,
+            download_link: str,
+            output_file_path: str,
             file_size: FileSize
     ) -> None:
-        console.print(f"Attempting to download video from: {link}")
+        console.print(f"Attempting to download video from: {download_link}")
 
         try:
-            response = requests.get(link, stream=True)
-            response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+            response = requests.get(download_link, stream=True)
+            response.raise_for_status()
             total_size = file_size.get()
 
             assert isinstance(total_size, int)
@@ -29,12 +30,13 @@ class Downloader:
                 TimeRemainingColumn(),
             ) as progress:
                 task = progress.add_task("[cyan]Downloading...", total=total_size)
-                with open(video_file, 'wb') as file:
+                with open(output_file_path, 'wb') as file:
                     for chunk in response.iter_content(chunk_size=8192):
                         if chunk:
                             file.write(chunk)
                             progress.update(task, advance=len(chunk))
 
-            console.print(f"Video downloaded successfully to: {video_file}\n")
-        except requests.exceptions.RequestException as e:
-            console.print(f"Error downloading video: {e}")
+            console.print(f"Video downloaded successfully to: {output_file_path}\n")
+
+        except Exception as e:
+            raise DownloadError(e)

@@ -1,6 +1,14 @@
 from typing import Optional
 
 
+class InvalidLinkSourceExtractionError(Exception):
+    """Raised when there is no specified link or file for processing of links."""
+
+    def __init__(self) -> None:
+        self.message = "Path to the list of links or links must be supplied."
+        super().__init__(self.message)
+
+
 class InvalidVideoLink(Exception):
     """Raised when the video link specified is invalid."""
 
@@ -14,7 +22,7 @@ class VideoFileAlreadyExistsError(Exception):
 
     def __init__(self, vid_file: str, username: Optional[str] = None) -> None:
         if username:
-            self.message = f"Video '{vid_file}` (by @{username}) already exists."
+            self.message = f"Video '{vid_file}' (@{username}) already exists."
         else:
             self.message = f"Video '{vid_file}` already exists."
         super().__init__(self.message)
@@ -58,4 +66,20 @@ class FileTooLargeError(Exception):
 
     def __init__(self) -> None:
         self.message = "File size is way too large."
+        super().__init__(self.message)
+
+
+class DownloadError(Exception):
+    """Raised when downloading the video goes wrong."""
+
+    def __init__(self, e: Exception) -> None:
+        self.message = f"Error downloading video: {e}"
+        super().__init__(self.message)
+
+
+class ExtractionTimeoutError(Exception):
+    """Raised when extracting the download link takes too long."""
+
+    def __init__(self) -> None:
+        self.message = "Download link extraction has been stopped due to timeout."
         super().__init__(self.message)

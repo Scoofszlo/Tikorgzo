@@ -1,27 +1,27 @@
 from playwright.sync_api import sync_playwright
 
 from tikorgzo.core.downloader import Downloader
-from tikorgzo.core.extractor import MetadataExtractor
-from tikorgzo.core.video_info import VideoInfo
+from tikorgzo.core.extractor import DownloadLinkExtractor
+from tikorgzo.core.video.model import Video
 
 
-def update_metadata(vid_info: VideoInfo) -> VideoInfo:
-    """Extracts and updates the metadata for the given video."""
+def extract_download_link(video: Video) -> Video:
+    """Extracts and gets the download link for the given Video instance."""
 
     with sync_playwright() as p:
-        extractor = MetadataExtractor(p)
-        vid_info = extractor.extract_metadata(vid_info)
+        extractor = DownloadLinkExtractor(p)
+        video = extractor.extract_download_link(video)
 
-    return vid_info
+    return video
 
 
-def download_video(video_info: VideoInfo) -> None:
-    """Download the video using the provided VideoInfo."""
+def download_video(video: Video) -> None:
+    """Download the video using the provided Video instance."""
 
     downloader = Downloader()
 
     downloader.download(
-        video_info.download_link,
-        video_info.output_file_path,
-        video_info.file_size
+        video.download_link,
+        video.output_file_path,
+        video.file_size
     )

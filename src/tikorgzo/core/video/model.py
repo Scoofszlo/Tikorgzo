@@ -3,7 +3,7 @@ from rich.panel import Panel
 from typing import Optional
 
 from tikorgzo.console import console
-from tikorgzo.core.video_info_processor import VideoInfoProcessor
+from tikorgzo.core.video.processor import VideoInfoProcessor
 from tikorgzo.exceptions import FileTooLargeError
 
 
@@ -15,9 +15,9 @@ VT_TIKTOK_VIDEO_LINK_REGEX = r"https?://vt\.tiktok\.com/"
 processor = VideoInfoProcessor()
 
 
-class VideoInfo:
+class Video:
     """
-    VideoInfo class handles metadata information of a TikTok video
+    Video class that handles the information of a TikTok video
 
     Attributes:
         _video_id (Optional[int]): The unique identifier for the video.
@@ -35,7 +35,7 @@ class VideoInfo:
     """
 
     def __init__(self, video_link: str):
-        video_link = processor.normalize_video_link(video_link)
+        video_link = processor.validate_video_link(video_link)
 
         self._video_id: Optional[int] = processor.extract_video_id(video_link)
 
@@ -47,7 +47,7 @@ class VideoInfo:
         self._file_size: Optional[FileSize] = None
         self._output_file_dir: Optional[str] = None
         self._output_file_path: Optional[str] = None
-        processor._process_output_paths(self)
+        processor.process_output_paths(self)
 
     @property
     def username(self):
@@ -86,8 +86,8 @@ class VideoInfo:
         return self._file_size
 
     @file_size.setter
-    def file_size(self, file_size: 'FileSize'):
-        self._file_size = file_size
+    def file_size(self, file_size: int):
+        self._file_size = FileSize(file_size)
 
     @property
     def output_file_dir(self):
@@ -101,7 +101,12 @@ class VideoInfo:
 
     def print_video_details(self):
         console.print(Panel.fit(
-            f"Username: {self.username}\nVideo URL: {self.video_link}\nDownload URL: {self._download_link}\nFile Size: {self.file_size.get(formatted=True)}",
+            (
+                f"Username: {self.username}\n"
+                f"Video URL: {self.video_link}\n"
+                f"Download URL: {self._download_link}\n"
+                f"File Size: {self.file_size.get(formatted=True)}"
+            ),
             title="Video details"
         ))
 
