@@ -1,18 +1,17 @@
-from playwright.sync_api import sync_playwright
+from typing import List
 
+from tikorgzo.core.extractor import Extractor
 from tikorgzo.core.downloader import Downloader
-from tikorgzo.core.extractor import DownloadLinkExtractor
 from tikorgzo.core.video.model import Video
 
 
-def extract_download_link(video: Video) -> Video:
+async def extract_download_link(videos: List[Video]) -> List[Video]:
     """Extracts and gets the download link for the given Video instance."""
 
-    with sync_playwright() as p:
-        extractor = DownloadLinkExtractor(p)
-        video = extractor.extract_download_link(video)
+    async with Extractor() as ext:
+        await ext.process_video_links(videos)
 
-    return video
+    return videos
 
 
 def download_video(video: Video) -> None:
