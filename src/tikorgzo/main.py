@@ -33,8 +33,9 @@ async def main():
         while True:
             curr_pos = idx + 1
             try:
-                download_queue.append(Video(video_link=video_link))
-                console.print()
+                video = Video(video_link=video_link)
+                download_queue.append(video)
+                console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
                 break
             except exc.VideoFileAlreadyExistsError as e:
                 console.print(f"Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1]")
