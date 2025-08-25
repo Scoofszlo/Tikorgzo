@@ -23,8 +23,8 @@ async def main():
     video_links_len = len(video_links)
 
     # Contains the list of Video objects that will be used for processing
-    videos: list[Video] = []
-    videos_len: int
+    download_queue: list[Video] = []
+    download_queue_len: int
 
     # Initialize the video objects with the video IDs extracted from video_links
     console.print(f"[b]Stage 1/3[/b]: Checking {video_links_len} videos if they already exist...")
@@ -33,7 +33,8 @@ async def main():
         while True:
             curr_pos = idx + 1
             try:
-                videos.append(Video(video_link=video_link))
+                download_queue.append(Video(video_link=video_link))
+                console.print()
                 break
             except exc.VideoFileAlreadyExistsError as e:
                 console.print(f"Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1]")
@@ -41,21 +42,21 @@ async def main():
             except PlaywrightError:
                 exit(1)
 
-    if not len(videos) >= 1:
+    if not len(download_queue) >= 1:
         console.print("\nProgram will now stopped as there is nothing to process.")
         exit(0)
 
-    videos_len = len(videos)
+    download_queue_len = len(download_queue)
 
     async with Extractor() as bm:
-        console.print(f"\n[b]Stage 2/3[/b]: Extracting links from {videos_len} videos...")
+        console.print(f"\n[b]Stage 2/3[/b]: Extracting links from {download_queue_len} videos...")
 
         # Extracts video asynchronously
-        results = await bm.process_video_links(videos)
+        results = await bm.process_video_links(download_queue)
 
-        # Filter out failed videos and print errors
-        successful_videos = []
-        for video, result in zip(videos, results):
+        successful_tasks = []
+
+        for video, result in zip(download_queue, results):
             # If any kind of exception (URLParsingError or any HTML-related exceptions,
             # they will be skipped based on this condition and will print the error.
             # Otherwise, it will append it to the successful_videos list then replaces
@@ -63,17 +64,17 @@ async def main():
             if isinstance(result, BaseException):
                 pass
             else:
-                successful_videos.append(video)
+                successful_tasks.append(video)
 
-    videos = successful_videos
-    successful_processed_vids_len = len(videos)
+    download_queue = successful_tasks
+    download_queue_len = len(download_queue)
 
-    console.print(f"\n[b]Stage 3/3[/b]: Downloading {videos_len} videos...")
+    console.print(f"\n[b]Stage 3/3[/b]: Downloading {download_queue_len} videos...")
 
-    for idx, video in enumerate(videos):
+    for idx, video in enumerate(download_queue):
         curr_pos = idx + 1
 
-        console.print(f"Downloading video from {video.video_link} ({curr_pos}/{successful_processed_vids_len})...")
+        console.print(f"Downloading video from {video.video_link} ({curr_pos}/{download_queue_len})...")
 
         video.print_video_details()
         fn.download_video(video)
