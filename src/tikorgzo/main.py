@@ -1,57 +1,83 @@
+import asyncio
 from playwright.sync_api import Error as PlaywrightError
 
 from tikorgzo import exceptions as exc
 from tikorgzo.args_handler import ArgsHandler
 from tikorgzo.console import console
 from tikorgzo.core import functions as fn
+from tikorgzo.core.extractor import Extractor
 from tikorgzo.core.video.model import Video
-from tikorgzo.utils import video_link_extractor, remove_file
+from tikorgzo.utils import video_link_extractor
 
 
-def run():
+async def main():
     ah = ArgsHandler()
     args = ah.parse_args()
 
+    if not args.file and not args.link:
+        console.print("[red]No input file or link supplied.[/red]\nRun 'tikorgzo -h' for more details.")
+        exit(1)
+
+    # Get the video IDs
     video_links = video_link_extractor(args.file, args.link)
+    video_links_len = len(video_links)
+
+    # Contains the list of Video objects that will be used for processing
+    videos: list[Video] = []
+    videos_len: int
+
+    # Initialize the video objects with the video IDs extracted from video_links
+    console.print(f"[b]Stage 1/3[/b]: Checking {video_links_len} videos if they already exist...")
 
     for idx, video_link in enumerate(video_links):
-        video = None
-
         while True:
             curr_pos = idx + 1
-            total_links = len(video_links)
-
-            console.print(f"Downloading video from {video_link} ({curr_pos}/{total_links})...")
-
             try:
-                video = Video(video_link)
-                fn.extract_download_link(video)
-                video.print_video_details()
-                fn.download_video(video)
-                break
-            except (
-                exc.DownloadError,
-                exc.FileTooLargeError,
-                exc.HrefLinkMissingError,
-                exc.HtmlElementMissingError,
-                exc.InvalidVideoLink,
-                exc.URLParsingError,
-                exc.VideoIDExtractionError,
-            ) as e:
-                console.print(f"Skipping due to: [red]{type(e).__name__}: {e}[/red]\n")
+                videos.append(Video(video_link=video_link))
                 break
             except exc.VideoFileAlreadyExistsError as e:
-                console.print(f"Skipping due to: [orange1]{type(e).__name__}: {e}[/orange1]\n")
+                console.print(f"Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1]")
                 break
-            except exc.ExtractionTimeoutError as e:
-                console.print(f"Retrying due to: [orange1]{type(e).__name__}: {e}[/orange1]\n")
-                continue
-            except KeyboardInterrupt:
-                if curr_pos == total_links:
-                    console.print("Cancelling current download...")
-                else:
-                    console.print("Cancelling current download and remaining queue...")
-                remove_file(video)
-                exit(1)
             except PlaywrightError:
                 exit(1)
+
+    if not len(videos) >= 1:
+        console.print("\nProgram will now stopped as there is nothing to process.")
+        exit(0)
+
+    videos_len = len(videos)
+
+    async with Extractor() as bm:
+        console.print(f"\n[b]Stage 2/3[/b]: Extracting links from {videos_len} videos...")
+
+        # Extracts video asynchronously
+        results = await bm.process_video_links(videos)
+
+        # Filter out failed videos and print errors
+        successful_videos = []
+        for video, result in zip(videos, results):
+            # If any kind of exception (URLParsingError or any HTML-related exceptions,
+            # they will be skipped based on this condition and will print the error.
+            # Otherwise, it will append it to the successful_videos list then replaces
+            # the videos that holds the Video objects
+            if isinstance(result, BaseException):
+                pass
+            else:
+                successful_videos.append(video)
+
+    videos = successful_videos
+    successful_processed_vids_len = len(videos)
+
+    console.print(f"\n[b]Stage 3/3[/b]: Downloading {videos_len} videos...")
+
+    for idx, video in enumerate(videos):
+        curr_pos = idx + 1
+
+        console.print(f"Downloading video from {video.video_link} ({curr_pos}/{successful_processed_vids_len})...")
+
+        video.print_video_details()
+        fn.download_video(video)
+
+
+def run():
+    asyncio.run(main())
