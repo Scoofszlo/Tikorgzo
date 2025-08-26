@@ -27,21 +27,22 @@ async def main():
     download_queue_len: int
 
     # Initialize the video objects with the video IDs extracted from video_links
-    console.print(f"[b]Stage 1/3[/b]: Checking {video_links_len} videos if they already exist...")
+    console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")
 
     for idx, video_link in enumerate(video_links):
         while True:
             curr_pos = idx + 1
-            try:
-                video = Video(video_link=video_link)
-                download_queue.append(video)
-                console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
-                break
-            except exc.VideoFileAlreadyExistsError as e:
-                console.print(f"Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1]")
-                break
-            except PlaywrightError:
-                exit(1)
+            with console.status(f"Checking video {curr_pos} if already exist..."):
+                try:
+                    video = Video(video_link=video_link)
+                    download_queue.append(video)
+                    console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
+                    break
+                except exc.VideoFileAlreadyExistsError as e:
+                    console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
+                    break
+                except PlaywrightError:
+                    exit(1)
 
     if not len(download_queue) >= 1:
         console.print("\nProgram will now stopped as there is nothing to process.")
@@ -50,22 +51,23 @@ async def main():
     download_queue_len = len(download_queue)
 
     async with Extractor() as bm:
-        console.print(f"\n[b]Stage 2/3[/b]: Extracting links from {download_queue_len} videos...")
+        console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
+        with console.status(f"Extracting links from {download_queue_len} videos..."):
 
-        # Extracts video asynchronously
-        results = await bm.process_video_links(download_queue)
+            # Extracts video asynchronously
+            results = await bm.process_video_links(download_queue)
 
-        successful_tasks = []
+            successful_tasks = []
 
-        for video, result in zip(download_queue, results):
-            # If any kind of exception (URLParsingError or any HTML-related exceptions,
-            # they will be skipped based on this condition and will print the error.
-            # Otherwise, it will append it to the successful_videos list then replaces
-            # the videos that holds the Video objects
-            if isinstance(result, BaseException):
-                pass
-            else:
-                successful_tasks.append(video)
+            for video, result in zip(download_queue, results):
+                # If any kind of exception (URLParsingError or any HTML-related exceptions,
+                # they will be skipped based on this condition and will print the error.
+                # Otherwise, it will append it to the successful_videos list then replaces
+                # the videos that holds the Video objects
+                if isinstance(result, BaseException):
+                    pass
+                else:
+                    successful_tasks.append(video)
 
     download_queue = successful_tasks
     download_queue_len = len(download_queue)
