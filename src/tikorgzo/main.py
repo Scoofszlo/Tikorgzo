@@ -38,7 +38,11 @@ async def main():
                     download_queue.append(video)
                     console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
                     break
-                except exc.VideoFileAlreadyExistsError as e:
+                except (
+                    exc.InvalidVideoLink,
+                    exc.VideoFileAlreadyExistsError,
+                    exc.VideoIDExtractionError,
+                ) as e:
                     console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
                     break
                 except PlaywrightError:
