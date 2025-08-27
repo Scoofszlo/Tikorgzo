@@ -1,7 +1,7 @@
 from typing import List
 
 from tikorgzo.core.extractor import Extractor
-from tikorgzo.core.downloader import Downloader
+from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.video.model import Video
 
 
