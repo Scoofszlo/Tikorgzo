@@ -1,7 +1,9 @@
 import logging
 import os
+from importlib.metadata import version
 from typing import Optional
 
+from tikorgzo.constants import APP_NAME
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import InvalidLinkSourceExtractionError
 
@@ -45,3 +47,7 @@ def remove_file(video: Optional[Video]) -> None:
         os.remove(video.output_file_path)
     except FileNotFoundError:
         return
+
+
+def display_version() -> str:
+    return f"{APP_NAME} v{version(APP_NAME)}"

@@ -1,6 +1,8 @@
 import argparse
 from rich_argparse import RichHelpFormatter
 
+from tikorgzo.utils import display_version
+
 
 class ArgsHandler:
     def __init__(self) -> None:
@@ -23,4 +25,10 @@ class ArgsHandler:
         self._parser.add_argument(
             "-f", "--file",
             help="A text file containing links"
+        )
+        self._parser.add_argument(
+            "-v",
+            help="Show the app's version",
+            action="version",
+            version=display_version()
         )
