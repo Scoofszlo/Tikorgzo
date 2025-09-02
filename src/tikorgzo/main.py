@@ -16,7 +16,7 @@ async def main():
     args = ah.parse_args()
 
     if not args.file and not args.link:
-        console.print("[red]No input file or link supplied.[/red]\nRun 'tikorgzo -h' for more details.")
+        console.print("[red]error:[/red] No input file or link supplied.\n\nRun [b]'tikorgzo -h'[/b] for more details.")
         exit(1)
 
     # Get the video IDs
