@@ -77,7 +77,7 @@ async def main():
 
             download_queue.replace_queue(successful_tasks)
     except exc.MissingPlaywrightBrowserError:
-        console.print("Playwright browser hasn't been installed. Run [b]'uvx playwright install'[/b] to install the browser.")
+        console.print("[red]error:[/red] Playwright browser hasn't been installed. Run [b]'uvx playwright install'[/b] to install the browser.")
         exit(1)
 
     console.print("\n[b]Stage 3/3[/b]: Download")
