@@ -27,6 +27,10 @@ class Extractor:
 
             return self
         except Error:
+            if self.browser:
+                await self.browser.close()
+            await self.playwright.stop()
+
             raise MissingPlaywrightBrowserError()
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
