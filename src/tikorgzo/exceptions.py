@@ -1,6 +1,14 @@
 from typing import Optional
 
 
+class MissingPlaywrightBrowserError(Exception):
+    """Raised when Playwright browser to be used for extraction hasn't been installed."""
+
+    def __init__(self) -> None:
+        self.message = "Playwright browser hasn't been installed. Run 'uvx playwright install' to install the browser."
+        super().__init__(self.message)
+
+
 class InvalidLinkSourceExtractionError(Exception):
     """Raised when there is no specified link or file for processing of links."""
 
