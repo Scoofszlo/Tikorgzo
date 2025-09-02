@@ -33,13 +33,19 @@ Hhere is a short, quick installation and usage guide for this program.
     uv tool install git+https://github.com/Scoofszlo/Tikorgzo
     ```
 
-5. To download a single TikTok video, simply run this:
+5. Install the Playwright browser. This is needed to allow download link extraction from the API.
+
+    ```console
+    uvx playwright install
+    ```
+
+6. To download a single TikTok video, simply run this:
   
     ```console
     tikorgzo -l 7123456789109876543
     ```
 
-6. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
+7. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
 
 ## Usage
 
