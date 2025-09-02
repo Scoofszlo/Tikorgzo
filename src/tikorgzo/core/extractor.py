@@ -16,7 +16,7 @@ class Extractor:
     def __init__(self):
         self.browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
-        self.semaphore = asyncio.Semaphore(5)  # Handles 
+        self.semaphore = asyncio.Semaphore(5)
 
     async def __aenter__(self):
         self.playwright = await async_playwright().start()

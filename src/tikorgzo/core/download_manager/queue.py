@@ -1,4 +1,3 @@
-from tikorgzo.console import console
 from tikorgzo.core.video.model import Video
 
 
