@@ -1,11 +1,12 @@
 import asyncio
 from typing import Optional
 import aiohttp
+from playwright._impl._errors import Error
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 
 from tikorgzo.console import console
 from tikorgzo.core.video.model import Video
-from tikorgzo.exceptions import HrefLinkMissingError, HtmlElementMissingError, URLParsingError
+from tikorgzo.exceptions import HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError
 
 TIKTOK_DOWNLOADER_URL = r"https://www.tikwm.com/originalDownloader.html"
 
@@ -19,10 +20,14 @@ class Extractor:
         self.semaphore = asyncio.Semaphore(5)
 
     async def __aenter__(self):
-        self.playwright = await async_playwright().start()
-        self.browser = await self.playwright.chromium.launch(headless=True)
-        self.context = await self.browser.new_context(accept_downloads=True)
-        return self
+        try:
+            self.playwright = await async_playwright().start()
+            self.browser = await self.playwright.chromium.launch(headless=True)
+            self.context = await self.browser.new_context(accept_downloads=True)
+
+            return self
+        except Error:
+            raise MissingPlaywrightBrowserError()
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self.browser:
