@@ -54,26 +54,31 @@ async def main():
         console.print("\nProgram will now stopped as there is nothing to process.")
         exit(0)
 
-    async with Extractor() as extr:
-        console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
-        with console.status(f"Extracting links from {download_queue.total()} videos..."):
+    console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
-            # Extracts video asynchronously
-            results = await extr.process_video_links(download_queue.get_queue())
+    try:
+        async with Extractor() as extr:
+            with console.status(f"Extracting links from {download_queue.total()} videos..."):
 
-            successful_tasks = []
+                # Extracts video asynchronously
+                results = await extr.process_video_links(download_queue.get_queue())
 
-            for video, result in zip(download_queue.get_queue(), results):
-                # If any kind of exception (URLParsingError or any HTML-related exceptions,
-                # they will be skipped based on this condition and will print the error.
-                # Otherwise, it will append it to the successful_videos list then replaces
-                # the videos that holds the Video objects
-                if isinstance(result, BaseException):
-                    pass
-                else:
-                    successful_tasks.append(video)
+                successful_tasks = []
 
-        download_queue.replace_queue(successful_tasks)
+                for video, result in zip(download_queue.get_queue(), results):
+                    # If any kind of exception (URLParsingError or any HTML-related exceptions,
+                    # they will be skipped based on this condition and will print the error.
+                    # Otherwise, it will append it to the successful_videos list then replaces
+                    # the videos that holds the Video objects
+                    if isinstance(result, BaseException):
+                        pass
+                    else:
+                        successful_tasks.append(video)
+
+            download_queue.replace_queue(successful_tasks)
+    except exc.MissingPlaywrightBrowserError:
+        console.print("Playwright browser hasn't been installed. Run [b]'uvx playwright install'[/b] to install the browser.")
+        exit(1)
 
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
