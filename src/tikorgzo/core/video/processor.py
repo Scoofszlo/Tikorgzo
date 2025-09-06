@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     # type hinting so that we don't need direct import of this class
 
 USERNAME_REGEX = r"\/@([\w\.\-]+)\/video\/\d+"
-NORMAL_TIKTOK_VIDEO_LINK_REGEX = r"https?://(www\.)?tiktok\.com/@[\w\.\-]+/video/\d+(\?.*)?$"
-VT_TIKTOK_VIDEO_LINK_REGEX = r"https?://vt\.tiktok\.com/"
+NORMAL_TIKTOK_VIDEO_LINK_REGEX = r"(https?://)?(www\.)?tiktok\.com/@[\w\.\-]+/video/\d+(\?.*)?$"
+VT_TIKTOK_VIDEO_LINK_REGEX = r"(https?://)?vt\.tiktok\.com/"
 
 
 class VideoInfoProcessor:
@@ -92,6 +92,9 @@ class VideoInfoProcessor:
         This is needed so that we can extract the username and the video ID when the normalized URL is extracted, which
         are both needed so that when we have downloaded the video, they will be saved in the Downloads folder in which they
         are grouped by username and the filename will be the video ID."""
+
+        if not video_link.startswith(r"https://") and not video_link.startswith(r"http://"):
+            video_link = "https://" + video_link
 
         response = requests.get(video_link, allow_redirects=True)
         return response.url
