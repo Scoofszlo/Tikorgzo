@@ -16,8 +16,8 @@ async def main():
     args = ah.parse_args()
 
     if not args.file and not args.link:
-        console.print("[red]error:[/red] No input file or link supplied.\n\nRun [b]'tikorgzo -h'[/b] for more details.")
-        exit(1)
+        ah._parser.print_help()
+        exit(0)
 
     # Get the video IDs
     video_links = video_link_extractor(args.file, args.link)
