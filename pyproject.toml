@@ -1,6 +1,6 @@
 [project]
 name = "Tikorgzo"
-version = "0.1.0.dev1"
+version = "0.1.0"
 description = "A TikTok video downloader that downloads source quality videos utilizing TikWM API."
 readme = "README.md"
 authors = [
