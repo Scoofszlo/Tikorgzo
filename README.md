@@ -74,9 +74,14 @@ To do this, just simply put the path to the `.txt` file.
 tikorgzo -f "C:\path\to\txt.file"
 ```
 
+## Reminders
+- Source/high-quality videos may not always be available, depending on the source. If not available, the downloaded videos are usually 1080p or 720p.
+- The program may be a bit slow during download link extraction (Stage 2), as it runs a browser in the background to extract the actual download link.
+- For this reason, the program is much more aligned to those who want to download multiple videos at once. However, you can still use it to download any number of videos you want.
+
 ## Documentation
 
-The project documentation is not yet available as this was developed very slowly for the past month. Proper documentation will be created soon.
+Currently, there is no external site for project documentation. All documentation will be maintained within this README.md for now. If the README.md becomes too lengthy, a dedicated documentation site will be created and the relevant content will be moved there.
 
 ## License
 
