@@ -23,6 +23,9 @@ class VideoInfoProcessor:
     def validate_video_link(self, video_link: str):
         """Checks if the video link is a valid TikTok video link or a valid video ID."""
 
+        if not video_link.startswith(r"https://") or not video_link.startswith(r"http://"):
+            video_link = "https://" + video_link
+
         if re.search(NORMAL_TIKTOK_VIDEO_LINK_REGEX, video_link):
             return video_link
 
