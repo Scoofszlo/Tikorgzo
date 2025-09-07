@@ -1,42 +1,41 @@
+import asyncio
+from typing import Optional
+import aiofiles
+import aiohttp
 import requests
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
 from tikorgzo.console import console
-from tikorgzo.core.video.model import FileSize
+from tikorgzo.core.video.model import FileSize, Video
 from tikorgzo.exceptions import DownloadError
 
 
 class Downloader:
-    def download(
-            self,
-            download_link: str,
-            output_file_path: str,
-            file_size: FileSize
-    ) -> None:
-        console.print(f"Attempting to download video from: {download_link}")
+    def __init__(self) -> None:
+        self.semaphore = asyncio.Semaphore(5)
 
-        try:
-            response = requests.get(download_link, stream=True)
-            response.raise_for_status()
-            total_size = file_size.get()
+    async def __aenter__(self) -> 'Downloader':
+        self.session = aiohttp.ClientSession()
+        return self
 
-            assert isinstance(total_size, int)
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        if self.session:
+            await self.session.close()
 
-            with Progress(
-                TextColumn("[cyan]Downloading..."),
-                BarColumn(),
-                DownloadColumn(),
-                TransferSpeedColumn(),
-                TimeRemainingColumn(),
-            ) as progress:
-                task = progress.add_task("[cyan]Downloading...", total=total_size)
-                with open(output_file_path, 'wb') as file:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            file.write(chunk)
-                            progress.update(task, advance=len(chunk))
+    async def download(self, video: Video, progress_displayer: Progress) -> None:
+        async with self.semaphore:
+            try:
+                async with self.session.get(video.download_link) as response:
+                    total_size = video.file_size.get()
 
-            console.print(f"Video downloaded successfully to: {output_file_path}\n")
+                    assert isinstance(total_size, int)
 
-        except Exception as e:
-            raise DownloadError(e)
+                    task = progress_displayer.add_task(str(video.video_id), total=total_size)
+                    async with aiofiles.open(video.output_file_path, 'wb') as file:
+                        async for chunk in response.content.iter_chunked(8192):
+                            if chunk:
+                                await file.write(chunk)
+                                progress_displayer.update(task, advance=len(chunk))
+
+            except Exception as e:
+                raise DownloadError(e)
