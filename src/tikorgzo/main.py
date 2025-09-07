@@ -82,13 +82,8 @@ async def main():
 
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
-    for idx, video in enumerate(download_queue.get_queue()):
-        curr_pos = idx + 1
 
-        console.print(f"Downloading video from {video.video_link} ({curr_pos}/{download_queue.total()})...")
-
-        video.print_video_details()
-        fn.download_video(video)
+    await fn.download_video(download_queue.get_queue())
 
 
 def run():
