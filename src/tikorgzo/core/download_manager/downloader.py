@@ -1,14 +1,10 @@
 import asyncio
-from typing import Optional
 import aiofiles
 import aiohttp
-import requests
-from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
+from rich.progress import Progress
 
-from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
-from tikorgzo.core.video.model import FileSize, Video
-from tikorgzo.exceptions import DownloadError
+from tikorgzo.core.video.model import Video
 
 
 class Downloader:
