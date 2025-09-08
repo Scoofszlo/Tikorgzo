@@ -3,6 +3,7 @@ from rich.panel import Panel
 from typing import Optional
 
 from tikorgzo.console import console
+from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.processor import VideoInfoProcessor
 from tikorgzo.exceptions import FileTooLargeError
 
@@ -45,6 +46,7 @@ class Video:
         self._video_link = video_link
         self._download_link: Optional[str] = None
         self._file_size: Optional[FileSize] = None
+        self._download_status: Optional[DownloadStatus] = None
         self._output_file_dir: Optional[str] = None
         self._output_file_path: Optional[str] = None
         processor.process_output_paths(self)
@@ -88,6 +90,14 @@ class Video:
     @file_size.setter
     def file_size(self, file_size: int):
         self._file_size = FileSize(file_size)
+
+    @property
+    def download_status(self):
+        return self._download_status
+
+    @download_status.setter
+    def download_status(self, download_status: DownloadStatus):
+        self._download_status = download_status
 
     @property
     def output_file_dir(self):

@@ -6,6 +6,7 @@ import requests
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
 from tikorgzo.console import console
+from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.model import FileSize, Video
 from tikorgzo.exceptions import DownloadError
 
@@ -36,6 +37,7 @@ class Downloader:
                             if chunk:
                                 await file.write(chunk)
                                 progress_displayer.update(task, advance=len(chunk))
-
-            except Exception as e:
-                raise DownloadError(e)
+                video.download_status = DownloadStatus.COMPLETED
+            except (asyncio.CancelledError, Exception):
+                video.download_status = DownloadStatus.INTERRUPTED
+                raise

@@ -4,6 +4,7 @@ from playwright.sync_api import Error as PlaywrightError
 from tikorgzo import exceptions as exc
 from tikorgzo.args_handler import ArgsHandler
 from tikorgzo.console import console
+from tikorgzo.constants import DownloadStatus
 from tikorgzo.core import functions as fn
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.extractor import Extractor
@@ -38,6 +39,7 @@ async def main():
                 try:
                     video = Video(video_link=video_link)
                     download_queue.add(video)
+                    video.download_status = DownloadStatus.QUEUED
                     console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
                     break
                 except (
@@ -83,8 +85,12 @@ async def main():
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
 
-    await fn.download_video(download_queue.get_queue())
+    videos = await fn.download_video(download_queue.get_queue())
+    fn.print_download_results(videos)
 
 
 def run():
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        exit(0)
