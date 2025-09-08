@@ -30,13 +30,6 @@ async def download_video(videos: list[Video]) -> list[Video]:
         TimeRemainingColumn(),
     ) as progress_displayer:
         async with Downloader() as downloader:
-            # The number of download tasks may not necesarilly equal to the total number of videos
-            # that you want to download as it will depends on the number of the semaphore of the Downloader.
-            # For example, if you have 50 total videos to download and you haave semaphore set to 5,
-            # the tasks that will be processed at a time are 5 only. If the download was cancelled using Ctrl+C,
-            # the remaining tasks that was not processed will be discarded. This means the
-            # `download_tasks` will only contain Video instances that have been processed only.
-
             download_tasks = [downloader.download(video, progress_displayer) for video in videos]
             try:
                 await asyncio.gather(*download_tasks)
