@@ -36,4 +36,3 @@ class Downloader:
                 video.download_status = DownloadStatus.COMPLETED
             except (asyncio.CancelledError, Exception):
                 video.download_status = DownloadStatus.INTERRUPTED
-                raise
