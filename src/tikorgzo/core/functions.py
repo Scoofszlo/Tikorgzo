@@ -1,4 +1,5 @@
 import asyncio
+import os
 from typing import List
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
@@ -39,6 +40,13 @@ async def download_video(videos: list[Video]) -> list[Video]:
                     if video.download_status != DownloadStatus.COMPLETED:
                         video.download_status = DownloadStatus.INTERRUPTED
                 return videos
+
+
+def cleanup_interrupted_downloads(videos: list[Video]):
+    with console.status("Cleaning up unfinished files..."):
+        for video in videos:
+            if video.download_status == DownloadStatus.INTERRUPTED:
+                os.remove(video.output_file_path)
 
 
 def print_download_results(videos: list[Video]):
