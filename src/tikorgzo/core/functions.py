@@ -57,18 +57,33 @@ def cleanup_interrupted_downloads(videos: list[Video]):
 
 
 def print_download_results(videos: list[Video]):
+    unstarted_downloads = 0
     failed_downloads = 0
     successful_downloads = 0
+    result_msg = "\nFinished downloads with "
+    use_comma_separator = False
 
     for video in videos:
+        if video.download_status == DownloadStatus.QUEUED:
+            unstarted_downloads += 1
         if video.download_status == DownloadStatus.INTERRUPTED:
             failed_downloads += 1
         elif video.download_status == DownloadStatus.COMPLETED:
             successful_downloads += 1
 
-    if failed_downloads == 0:
-        console.print(f"\nFinished downloads with [green]{successful_downloads} successful[/green]")
-    elif successful_downloads == 0 and failed_downloads >= 1:
-        console.print(f"\nFinished downloads with [red]{failed_downloads} failed[/red]")
-    elif failed_downloads >= 1:
-        console.print(f"\nFinished downloads with [green]{successful_downloads} successful[/green], [red]{failed_downloads} failed[/red]")
+    if successful_downloads >= 1:
+        result_msg += f"[green]{successful_downloads} successful[/green]"
+        use_comma_separator = True
+    if failed_downloads >= 1:
+        if use_comma_separator:
+            result_msg += f", [red]{failed_downloads} failed[/red]"
+        else:
+            result_msg += f"[red]{failed_downloads} failed[/red]"
+            use_comma_separator = True
+    if unstarted_downloads >= 1:
+        if use_comma_separator:
+            result_msg += f", [orange1]{unstarted_downloads} unstarted[/orange1]"
+        else:
+            result_msg += f"[orange1]{unstarted_downloads} unstarted[/orange1]"
+
+    console.print(result_msg)
