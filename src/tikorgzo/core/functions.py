@@ -60,7 +60,7 @@ def print_download_results(videos: list[Video]):
             successful_downloads += 1
 
     if failed_downloads == 0:
-        console.print(f"\nFinished downloads with [green]{successful_downloads} success[/green]")
+        console.print(f"\nFinished downloads with [green]{successful_downloads} successful[/green]")
     elif successful_downloads == 0 and failed_downloads >= 1:
         console.print(f"\nFinished downloads with [red]{failed_downloads} failed[/red]")
     elif failed_downloads >= 1:
