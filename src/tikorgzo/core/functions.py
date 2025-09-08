@@ -1,5 +1,10 @@
+import asyncio
+import os
 from typing import List
+from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
+from tikorgzo.console import console
+from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.extractor import Extractor
 from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.video.model import Video
@@ -14,13 +19,65 @@ async def extract_download_link(videos: List[Video]) -> List[Video]:
     return videos
 
 
-def download_video(video: Video) -> None:
-    """Download the video using the provided Video instance."""
+async def download_video(videos: list[Video]) -> list[Video]:
+    """Download all the videos from queue that has the list of Video instances."""
 
-    downloader = Downloader()
+    with Progress(
+        TextColumn("{task.description}"),
+        BarColumn(),
+        DownloadColumn(),
+        TransferSpeedColumn(),
+        TimeRemainingColumn(),
+    ) as progress_displayer:
+        async with Downloader() as downloader:
+            download_tasks = [downloader.download(video, progress_displayer) for video in videos]
+            try:
+                await asyncio.gather(*download_tasks)
+            except asyncio.CancelledError:
+                # This is needed to capture KeyboardInterrupt or the Ctrl+C thing as we all know.
+                # However, there is nothing need to do here since the handle of this exception
+                # is already done inisde the download() of our Downloader which assigns interrupted
+                # status to the download status attribute of a Video instance
+                pass
+            finally:
+                return videos
 
-    downloader.download(
-        video.download_link,
-        video.output_file_path,
-        video.file_size
-    )
+
+def cleanup_interrupted_downloads(videos: list[Video]):
+    with console.status("Cleaning up unfinished files..."):
+        for video in videos:
+            if video.download_status == DownloadStatus.INTERRUPTED and os.path.exists(video.output_file_path):
+                os.remove(video.output_file_path)
+
+
+def print_download_results(videos: list[Video]):
+    unstarted_downloads = 0
+    failed_downloads = 0
+    successful_downloads = 0
+    result_msg = "\nFinished downloads with "
+    use_comma_separator = False
+
+    for video in videos:
+        if video.download_status == DownloadStatus.QUEUED:
+            unstarted_downloads += 1
+        if video.download_status == DownloadStatus.INTERRUPTED:
+            failed_downloads += 1
+        elif video.download_status == DownloadStatus.COMPLETED:
+            successful_downloads += 1
+
+    if successful_downloads >= 1:
+        result_msg += f"[green]{successful_downloads} successful[/green]"
+        use_comma_separator = True
+    if failed_downloads >= 1:
+        if use_comma_separator:
+            result_msg += f", [red]{failed_downloads} failed[/red]"
+        else:
+            result_msg += f"[red]{failed_downloads} failed[/red]"
+            use_comma_separator = True
+    if unstarted_downloads >= 1:
+        if use_comma_separator:
+            result_msg += f", [orange1]{unstarted_downloads} unstarted[/orange1]"
+        else:
+            result_msg += f"[orange1]{unstarted_downloads} unstarted[/orange1]"
+
+    console.print(result_msg)

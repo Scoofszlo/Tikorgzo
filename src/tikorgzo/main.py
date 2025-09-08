@@ -4,6 +4,7 @@ from playwright.sync_api import Error as PlaywrightError
 from tikorgzo import exceptions as exc
 from tikorgzo.args_handler import ArgsHandler
 from tikorgzo.console import console
+from tikorgzo.constants import DownloadStatus
 from tikorgzo.core import functions as fn
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.extractor import Extractor
@@ -21,14 +22,8 @@ async def main():
 
     # Get the video IDs
     video_links = video_link_extractor(args.file, args.link)
-
-    # # Contains the list of Video objects that will be used for processing
-    # download_queue: list[Video] = []
-    # download_queue_len: int
-
     download_queue = DownloadQueueManager()
 
-    # Initialize the video objects with the video IDs extracted from video_links
     console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")
 
     for idx, video_link in enumerate(video_links):
@@ -37,6 +32,7 @@ async def main():
             with console.status(f"Checking video {curr_pos} if already exist..."):
                 try:
                     video = Video(video_link=video_link)
+                    video.download_status = DownloadStatus.QUEUED
                     download_queue.add(video)
                     console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
                     break
@@ -82,14 +78,14 @@ async def main():
 
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
-    for idx, video in enumerate(download_queue.get_queue()):
-        curr_pos = idx + 1
 
-        console.print(f"Downloading video from {video.video_link} ({curr_pos}/{download_queue.total()})...")
-
-        video.print_video_details()
-        fn.download_video(video)
+    videos = await fn.download_video(download_queue.get_queue())
+    fn.cleanup_interrupted_downloads(videos)
+    fn.print_download_results(videos)
 
 
 def run():
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass
