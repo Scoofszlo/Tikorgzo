@@ -22,14 +22,8 @@ async def main():
 
     # Get the video IDs
     video_links = video_link_extractor(args.file, args.link)
-
-    # # Contains the list of Video objects that will be used for processing
-    # download_queue: list[Video] = []
-    # download_queue_len: int
-
     download_queue = DownloadQueueManager()
 
-    # Initialize the video objects with the video IDs extracted from video_links
     console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")
 
     for idx, video_link in enumerate(video_links):
@@ -38,8 +32,8 @@ async def main():
             with console.status(f"Checking video {curr_pos} if already exist..."):
                 try:
                     video = Video(video_link=video_link)
-                    download_queue.add(video)
                     video.download_status = DownloadStatus.QUEUED
+                    download_queue.add(video)
                     console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
                     break
                 except (
