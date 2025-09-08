@@ -94,4 +94,4 @@ def run():
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        exit(0)
+        pass

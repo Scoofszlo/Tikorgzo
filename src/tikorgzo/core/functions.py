@@ -46,13 +46,14 @@ async def download_video(videos: list[Video]) -> list[Video]:
                 # is already done inisde the download() of our Downloader which assigns interrupted
                 # status to the download status attribute of a Video instance
                 pass
-            return videos
+            finally:
+                return videos
 
 
 def cleanup_interrupted_downloads(videos: list[Video]):
     with console.status("Cleaning up unfinished files..."):
         for video in videos:
-            if video.download_status == DownloadStatus.INTERRUPTED:
+            if video.download_status == DownloadStatus.INTERRUPTED and os.path.exists(video.output_file_path):
                 os.remove(video.output_file_path)
 
 
