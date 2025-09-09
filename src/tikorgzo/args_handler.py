@@ -27,6 +27,11 @@ class ArgsHandler:
             help="A text file containing links"
         )
         self._parser.add_argument(
+            "--max-concurrent-downloads",
+            type=int,
+            help="Set the maximum number of concurrent downloads (default: 4)"
+        )
+        self._parser.add_argument(
             "-v",
             help="Show the app's version",
             action="version",
