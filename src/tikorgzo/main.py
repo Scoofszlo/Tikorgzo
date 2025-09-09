@@ -79,7 +79,7 @@ async def main():
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
 
-    videos = await fn.download_video(download_queue.get_queue())
+    videos = await fn.download_video(args.max_concurrent_downloads, download_queue.get_queue())
     fn.cleanup_interrupted_downloads(videos)
     fn.print_download_results(videos)
 

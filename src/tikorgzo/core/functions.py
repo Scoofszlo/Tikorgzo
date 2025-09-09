@@ -1,6 +1,6 @@
 import asyncio
 import os
-from typing import List
+from typing import List, Optional
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
 from tikorgzo.console import console
@@ -19,7 +19,10 @@ async def extract_download_link(videos: List[Video]) -> List[Video]:
     return videos
 
 
-async def download_video(videos: list[Video]) -> list[Video]:
+async def download_video(
+    max_concurrent_downloads: Optional[int],
+    videos: list[Video]
+) -> list[Video]:
     """Download all the videos from queue that has the list of Video instances."""
 
     with Progress(
@@ -29,7 +32,7 @@ async def download_video(videos: list[Video]) -> list[Video]:
         TransferSpeedColumn(),
         TimeRemainingColumn(),
     ) as progress_displayer:
-        async with Downloader() as downloader:
+        async with Downloader(max_concurrent_downloads) as downloader:
             download_tasks = [downloader.download(video, progress_displayer) for video in videos]
             try:
                 await asyncio.gather(*download_tasks)
