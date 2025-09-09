@@ -21,9 +21,10 @@ async def main():
         ah._parser.print_help()
         exit(0)
 
-    if args.max_concurrent_downloads > 16 or args.max_concurrent_downloads < 1:
-        console.print("[red]error[/red]: '[blue]--max-concurrent-downloads[/blue]' must be in the range of 1 to 16.")
-        sys.exit(1)
+    if args.max_concurrent_downloads:
+        if args.max_concurrent_downloads > 16 or args.max_concurrent_downloads < 1:
+            console.print("[red]error[/red]: '[blue]--max-concurrent-downloads[/blue]' must be in the range of 1 to 16.")
+            sys.exit(1)
 
     # Get the video IDs
     video_links = video_link_extractor(args.file, args.link)
