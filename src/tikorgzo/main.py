@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from playwright.sync_api import Error as PlaywrightError
 
 from tikorgzo import exceptions as exc
@@ -19,6 +20,10 @@ async def main():
     if not args.file and not args.link:
         ah._parser.print_help()
         exit(0)
+
+    if args.max_concurrent_downloads > 16 or args.max_concurrent_downloads < 1:
+        console.print("[red]error[/red]: '[blue]--max-concurrent-downloads[/blue]' must be in the range of 1 to 16.")
+        sys.exit(1)
 
     # Get the video IDs
     video_links = video_link_extractor(args.file, args.link)
@@ -79,7 +84,7 @@ async def main():
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
 
-    videos = await fn.download_video(download_queue.get_queue())
+    videos = await fn.download_video(args.max_concurrent_downloads, download_queue.get_queue())
     fn.cleanup_interrupted_downloads(videos)
     fn.print_download_results(videos)
 
