@@ -34,9 +34,8 @@ class Extractor:
             raise MissingPlaywrightBrowserError()
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if self.browser:
-            await self.browser.close()
-        await self.playwright.stop()
+        with console.status("Hit Ctrl+C to exit again..."):
+            await self._cleanup()
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
         tasks = [self._extract(video) for video in videos]
@@ -63,6 +62,12 @@ class Extractor:
                 URLParsingError,
             ) as e:
                 console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
+                # Needs to re-raise so that the mainline script (main.py) will caught this exception
+                # thus, the program can filter tasks that are successful and not these failed tasks
+                # due to these exception
+                raise e
+            except asyncio.CancelledError as e:
+                console.print(f"Skipping {video.video_id} due to: [red]UserCancelledAction[/red]")
                 # Needs to re-raise so that the mainline script (main.py) will caught this exception
                 # thus, the program can filter tasks that are successful and not these failed tasks
                 # due to these exception
@@ -145,3 +150,8 @@ class Extractor:
                 response.raise_for_status()
                 total_size_bytes = int(response.headers.get('content-length', 0))
                 return total_size_bytes
+
+    async def _cleanup(self) -> None:
+        if self.browser:
+            await self.browser.close()
+        await self.playwright.stop()
