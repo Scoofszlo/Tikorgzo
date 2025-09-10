@@ -34,7 +34,8 @@ class Extractor:
             raise MissingPlaywrightBrowserError()
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await asyncio.wait_for(self._cleanup(), timeout=5)
+        with console.status("Hit Ctrl+C to exit again..."):
+            await self._cleanup()
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
         tasks = [self._extract(video) for video in videos]

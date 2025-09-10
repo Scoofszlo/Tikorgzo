@@ -81,16 +81,6 @@ async def main():
     except exc.MissingPlaywrightBrowserError:
         console.print("[red]error:[/red] Playwright browser hasn't been installed. Run [b]'uvx playwright install'[/b] to install the browser.")
         exit(1)
-    except asyncio.TimeoutError:
-        # Note: This is a very weird fix I've done because for some reason, closing the browser and Playwright instance of this
-        # extractor context manager on its __aexit__() seems to be stucked for some reason when you do Ctrl+C. The alternative
-        # fix was to hit the Ctrl+C again after the initial action and the program will close without issue. For now, what I did 
-        # is I just made a cleanup function that closes thaat closes the browser and Playwright, then I use
-        # asyncio.wait_for() with a timeout of 3 seconds. If it doesn't close in 3 seconds, it should raise a TimeoutError
-        # which will be caught here. After that, we will raise a CancelledError here. If I use the TimeoutError exception here,
-        # it throws a lot of traceback info.
-
-        raise asyncio.CancelledError()
 
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
