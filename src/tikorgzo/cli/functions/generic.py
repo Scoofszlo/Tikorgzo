@@ -1,22 +1,30 @@
 import asyncio
-import os
-from typing import List, Optional
+from typing import Optional
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
-from tikorgzo.core.extractor import Extractor
 from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.video.model import Video
+from tikorgzo.exceptions import InvalidLinkSourceExtractionError
 
 
-async def extract_download_link(videos: List[Video]) -> List[Video]:
-    """Extracts and gets the download link for the given Video instance."""
+def video_link_extractor(file_path: str, links: str) -> list[str]:
+    """Extracts the video ID of a TikTok video based from a list of strings."""
 
-    async with Extractor() as ext:
-        await ext.process_video_links(videos)
+    if file_path:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return [line.strip() for line in f if line.strip()]
 
-    return videos
+    elif links:
+        links_list = []
+
+        for link in links:
+            links_list.append(link)
+
+        return links_list
+
+    raise InvalidLinkSourceExtractionError()
 
 
 async def download_video(
@@ -47,6 +55,7 @@ async def download_video(
 
 
 def cleanup_interrupted_downloads(videos: list[Video]):
+    import os
     with console.status("Cleaning up unfinished files..."):
         for video in videos:
             if video.download_status == DownloadStatus.INTERRUPTED and os.path.exists(video.output_file_path):

@@ -28,7 +28,7 @@ dev = [
 ]
 
 [project.scripts]
-tikorgzo = "tikorgzo.main:run"
+tikorgzo = "tikorgzo.cli.workflow:run"
 
 [tool.ruff]
 line-length = 200

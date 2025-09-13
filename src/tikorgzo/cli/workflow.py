@@ -3,31 +3,23 @@ import sys
 from playwright.sync_api import Error as PlaywrightError
 
 from tikorgzo import exceptions as exc
-from tikorgzo.args_handler import ArgsHandler
+from tikorgzo.cli.args_handler import ArgsHandler
+from tikorgzo.cli import functions as fn
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
-from tikorgzo.core import functions as fn
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.extractor import Extractor
 from tikorgzo.core.video.model import Video
-from tikorgzo.utils import video_link_extractor
 
 
 async def main():
     ah = ArgsHandler()
     args = ah.parse_args()
 
-    if not args.file and not args.link:
-        ah._parser.print_help()
-        exit(0)
-
-    if args.max_concurrent_downloads:
-        if args.max_concurrent_downloads > 16 or args.max_concurrent_downloads < 1:
-            console.print("[red]error[/red]: '[blue]--max-concurrent-downloads[/blue]' must be in the range of 1 to 16.")
-            sys.exit(1)
+    fn.validate_args(ah, args)
 
     # Get the video IDs
-    video_links = video_link_extractor(args.file, args.link)
+    video_links = fn.video_link_extractor(args.file, args.link)
     download_queue = DownloadQueueManager()
 
     console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")
@@ -51,6 +43,9 @@ async def main():
                     break
                 except PlaywrightError:
                     exit(1)
+                except Exception as e:
+                    console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
+                    break
 
     if download_queue.is_empty():
         console.print("\nProgram will now stopped as there is nothing to process.")
