@@ -18,4 +18,4 @@ class DownloadQueueManager:
         return self._queue
 
     def replace_queue(self, videos: list[Video]) -> None:
-        self._qeueue = videos
+        self._queue = videos
