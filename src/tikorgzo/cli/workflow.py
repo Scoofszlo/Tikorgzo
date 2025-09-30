@@ -77,6 +77,10 @@ async def main():
         console.print("[red]error:[/red] Playwright browser hasn't been installed. Run [b]'uvx playwright install'[/b] to install the browser.")
         exit(1)
 
+    if download_queue.is_empty():
+        console.print("\nThe program will now exit as no links were extracted.")
+        exit(1)
+
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
 
