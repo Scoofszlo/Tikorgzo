@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from typing import Optional
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
@@ -13,8 +14,15 @@ def video_link_extractor(file_path: str, links: str) -> list[str]:
     """Extracts the video ID of a TikTok video based from a list of strings."""
 
     if file_path:
-        with open(file_path, "r", encoding="utf-8") as f:
-            return [line.strip() for line in f if line.strip()]
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                return [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            console.print(f"[red]error[/red]: '{file_path}' doesn't exist.")
+            sys.exit(1)
+        except Exception as e:
+            console.print(f"[red]error[/red]: {e}")
+            sys.exit(1)
 
     elif links:
         links_list = []
