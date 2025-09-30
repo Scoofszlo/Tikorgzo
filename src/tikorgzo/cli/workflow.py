@@ -29,7 +29,7 @@ async def main():
             curr_pos = idx + 1
             with console.status(f"Checking video {curr_pos} if already exist..."):
                 try:
-                    video = Video(video_link=video_link)
+                    video = Video(video_link=video_link, filename_template=args.filename_template)
                     video.download_status = DownloadStatus.QUEUED
                     download_queue.add(video)
                     console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
