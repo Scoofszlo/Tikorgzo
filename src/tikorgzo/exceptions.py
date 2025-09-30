@@ -48,7 +48,7 @@ class HtmlElementMissingError(Exception):
     """Raised when a required HTML element is missing during scraping."""
 
     def __init__(self, element_description: str) -> None:
-        self.message = f"HTML element wasn't found: {element_description}."
+        self.message = f"HTML element wasn't found: {element_description}, or the website may be slow at the moment."
         super().__init__(self.message)
 
 
@@ -58,6 +58,14 @@ class URLParsingError(Exception):
 
     def __init__(self) -> None:
         self.message = "Video URL is invalid. Please check for typos or if it's still publicly available."
+        super().__init__(self.message)
+
+
+class VagueErrorMessageError(Exception):
+    """Raised when the API raises vague 'error` message when extracting the download link of a video."""
+
+    def __init__(self) -> None:
+        self.message = "A vague 'error' message banner pops up. Please try downloading again."
         super().__init__(self.message)
 
 
@@ -88,6 +96,5 @@ class DownloadError(Exception):
 class ExtractionTimeoutError(Exception):
     """Raised when extracting the download link takes too long."""
 
-    def __init__(self) -> None:
-        self.message = "Download link extraction has been stopped due to timeout."
-        super().__init__(self.message)
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
