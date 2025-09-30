@@ -9,8 +9,8 @@ from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError, VagueErrorMessageError
 
 TIKTOK_DOWNLOADER_URL = r"https://www.tikwm.com/originalDownloader.html"
-WEBPAGE_TIMEOUT = 10000
-ELEMENT_TIMEOUT = 30000
+WEBPAGE_LOAD_TIMEOUT = 10000
+ELEMENT_LOAD_TIMEOUT = 30000
 MAX_CONCURRENT_EXTRACTION_TASKS = 5
 
 
@@ -79,8 +79,8 @@ class Extractor:
 
     async def _open_webpage(self, page: Page):
         try:
-            await page.goto(TIKTOK_DOWNLOADER_URL, timeout=WEBPAGE_TIMEOUT)
-            await page.wait_for_load_state("networkidle", timeout=WEBPAGE_TIMEOUT)
+            await page.goto(TIKTOK_DOWNLOADER_URL, timeout=WEBPAGE_LOAD_TIMEOUT)
+            await page.wait_for_load_state("networkidle", timeout=WEBPAGE_LOAD_TIMEOUT)
         except Exception:
             raise ExtractionTimeoutError("Cannot load webpage due to timeout; the website may be slow.")
 
@@ -88,7 +88,7 @@ class Extractor:
         input_field_selector = "input#params"
 
         try:
-            await page.locator(input_field_selector).fill(video_link, timeout=ELEMENT_TIMEOUT)
+            await page.locator(input_field_selector).fill(video_link, timeout=ELEMENT_LOAD_TIMEOUT)
         except Exception:
             raise HtmlElementMissingError(input_field_selector)
 
@@ -103,7 +103,7 @@ class Extractor:
             # Wait for either the limit message or the next step to appear
             limit_selector = "div:has-text('Free Api Limit: 1 request/second.')"
             try:
-                # Wait briefly to see if the limit message appears
+                # Wait briefly to see if the limit message appears 
                 await page.wait_for_selector(limit_selector, state="visible", timeout=2000)
                 # If limit message appears, wait and retry
                 await asyncio.sleep(1)
@@ -117,7 +117,7 @@ class Extractor:
         parsing_error_selector = "div:has-text('Url parsing is failed!')"
         general_error_selector = "div:has-text('error')"
 
-        await page.wait_for_selector(f"{download_link_selector}, {parsing_error_selector}, {general_error_selector}", state="visible", timeout=ELEMENT_TIMEOUT)
+        await page.wait_for_selector(f"{download_link_selector}, {parsing_error_selector}, {general_error_selector}", state="visible", timeout=ELEMENT_LOAD_TIMEOUT)
 
         if await page.query_selector(parsing_error_selector):
             raise URLParsingError()
