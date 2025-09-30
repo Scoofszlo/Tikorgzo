@@ -1,14 +1,17 @@
 import asyncio
 from typing import Optional
 import aiohttp
-from playwright._impl._errors import Error
+from playwright._impl._errors import Error, TimeoutError
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 
 from tikorgzo.console import console
 from tikorgzo.core.video.model import Video
-from tikorgzo.exceptions import HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError
+from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError, VagueErrorMessageError
 
 TIKTOK_DOWNLOADER_URL = r"https://www.tikwm.com/originalDownloader.html"
+WEBPAGE_TIMEOUT = 10000
+ELEMENT_TIMEOUT = 30000
+MAX_CONCURRENT_EXTRACTION_TASKS = 5
 
 
 class Extractor:
@@ -17,7 +20,7 @@ class Extractor:
     def __init__(self):
         self.browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
-        self.semaphore = asyncio.Semaphore(5)
+        self.semaphore = asyncio.Semaphore(MAX_CONCURRENT_EXTRACTION_TASKS)
 
     async def __aenter__(self):
         try:
@@ -60,6 +63,7 @@ class Extractor:
                 HrefLinkMissingError,
                 HtmlElementMissingError,
                 URLParsingError,
+                ExtractionTimeoutError
             ) as e:
                 console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
                 # Needs to re-raise so that the mainline script (main.py) will caught this exception
@@ -74,14 +78,17 @@ class Extractor:
                 raise e
 
     async def _open_webpage(self, page: Page):
-        await page.goto(TIKTOK_DOWNLOADER_URL)
-        await page.wait_for_load_state("networkidle")
+        try:
+            await page.goto(TIKTOK_DOWNLOADER_URL, timeout=WEBPAGE_TIMEOUT)
+            await page.wait_for_load_state("networkidle", timeout=WEBPAGE_TIMEOUT)
+        except Exception:
+            raise ExtractionTimeoutError("Cannot load webpage due to timeout; the website may be slow.")
 
     async def _submit_link(self, page: Page, video_link: str) -> None:
         input_field_selector = "input#params"
 
         try:
-            await page.locator(input_field_selector).fill(video_link)
+            await page.locator(input_field_selector).fill(video_link, timeout=ELEMENT_TIMEOUT)
         except Exception:
             raise HtmlElementMissingError(input_field_selector)
 
@@ -110,10 +117,12 @@ class Extractor:
         parsing_error_selector = "div:has-text('Url parsing is failed!')"
         general_error_selector = "div:has-text('error')"
 
-        await page.wait_for_selector(f"{download_link_selector}, {parsing_error_selector}, {general_error_selector}", state="visible", timeout=60000)
+        await page.wait_for_selector(f"{download_link_selector}, {parsing_error_selector}, {general_error_selector}", state="visible", timeout=ELEMENT_TIMEOUT)
 
-        if await page.query_selector(parsing_error_selector) or await page.query_selector(general_error_selector):
+        if await page.query_selector(parsing_error_selector):
             raise URLParsingError()
+        elif await page.query_selector(general_error_selector):
+            raise VagueErrorMessageError()
 
         download_element = await page.query_selector(download_link_selector)
 
