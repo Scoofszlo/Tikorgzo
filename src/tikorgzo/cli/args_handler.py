@@ -32,6 +32,10 @@ class ArgsHandler:
             help="Set the maximum number of concurrent downloads (default: 4)"
         )
         self._parser.add_argument(
+            "--filename-template",
+            help="Set a customized filename for the downloaded video"
+        )
+        self._parser.add_argument(
             "-v",
             help="Show the app's version",
             action="version",

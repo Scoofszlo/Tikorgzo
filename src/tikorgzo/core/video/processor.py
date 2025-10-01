@@ -69,13 +69,13 @@ class VideoInfoProcessor:
 
         username = video._username
         video_id = video._video_id
+        filename_template = video._filename_template
 
         assert isinstance(video_id, int)
 
-        video_filename = str(video_id) + ".mp4"
-
         if username is not None:
             output_path = os.path.join(DOWNLOAD_PATH, username)
+            video_filename = self._get_video_filename(video_id, username, filename_template)
             os.makedirs(output_path, exist_ok=True)
             video_file = os.path.join(output_path, video_filename)
 
@@ -111,3 +111,15 @@ class VideoInfoProcessor:
             return match.group(1)
         else:
             return None
+
+    def _get_video_filename(self, video_id: int, username: str, filename_template: Optional[str]):
+        if filename_template is None:
+            return str(video_id) + ".mp4"
+
+        formatted_filename = filename_template.replace("{username}", username)
+        formatted_filename = formatted_filename.replace("{video_id}", str(video_id))
+        formatted_filename += ".mp4"
+
+        print(formatted_filename)
+
+        return formatted_filename
