@@ -39,6 +39,9 @@ def _raise_error_if_invalid_filename_string():
     }
 
     for placeholder in placeholders["necessary"]:
+        if args.filename_template is None:
+            return
+
         if placeholder not in args.filename_template:
             console.print(f"[red]error[/red]: '[blue]--filename-template[/blue]' does not contain one of the needed placeholders: [green]{placeholders['necessary']}[/green]")
             sys.exit(1)
