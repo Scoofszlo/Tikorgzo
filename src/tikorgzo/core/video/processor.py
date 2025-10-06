@@ -120,6 +120,4 @@ class VideoInfoProcessor:
         formatted_filename = formatted_filename.replace("{video_id}", str(video_id))
         formatted_filename += ".mp4"
 
-        print(formatted_filename)
-
         return formatted_filename
