@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import os
 import re
 from typing import Optional
@@ -63,6 +64,30 @@ class VideoInfoProcessor:
                     username = os.path.basename(root)
                     raise VideoFileAlreadyExistsError(filename, username)
 
+    def get_date(self, video_id: int):
+        """Gets the date from the video ID.
+
+        This one is pretty interesting as I read from this article
+        (https://dfir.blog/tinkering-with-tiktok-timestamps/) that TikTok video
+        ID actually contains the upload date.
+
+        All we need to do is convert the video ID to binary number that must
+        be 64-digits long (prepend enough zeros to make it that long, if necessary).
+        After that, we convert the first 32 digits to a decimal number again.
+        The resulting number is now an Unix timestamp which is now the upload date
+        of video in UTC time."""
+
+        binary_num = self._convert_decimal_to_binary(video_id)
+
+        # Get the first 32 digits of binary num and then convert it to
+        # a decimal number, which results into a Unix timestamp
+        unix_timestamp = int(binary_num[:32], 2)
+
+        # Convert the Unix timestamp into a datetime object
+        dt = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+
+        return dt
+
     def process_output_paths(self, video: "Video") -> None:
         """Determines and creates the output directory and file path for the video.
         If the video has been downloaded already, this will raise an error."""
@@ -121,3 +146,24 @@ class VideoInfoProcessor:
         formatted_filename += ".mp4"
 
         return formatted_filename
+
+    def _convert_decimal_to_binary(self, number: int) -> str:
+        # Gets the binary num excluding the '0b' prefix returned by bin()
+        binary_num = bin(number)[2:]
+        binary_num_len = len(binary_num)
+
+        if binary_num_len == 64:
+            return binary_num
+
+        # If the length of the binary number is less than 64, prepend
+        # enough zeros to ensure it is 64 digits long
+
+        zeros_to_prepend = 64 - binary_num_len
+        zeros_string = ""
+
+        for _ in range(zeros_to_prepend):
+            zeros_string += "0"
+
+        new_binary_num = zeros_string + binary_num
+
+        return new_binary_num
