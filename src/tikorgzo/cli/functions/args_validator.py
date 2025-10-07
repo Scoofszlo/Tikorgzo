@@ -37,8 +37,13 @@ def _raise_error_if_invalid_max_concurrent_downloads():
 def _raise_error_if_invalid_filename_string():
     placeholders = {
         "necessary": ["{video_id}"],
-        "optional": ["{username}"]
+        "optional": ["{username}", r"{date:(.+?)}"]
     }
+
+    # If user uses `--filename-template` arg, this function checks if one of the necessary
+    # placeholders is included. We iterate through the necessary placeholders
+    # to check that arg (currently, there is only one required placeholder, but the loop
+    # allows for easy extension if more are added in the future.)
 
     for placeholder in placeholders["necessary"]:
         if args.filename_template is None:
@@ -46,4 +51,23 @@ def _raise_error_if_invalid_filename_string():
 
         if placeholder not in args.filename_template:
             console.print(f"[red]error[/red]: '[blue]--filename-template[/blue]' does not contain one of the needed placeholders: [green]{placeholders['necessary']}[/green]")
+            sys.exit(1)
+
+    # Check if there is a `{date:...}` placeholder
+    matched_date = re.search(placeholders["optional"][1], args.filename_template)
+    if matched_date:
+        date_fmt = matched_date.group(1)
+
+        # Check for illegal filename characters (Windows and Linux)
+        illegal_chars = r'<>:"/\\|?*\0'
+        if any(char in date_fmt for char in illegal_chars):
+            console.print("[red]error[/red]: '[blue]--filename-template[/blue]' contains illegal characters in your '[green]{date:{...}}[/green]'. Avoid using these characters in date format.")
+            sys.exit(1)
+
+        # Print an error and exit the program when user tries to use a format that doesn't work
+        # with `strftime()`
+        try:
+            datetime.now().strftime(date_fmt)
+        except ValueError:
+            console.print("[red]error[/red]: '[blue]--filename-template[/blue]' contains invalid format in your '[green]{date:{...}}[/green]'. Please check again for typos.")
             sys.exit(1)
