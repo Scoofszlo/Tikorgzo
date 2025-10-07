@@ -45,7 +45,7 @@ def _raise_error_if_invalid_filename_string():
         "optional": ["{username}", r"({date:(.*?)})"]
         # Do not use `r"{date:(.+?)}` as this accidentally spans across the filename_template
         # string and might cause issues with how file is named. `*?` in this date regex ensures
-        # that  it only captures the value inside the {date:...} and not outside of it
+        # that it only captures the value inside the {date:...} and not outside of it
     }
 
     for placeholder in placeholders["necessary"]:
@@ -62,12 +62,13 @@ def _raise_error_if_invalid_filename_string():
         date_fmt = matched_date.group(2)
 
         if date_fmt == "":
-            console.print("[red]error[/red]: '[blue]--filename-template[/blue]' contains nothing in your '[green]{date:{...}}[/green]'.")
+            console.print(f"[red]error[/red]: '[blue]--filename-template[/blue]' contains nothing in your '[green]{{date:{date_fmt}}}[/green]' placeholder.")
+            sys.exit(1)
 
         # Check for illegal filename characters (Windows and Linux)
         illegal_chars = r'<>:"/\\|?*\0'
         if any(char in date_fmt for char in illegal_chars):
-            console.print("[red]error[/red]: '[blue]--filename-template[/blue]' contains illegal characters in your '[green]{date:{...}}[/green]'. Avoid using these characters in date format.")
+            console.print(f"[red]error[/red]: '[blue]--filename-template[/blue]' contains illegal characters in your '[green]{{date:{date_fmt}}}[/green]' placeholder. Avoid using any of these [yellow]{illegal_chars}[/yellow] on it.")
             sys.exit(1)
 
         # Print an error and exit the program when user tries to use a format that doesn't work
@@ -75,5 +76,5 @@ def _raise_error_if_invalid_filename_string():
         try:
             datetime.now().strftime(date_fmt)
         except ValueError:
-            console.print("[red]error[/red]: '[blue]--filename-template[/blue]' contains invalid format in your '[green]{date:{...}}[/green]'. Please check again for typos.")
+            console.print(f"[red]error[/red]: '[blue]--filename-template[/blue]' contains invalid format in your '[green]{{date:{date_fmt}}}[/green]' placeholder. Please check again for typos.")
             sys.exit(1)
