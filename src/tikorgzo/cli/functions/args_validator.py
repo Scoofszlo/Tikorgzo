@@ -35,15 +35,18 @@ def _raise_error_if_invalid_max_concurrent_downloads():
 
 
 def _raise_error_if_invalid_filename_string():
+    """If user uses `--filename-template` arg, this function checks if one of the necessary
+    placeholders is included. We iterate through the necessary placeholders
+    to check that arg (currently, there is only one required placeholder, but the loop
+    allows for easy extension if more are added in the future.)"""
+
     placeholders = {
         "necessary": ["{video_id}"],
         "optional": ["{username}", r"({date:(.*?)})"]
+        # Do not use `r"{date:(.+?)}` as this accidentally spans across the filename_template
+        # string and might cause issues with how file is named. `*?` in this date regex ensures
+        # that  it only captures the value inside the {date:...} and not outside of it
     }
-
-    # If user uses `--filename-template` arg, this function checks if one of the necessary
-    # placeholders is included. We iterate through the necessary placeholders
-    # to check that arg (currently, there is only one required placeholder, but the loop
-    # allows for easy extension if more are added in the future.)
 
     for placeholder in placeholders["necessary"]:
         if args.filename_template is None:

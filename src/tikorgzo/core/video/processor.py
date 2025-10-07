@@ -83,7 +83,8 @@ class VideoInfoProcessor:
         # a decimal number, which results into a Unix timestamp
         unix_timestamp = int(binary_num[:32], 2)
 
-        # Convert the Unix timestamp into a datetime object
+        # Convert the Unix timestamp into a datetime object. Take note that the
+        # upload date of all TikTok video IDs are in UTC time
         dt = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
 
         return dt
