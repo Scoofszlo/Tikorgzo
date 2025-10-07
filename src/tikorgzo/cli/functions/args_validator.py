@@ -1,4 +1,6 @@
 from argparse import Namespace
+from datetime import datetime
+import re
 import sys
 
 from tikorgzo.console import console
@@ -34,8 +36,8 @@ def _raise_error_if_invalid_max_concurrent_downloads():
 
 def _raise_error_if_invalid_filename_string():
     placeholders = {
-        "necessary": ["video_id"],
-        "optional": ["username"]
+        "necessary": ["{video_id}"],
+        "optional": ["{username}"]
     }
 
     for placeholder in placeholders["necessary"]:
