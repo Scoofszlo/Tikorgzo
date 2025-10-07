@@ -95,12 +95,13 @@ class VideoInfoProcessor:
         username = video._username
         video_id = video._video_id
         filename_template = video._filename_template
+        date = video._date
 
         assert isinstance(video_id, int)
 
         if username is not None:
             output_path = os.path.join(DOWNLOAD_PATH, username)
-            video_filename = self._get_video_filename(video_id, username, filename_template)
+            video_filename = self._get_video_filename(video_id, username, date, filename_template)
             os.makedirs(output_path, exist_ok=True)
             video_file = os.path.join(output_path, video_filename)
 
@@ -137,11 +138,12 @@ class VideoInfoProcessor:
         else:
             return None
 
-    def _get_video_filename(self, video_id: int, username: str, filename_template: Optional[str]):
+    def _get_video_filename(self, video_id: int, username: str, date: datetime, filename_template: Optional[str]):
         if filename_template is None:
             return str(video_id) + ".mp4"
 
-        formatted_filename = filename_template.replace("{username}", username)
+        formatted_filename = self._format_date(date, filename_template)
+        formatted_filename = formatted_filename.replace("{username}", username)
         formatted_filename = formatted_filename.replace("{video_id}", str(video_id))
         formatted_filename += ".mp4"
 
@@ -167,3 +169,31 @@ class VideoInfoProcessor:
         new_binary_num = zeros_string + binary_num
 
         return new_binary_num
+
+    def _format_date(self, date: datetime, filename_template: str) -> str:
+        """Returns a filename with formatted date based on the
+        given date format provided via `{date:...}` value from `--filename-template`
+        arg"""
+
+        # Pattern to capture the date placeholder and the date format value
+        pattern = r"({date(:(.+?))?})"
+
+        matched_str = re.search(pattern, filename_template)
+
+        date_placeholder = matched_str.group(1)  # i.e., `{date:%Y%m%d_%H%M%S}`
+        date_fmt = matched_str.group(3)  # i.e., `%Y%m%d_%H%M%S`
+
+        # User can input `{date}` only from the `--filename-template` arg. If that happens,
+        # date_fmt will become None as this don't match with the date_fmt RegEx.
+        # To handle this, we will just use a DEFAULT_FORMAT for `formatted_date` if
+        # `date_fmt` is None
+
+        if date_fmt is None:
+            DEFAULT_FORMAT = r"%Y%m%d_%H%M%S"
+            formatted_date = date.strftime(DEFAULT_FORMAT)
+        else:
+            formatted_date = date.strftime(date_fmt)
+
+        formatted_filename = re.sub(date_placeholder, formatted_date, filename_template)
+
+        return formatted_filename
