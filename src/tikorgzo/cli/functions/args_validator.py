@@ -37,7 +37,7 @@ def _raise_error_if_invalid_max_concurrent_downloads():
 def _raise_error_if_invalid_filename_string():
     placeholders = {
         "necessary": ["{video_id}"],
-        "optional": ["{username}", r"{date:(.+?)}"]
+        "optional": ["{username}", r"({date:(.*?)})"]
     }
 
     # If user uses `--filename-template` arg, this function checks if one of the necessary
@@ -56,7 +56,10 @@ def _raise_error_if_invalid_filename_string():
     # Check if there is a `{date:...}` placeholder
     matched_date = re.search(placeholders["optional"][1], args.filename_template)
     if matched_date:
-        date_fmt = matched_date.group(1)
+        date_fmt = matched_date.group(2)
+
+        if date_fmt == "":
+            console.print("[red]error[/red]: '[blue]--filename-template[/blue]' contains nothing in your '[green]{date:{...}}[/green]'.")
 
         # Check for illegal filename characters (Windows and Linux)
         illegal_chars = r'<>:"/\\|?*\0'
