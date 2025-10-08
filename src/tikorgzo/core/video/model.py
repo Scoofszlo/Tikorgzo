@@ -36,22 +36,27 @@ class Video:
     Args:
         video_link (str): The TikTok video link or video ID.
         filename_template (Optional[str]): Template for naming the output file.
+        strict_duplicate_check (Optional[bool]):
 
     Raises:
         InvalidVideoLink: If the provided video link is not valid.
         VideoFileAlreadyExistsError: If the video file already exists in the output directory.
     """
 
-    def __init__(self, video_link: str, filename_template: Optional[str] = None):
-        video_link = processor.validate_video_link(video_link)
-
+    def __init__(
+        self,
+        video_link: str,
+        filename_template: Optional[str] = None,
+        strict_duplicate_check: Optional[str] = None
+    ):
+        self._video_link = processor.validate_video_link(video_link)
         self._video_id: int = processor.extract_video_id(video_link)
 
-        processor.check_if_already_downloaded(video_link)
+        if strict_duplicate_check:
+            processor.check_if_already_downloaded(self._video_id)
 
         self._username: Optional[str] = processor._process_username(video_link)
         self._date: datetime = processor.get_date(self._video_id)
-        self._video_link: str = video_link
         self._download_link: Optional[str] = None
         self._file_size: Optional[FileSize] = None
         self._download_status: Optional[DownloadStatus] = None
