@@ -36,6 +36,12 @@ class ArgsHandler:
             help="Set a customized filename for the downloaded video"
         )
         self._parser.add_argument(
+            "--strict-duplicate-check",
+            help="Enable strict duplicate checking based on video ID of filename",
+            action="store_true",
+            default=None
+        )
+        self._parser.add_argument(
             "-v",
             help="Show the app's version",
             action="version",
