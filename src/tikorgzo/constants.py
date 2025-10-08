@@ -9,6 +9,7 @@ DOWNLOAD_PATH = os.path.join(user_downloads_path(), APP_NAME)
 
 
 class DownloadStatus(Enum):
+    UNSTARTED = auto()
     QUEUED = auto()
     INTERRUPTED = auto()
     COMPLETED = auto()

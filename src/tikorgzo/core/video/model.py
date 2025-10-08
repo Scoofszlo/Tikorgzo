@@ -58,7 +58,7 @@ class Video:
         self._date: datetime = processor.get_date(self._video_id)
         self._download_link: Optional[str] = None
         self._file_size = FileSize()
-        self._download_status: Optional[DownloadStatus] = None
+        self._download_status = DownloadStatus.UNSTARTED
         self._filename_template: Optional[str] = filename_template
         self._output_file_dir: Optional[str] = None
         self._output_file_path: Optional[str] = None
@@ -102,7 +102,7 @@ class Video:
         self._file_size.update(file_size)
 
     @property
-    def download_status(self) -> Optional[DownloadStatus]:
+    def download_status(self) -> DownloadStatus:
         return self._download_status
 
     @download_status.setter
@@ -110,7 +110,7 @@ class Video:
         self._download_status = download_status
 
     @property
-    def output_file_dir(self):
+    def output_file_dir(self) -> Optional[str]:
         return self._output_file_dir
 
     @property
