@@ -1,10 +1,10 @@
 import asyncio
-import sys
 from playwright.sync_api import Error as PlaywrightError
 
 from tikorgzo import exceptions as exc
+from tikorgzo import generic as fn
 from tikorgzo.cli.args_handler import ArgsHandler
-from tikorgzo.cli import functions as fn
+from tikorgzo.cli.args_validator import validate_args
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
@@ -16,7 +16,7 @@ async def main():
     ah = ArgsHandler()
     args = ah.parse_args()
 
-    fn.validate_args(ah, args)
+    validate_args(ah, args)
 
     # Get the video IDs
     video_links = fn.video_link_extractor(args.file, args.link)
