@@ -60,10 +60,11 @@ class Extractor:
 
                 return video
             except (
+                ExtractionTimeoutError,
                 HrefLinkMissingError,
                 HtmlElementMissingError,
                 URLParsingError,
-                ExtractionTimeoutError
+                VagueErrorMessageError
             ) as e:
                 console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
                 # Needs to re-raise so that the mainline script (main.py) will caught this exception
@@ -75,6 +76,9 @@ class Extractor:
                 # Needs to re-raise so that the mainline script (main.py) will caught this exception
                 # thus, the program can filter tasks that are successful and not these failed tasks
                 # due to these exception
+                raise e
+            except Exception as e:
+                console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
                 raise e
 
     async def _open_webpage(self, page: Page):
