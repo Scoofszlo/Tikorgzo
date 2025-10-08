@@ -25,6 +25,14 @@ class InvalidVideoLink(Exception):
         super().__init__(self.message)
 
 
+class InvalidDateFormat(Exception):
+    """Raised when invalid date format is used."""
+
+    def __init__(self) -> None:
+        self.message = "Date format is invalid. Please ensure your format is correct by checking the supported formats here: https://strftime.org/"
+        super().__init__(self.message)
+
+
 class VideoFileAlreadyExistsError(Exception):
     """Raised when the requested video file to download already exists in the downloads folder"""
 

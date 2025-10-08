@@ -6,7 +6,7 @@ from typing import Optional
 import requests
 
 from tikorgzo.constants import DOWNLOAD_PATH
-from tikorgzo.exceptions import InvalidVideoLink, VideoFileAlreadyExistsError, VideoIDExtractionError
+from tikorgzo.exceptions import InvalidDateFormat, InvalidVideoLink, VideoFileAlreadyExistsError, VideoIDExtractionError
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -184,6 +184,9 @@ class VideoInfoProcessor:
         pattern = r"({date(:(.+?))?})"
 
         matched_str = re.search(pattern, filename_template)
+
+        if matched_str is None:
+            raise InvalidDateFormat()
 
         date_placeholder = matched_str.group(1)  # i.e., `{date:%Y%m%d_%H%M%S}`
         date_fmt = matched_str.group(3)  # i.e., `%Y%m%d_%H%M%S`
