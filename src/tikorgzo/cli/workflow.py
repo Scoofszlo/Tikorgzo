@@ -19,7 +19,7 @@ async def main():
     validate_args(ah, args)
 
     # Get the video IDs
-    video_links = fn.video_link_extractor(args.file, args.link)
+    video_links = fn.extract_video_links(args.file, args.link)
     download_queue = DownloadQueueManager()
 
     console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")

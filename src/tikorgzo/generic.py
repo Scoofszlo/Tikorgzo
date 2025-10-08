@@ -10,7 +10,7 @@ from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import InvalidLinkSourceExtractionError
 
 
-def video_link_extractor(file_path: str, links: str) -> list[str]:
+def extract_video_links(file_path: str, links: str) -> list[str]:
     """Extracts the video ID of a TikTok video based from a list of strings."""
 
     if file_path:
