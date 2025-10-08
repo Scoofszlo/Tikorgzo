@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from rich.panel import Panel
 from typing import Optional
 
@@ -18,35 +19,43 @@ processor = VideoInfoProcessor()
 
 class Video:
     """
-    Video class that handles the information of a TikTok video
+    Video class that handles the information of a TikTok video.
 
     Attributes:
         _video_id (Optional[int]): The unique identifier for the video.
         _username (Optional[str]): The username associated with the video.
+        _date (Optional[datetime]): The date the video was created or downloaded.
         _video_link (str): The normalized video link.
         _download_link (Optional[str]): The source quality download link of the video.
         _file_size (Optional[FileSize]): The size of the video file.
+        _download_status (Optional[DownloadStatus]): The current download status of Video object.
+        _filename_template (Optional[str]): Holds the passed filename template parameter.
         _output_file_dir (Optional[str]): Directory where the video will be saved.
         _output_file_path (Optional[str]): Full path to the output video file.
+
     Args:
         video_link (str): The TikTok video link or video ID.
+        filename_template (Optional[str]): Template for naming the output file.
+
     Raises:
         InvalidVideoLink: If the provided video link is not valid.
         VideoFileAlreadyExistsError: If the video file already exists in the output directory.
     """
 
-    def __init__(self, video_link: str):
+    def __init__(self, video_link: str, filename_template: Optional[str] = None):
         video_link = processor.validate_video_link(video_link)
 
-        self._video_id: Optional[int] = processor.extract_video_id(video_link)
+        self._video_id: int = processor.extract_video_id(video_link)
 
         processor.check_if_already_downloaded(video_link)
 
-        self._username = processor._process_username(video_link)
-        self._video_link = video_link
+        self._username: Optional[str] = processor._process_username(video_link)
+        self._date: datetime = processor.get_date(self._video_id)
+        self._video_link: str = video_link
         self._download_link: Optional[str] = None
         self._file_size: Optional[FileSize] = None
         self._download_status: Optional[DownloadStatus] = None
+        self._filename_template: Optional[str] = filename_template
         self._output_file_dir: Optional[str] = None
         self._output_file_path: Optional[str] = None
         processor.process_output_paths(self)

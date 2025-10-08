@@ -74,6 +74,44 @@ To do this, just simply put the path to the `.txt` file.
 tikorgzo -f "C:\path\to\txt.file"
 ```
 
+### Customizing the filename of the downloaded video
+
+By default, downloaded videos are saved with their video ID as the filename (e.g., `1234567898765432100.mp4`). If you want to change how your files are named, you can use the `--filename-template` arg.
+
+You can use the following placeholders in your template:
+
+- **`{video_id}`** (required): The unique ID of the video.
+- **`{username}`**: The TikTok username who posted the video.
+- **`{date}`**: The upload date in UTC, formatted as `YYYYMMDD_HHMMSS` (for example: `20241230_235901`); or
+- **`{date:<date_fmt>}`**: An alternative to `{date}` where you can customized the date in your preferred format. Working formats for `<date_fmt>` are available here: https://strftime.org/.
+
+#### Examples
+
+- Save as just the video ID (you don't really need to do this as this is the default naming):
+    ```console
+    tikorgzo -l 1234567898765432100 --filename-template "{video_id}"
+    # Result: 1234567898765432100.mp4
+    ```
+
+- Save as username and video ID:
+    ```console
+    tikorgzo -l 1234567898765432100 --filename-template "{username}-{video_id}"
+    # Result: myusername-1234567898765432100.mp4
+    ```
+
+- Save as username, date, and video ID:
+    ```console
+    tikorgzo -l 1234567898765432100 --filename-template "{username}-{date}-{video_id}"
+    # Result: myusername-20241230_235901-1234567898765432100.mp4
+    ```
+
+- Save with a custom date format (e.g., `YYMMDD_HHMMSS`):
+    ```console
+    tikorgzo -l 1234567898765432100 --filename-template "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
+    # Result: myusername-241230_235901-1234567898765432100.mp4
+    ```
+
+
 ## Reminders
 - Source/high-quality videos may not always be available, depending on the source. If not available, the downloaded videos are usually 1080p or 720p.
 - The program may be a bit slow during download link extraction (Stage 2), as it runs a browser in the background to extract the actual download link.
