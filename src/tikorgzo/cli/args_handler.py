@@ -37,7 +37,7 @@ class ArgsHandler:
         )
         self._parser.add_argument(
             "--strict-duplicate-check",
-            help="Enable strict duplicate checking based on video ID of filename",
+            help="Enables strict duplicate checking based on the video ID in the filename of the downloaded video",
             action="store_true",
             default=None
         )
