@@ -122,17 +122,6 @@ class Video:
         assert self._output_file_path is not None
         return self._output_file_path
 
-    def print_video_details(self):
-        console.print(Panel.fit(
-            (
-                f"Username: {self.username}\n"
-                f"Video URL: {self.video_link}\n"
-                f"Download URL: {self._download_link}\n"
-                f"File Size: {self.file_size.get(formatted=True)}"
-            ),
-            title="Video details"
-        ))
-
 
 @dataclass
 class FileSize:
