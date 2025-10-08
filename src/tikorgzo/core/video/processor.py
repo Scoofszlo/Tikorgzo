@@ -108,7 +108,6 @@ class VideoInfoProcessor:
             video_file = os.path.join(output_path, video_filename)
 
             if os.path.exists(video_file):
-                print("-----------------")
                 raise VideoFileAlreadyExistsError(video_filename, username)
 
             video._output_file_dir = output_path
