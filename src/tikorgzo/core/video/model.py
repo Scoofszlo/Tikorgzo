@@ -22,13 +22,13 @@ class Video:
     Video class that handles the information of a TikTok video.
 
     Attributes:
-        _video_id (Optional[int]): The unique identifier for the video.
-        _username (Optional[str]): The username associated with the video.
-        _date (Optional[datetime]): The date the video was created or downloaded.
         _video_link (str): The normalized video link.
+        _video_id (int): The unique identifier for the video.
+        _username (Optional[str]): The username associated with the video.
+        _date (datetime): The date the video was uploaded.
         _download_link (Optional[str]): The source quality download link of the video.
         _file_size (Optional[FileSize]): The size of the video file.
-        _download_status (Optional[DownloadStatus]): The current download status of Video object.
+        _download_status (Optional[DownloadStatus]): The current download status of the Video object.
         _filename_template (Optional[str]): Holds the passed filename template parameter.
         _output_file_dir (Optional[str]): Directory where the video will be saved.
         _output_file_path (Optional[str]): Full path to the output video file.
@@ -36,7 +36,7 @@ class Video:
     Args:
         video_link (str): The TikTok video link or video ID.
         filename_template (Optional[str]): Template for naming the output file.
-        strict_duplicate_check (Optional[bool]):
+        strict_duplicate_check (Optional[bool]): Enables strict duplicate checking whether to proceed downloading or not.
 
     Raises:
         InvalidVideoLink: If the provided video link is not valid.
@@ -47,7 +47,7 @@ class Video:
         self,
         video_link: str,
         filename_template: Optional[str] = None,
-        strict_duplicate_check: Optional[str] = None
+        strict_duplicate_check: Optional[bool] = None
     ):
         self._video_link = processor.validate_video_link(video_link)
         self._video_id: int = processor.extract_video_id(video_link)

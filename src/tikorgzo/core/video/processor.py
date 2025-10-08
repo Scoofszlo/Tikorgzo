@@ -56,7 +56,7 @@ class VideoInfoProcessor:
         to see if a file already exists whether the filename contains the video ID or not. 
         If true, this will raise an error.
 
-        This function is only run when `--strict-duplicate-check` is enabled.
+        This function only runs when `--strict-duplicate-check` is enabled.
         """
 
         for root, _, filenames in os.walk(DOWNLOAD_PATH):
