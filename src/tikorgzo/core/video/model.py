@@ -77,12 +77,10 @@ class Video:
 
     @property
     def video_link(self):
-        assert self._video_link is not None
         return self._video_link
 
     @property
     def download_link(self):
-        assert self._download_link is not None
         return self._download_link
 
     @download_link.setter
@@ -92,12 +90,10 @@ class Video:
 
     @property
     def video_id(self):
-        assert self._video_id is not None
         return self._video_id
 
     @property
     def file_size(self):
-        assert self._file_size is not None
         return self._file_size
 
     @file_size.setter
@@ -114,12 +110,10 @@ class Video:
 
     @property
     def output_file_dir(self):
-        assert self._output_file_dir is not None
         return self._output_file_dir
 
     @property
     def output_file_path(self):
-        assert self._output_file_path is not None
         return self._output_file_path
 
 
