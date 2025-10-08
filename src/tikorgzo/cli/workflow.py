@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from playwright.sync_api import Error as PlaywrightError
 
 from tikorgzo import exceptions as exc
@@ -42,14 +43,14 @@ async def main():
                     console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
                     break
                 except PlaywrightError:
-                    exit(1)
+                    sys.exit(1)
                 except Exception as e:
                     console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
                     break
 
     if download_queue.is_empty():
         console.print("\nProgram will now stopped as there is nothing to process.")
-        exit(0)
+        sys.exit(0)
 
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
@@ -75,11 +76,11 @@ async def main():
             download_queue.replace_queue(successful_tasks)
     except exc.MissingPlaywrightBrowserError:
         console.print("[red]error:[/red] Playwright browser hasn't been installed. Run [b]'uvx playwright install'[/b] to install the browser.")
-        exit(1)
+        sys.exit(1)
 
     if download_queue.is_empty():
         console.print("\nThe program will now exit as no links were extracted.")
-        exit(1)
+        sys.exit(1)
 
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
