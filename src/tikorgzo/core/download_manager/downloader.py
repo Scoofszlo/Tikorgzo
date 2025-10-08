@@ -26,7 +26,7 @@ class Downloader:
                 async with self.session.get(video.download_link) as response:
                     total_size = video.file_size.get()
 
-                    assert isinstance(total_size, int)
+                    assert isinstance(total_size, float)
 
                     task = progress_displayer.add_task(str(video.video_id), total=total_size)
                     async with aiofiles.open(video.output_file_path, 'wb') as file:

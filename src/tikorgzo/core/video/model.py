@@ -101,7 +101,7 @@ class Video:
         return self._file_size
 
     @file_size.setter
-    def file_size(self, file_size: int):
+    def file_size(self, file_size: float):
         self._file_size = FileSize(file_size)
 
     @property
@@ -125,9 +125,9 @@ class Video:
 
 @dataclass
 class FileSize:
-    size_in_bytes: int
+    size_in_bytes: float
 
-    def get(self, formatted: bool = False) -> int | str:
+    def get(self, formatted: bool = False) -> float | str:
         """
         Returns the file size.
         If formatted=True, returns a human-readable string (e.g., '1.23 MB').

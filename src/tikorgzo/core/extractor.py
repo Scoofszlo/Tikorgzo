@@ -160,11 +160,11 @@ class Extractor:
 
         return video
 
-    async def _get_file_size(self, download_url: str) -> int:
+    async def _get_file_size(self, download_url: str) -> float:
         async with aiohttp.ClientSession() as session:
             async with session.get(download_url) as response:
                 response.raise_for_status()
-                total_size_bytes = int(response.headers.get('content-length', 0))
+                total_size_bytes = float(response.headers.get('content-length', 0))
                 return total_size_bytes
 
     async def _cleanup(self) -> None:
