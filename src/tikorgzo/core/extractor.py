@@ -1,7 +1,7 @@
 import asyncio
 from typing import Optional
 import aiohttp
-from playwright._impl._errors import Error, TimeoutError
+from playwright._impl._errors import Error
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 
 from tikorgzo.console import console
@@ -60,10 +60,11 @@ class Extractor:
 
                 return video
             except (
+                ExtractionTimeoutError,
                 HrefLinkMissingError,
                 HtmlElementMissingError,
                 URLParsingError,
-                ExtractionTimeoutError
+                VagueErrorMessageError
             ) as e:
                 console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
                 # Needs to re-raise so that the mainline script (main.py) will caught this exception
@@ -75,6 +76,9 @@ class Extractor:
                 # Needs to re-raise so that the mainline script (main.py) will caught this exception
                 # thus, the program can filter tasks that are successful and not these failed tasks
                 # due to these exception
+                raise e
+            except Exception as e:
+                console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
                 raise e
 
     async def _open_webpage(self, page: Page):
@@ -115,13 +119,16 @@ class Extractor:
     async def _get_download_link(self, page: Page, video: Video) -> Video:
         download_link_selector = "a:has-text('Watermark')"
         parsing_error_selector = "div:has-text('Url parsing is failed!')"
-        general_error_selector = "div:has-text('error')"
+        vague_error_selector = "div:has-text('error')"
 
-        await page.wait_for_selector(f"{download_link_selector}, {parsing_error_selector}, {general_error_selector}", state="visible", timeout=ELEMENT_LOAD_TIMEOUT)
+        await page.wait_for_selector(f"{download_link_selector}, {parsing_error_selector}, {vague_error_selector}", state="visible", timeout=ELEMENT_LOAD_TIMEOUT)
 
         if await page.query_selector(parsing_error_selector):
             raise URLParsingError()
-        elif await page.query_selector(general_error_selector):
+        elif await page.query_selector(vague_error_selector):
+            # The API sometimes shows "error" message banner when trying to get the download link.
+            # However, it doesn't tell anything about what is the error, hence the reason
+            # why exceptiuon is named like this
             raise VagueErrorMessageError()
 
         download_element = await page.query_selector(download_link_selector)
