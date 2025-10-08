@@ -11,7 +11,7 @@ from tikorgzo.exceptions import InvalidLinkSourceExtractionError
 
 
 def extract_video_links(file_path: str, links: str) -> list[str]:
-    """Extracts the video ID of a TikTok video based from a list of strings."""
+    """Extracts the video links based from a list of strings or from a file. """
 
     if file_path:
         try:
