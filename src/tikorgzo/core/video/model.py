@@ -80,7 +80,8 @@ class Video:
         return self._video_link
 
     @property
-    def download_link(self) -> Optional[str]:
+    def download_link(self) -> str:
+        assert self._download_link is not None
         return self._download_link
 
     @download_link.setter
@@ -113,7 +114,8 @@ class Video:
         return self._output_file_dir
 
     @property
-    def output_file_path(self):
+    def output_file_path(self) -> str:
+        assert self._output_file_path is not None
         return self._output_file_path
 
 
