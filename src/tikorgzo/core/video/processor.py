@@ -51,18 +51,19 @@ class VideoInfoProcessor:
 
         raise VideoIDExtractionError()
 
-    def check_if_already_downloaded(self, filename: str):
+    def check_if_already_downloaded(self, video_id: int):
         """Recursively checks the output folder, which is the default DOWNLOAD_PATH,
-        to see if a file (where the filename is a video ID) already exists. If true,
-        this will raise an error."""
+        to see if a file already exists whether the filename contains the video ID or not. 
+        If true, this will raise an error.
 
-        filename += ".mp4"
+        This function is only run when `--strict-duplicate-check` is enabled.
+        """
 
         for root, _, filenames in os.walk(DOWNLOAD_PATH):
             for f in filenames:
-                if f == filename:
+                if str(video_id) in f:
                     username = os.path.basename(root)
-                    raise VideoFileAlreadyExistsError(filename, username)
+                    raise VideoFileAlreadyExistsError(f, username)
 
     def get_date(self, video_id: int):
         """Gets the date from the video ID.
@@ -107,6 +108,7 @@ class VideoInfoProcessor:
             video_file = os.path.join(output_path, video_filename)
 
             if os.path.exists(video_file):
+                print("-----------------")
                 raise VideoFileAlreadyExistsError(video_filename, username)
 
             video._output_file_dir = output_path
