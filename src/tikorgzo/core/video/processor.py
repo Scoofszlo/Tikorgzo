@@ -21,7 +21,7 @@ VT_TIKTOK_VIDEO_LINK_REGEX = r"(https?://)?vt\.tiktok\.com/"
 
 
 class VideoInfoProcessor:
-    def validate_video_link(self, video_link: str):
+    def validate_video_link(self, video_link: str) -> str:
         """Checks if the video link is a valid TikTok video link or a valid video ID."""
 
         if re.search(NORMAL_TIKTOK_VIDEO_LINK_REGEX, video_link):
@@ -51,7 +51,7 @@ class VideoInfoProcessor:
 
         raise VideoIDExtractionError()
 
-    def check_if_already_downloaded(self, video_id: int, strict_duplicate_check: Optional[bool]):
+    def check_if_already_downloaded(self, video_id: int, strict_duplicate_check: Optional[bool]) -> None:
         """Recursively checks the output folder, which is the default DOWNLOAD_PATH,
         to see if a file already exists whether the filename contains the video ID or not. 
         If true, this will raise an error.
@@ -68,7 +68,7 @@ class VideoInfoProcessor:
                     username = os.path.basename(root)
                     raise VideoFileAlreadyExistsError(f, username)
 
-    def get_date(self, video_id: int):
+    def get_date(self, video_id: int) -> datetime:
         """Gets the date from the video ID.
 
         This one is pretty interesting as I read from this article
@@ -116,7 +116,7 @@ class VideoInfoProcessor:
             video._output_file_dir = output_path
             video._output_file_path = video_file
 
-    def _get_normalized_url(self, video_link):
+    def _get_normalized_url(self, video_link: str) -> str:
         """Returns a normalized URL whenever the inputted video link doesn't contain the username and the video ID
         (e.g., https://vt.tiktok.com/AbCdEfGhI).
 
@@ -143,7 +143,7 @@ class VideoInfoProcessor:
         else:
             return None
 
-    def _get_video_filename(self, video_id: int, username: str, date: datetime, filename_template: Optional[str]):
+    def _get_video_filename(self, video_id: int, username: str, date: datetime, filename_template: Optional[str]) -> str:
         if filename_template is None:
             return str(video_id) + ".mp4"
 

@@ -10,7 +10,7 @@ ah: ArgsHandler
 args: Namespace
 
 
-def validate_args(ah_param: ArgsHandler, args_param: Namespace):
+def validate_args(ah_param: ArgsHandler, args_param: Namespace) -> None:
     """Validates args entered to ensure that all are properly set."""
     global ah, args
     ah = ah_param
@@ -21,20 +21,20 @@ def validate_args(ah_param: ArgsHandler, args_param: Namespace):
     _raise_error_if_invalid_filename_string()
 
 
-def _show_cli_help():
+def _show_cli_help() -> None:
     if not args.file and not args.link:
         ah._parser.print_help()
         exit(0)
 
 
-def _raise_error_if_invalid_max_concurrent_downloads():
+def _raise_error_if_invalid_max_concurrent_downloads() -> None:
     if args.max_concurrent_downloads:
         if args.max_concurrent_downloads > 16 or args.max_concurrent_downloads < 1:
             console.print("[red]error[/red]: '[blue]--max-concurrent-downloads[/blue]' must be in the range of 1 to 16.")
             sys.exit(1)
 
 
-def _raise_error_if_invalid_filename_string():
+def _raise_error_if_invalid_filename_string() -> None:
     """If user uses `--filename-template` arg, this function checks if one of the necessary
     placeholders is included. We iterate through the necessary placeholders
     to check that arg (currently, there is only one required placeholder, but the loop

@@ -20,7 +20,7 @@ class InvalidLinkSourceExtractionError(Exception):
 class InvalidVideoLink(Exception):
     """Raised when the video link specified is invalid."""
 
-    def __init__(self, video_link) -> None:
+    def __init__(self, video_link: str) -> None:
         self.message = f"Video link '{video_link}' is not valid. Please check again."
         super().__init__(self.message)
 

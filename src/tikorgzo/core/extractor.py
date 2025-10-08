@@ -17,12 +17,12 @@ MAX_CONCURRENT_EXTRACTION_TASKS = 5
 class Extractor:
     """Uses Playwright to browse the API for download link extraction."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
         self.semaphore = asyncio.Semaphore(MAX_CONCURRENT_EXTRACTION_TASKS)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> 'Extractor':
         try:
             self.playwright = await async_playwright().start()
             self.browser = await self.playwright.chromium.launch(headless=True)
@@ -36,7 +36,7 @@ class Extractor:
 
             raise MissingPlaywrightBrowserError()
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         with console.status("Hit Ctrl+C to exit again..."):
             await self._cleanup()
 
@@ -81,7 +81,7 @@ class Extractor:
                 console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
                 raise e
 
-    async def _open_webpage(self, page: Page):
+    async def _open_webpage(self, page: Page) -> None:
         try:
             await page.goto(TIKTOK_DOWNLOADER_URL, timeout=WEBPAGE_LOAD_TIMEOUT)
             await page.wait_for_load_state("networkidle", timeout=WEBPAGE_LOAD_TIMEOUT)

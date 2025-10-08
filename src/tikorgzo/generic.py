@@ -62,7 +62,7 @@ async def download_video(
                 return videos
 
 
-def cleanup_interrupted_downloads(videos: list[Video]):
+def cleanup_interrupted_downloads(videos: list[Video]) -> None:
     import os
     with console.status("Cleaning up unfinished files..."):
         for video in videos:
@@ -70,7 +70,7 @@ def cleanup_interrupted_downloads(videos: list[Video]):
                 os.remove(video.output_file_path)
 
 
-def print_download_results(videos: list[Video]):
+def print_download_results(videos: list[Video]) -> None:
     unstarted_downloads = 0
     failed_downloads = 0
     successful_downloads = 0

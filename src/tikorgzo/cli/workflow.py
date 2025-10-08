@@ -13,7 +13,7 @@ from tikorgzo.core.extractor import Extractor
 from tikorgzo.core.video.model import Video
 
 
-async def main():
+async def main() -> None:
     ah = ArgsHandler()
     args = ah.parse_args()
 
@@ -90,7 +90,7 @@ async def main():
     fn.print_download_results(videos)
 
 
-def run():
+def run() -> None:
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

@@ -65,47 +65,47 @@ class Video:
         processor.process_output_paths(self)
 
     @property
-    def username(self):
+    def username(self) -> Optional[str]:
         return self._username
 
     @username.setter
-    def username(self, username: str):
+    def username(self, username: str) -> None:
         if username.startswith("@"):
             self._username = username[1:]
         else:
             self._username = username
 
     @property
-    def video_link(self):
+    def video_link(self) -> str:
         return self._video_link
 
     @property
-    def download_link(self):
+    def download_link(self) -> Optional[str]:
         return self._download_link
 
     @download_link.setter
-    def download_link(self, download_link: str):
+    def download_link(self, download_link: str) -> None:
         self._download_link = download_link
         self._video_id = processor.extract_video_id(download_link)
 
     @property
-    def video_id(self):
+    def video_id(self) -> int:
         return self._video_id
 
     @property
-    def file_size(self):
+    def file_size(self) -> Optional["FileSize"]:
         return self._file_size
 
     @file_size.setter
-    def file_size(self, file_size: float):
+    def file_size(self, file_size: float) -> None:
         self._file_size = FileSize(file_size)
 
     @property
-    def download_status(self):
+    def download_status(self) -> Optional[DownloadStatus]:
         return self._download_status
 
     @download_status.setter
-    def download_status(self, download_status: DownloadStatus):
+    def download_status(self, download_status: DownloadStatus) -> None:
         self._download_status = download_status
 
     @property
