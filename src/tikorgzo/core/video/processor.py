@@ -51,13 +51,16 @@ class VideoInfoProcessor:
 
         raise VideoIDExtractionError()
 
-    def check_if_already_downloaded(self, video_id: int):
+    def check_if_already_downloaded(self, video_id: int, strict_duplicate_check: Optional[bool]):
         """Recursively checks the output folder, which is the default DOWNLOAD_PATH,
         to see if a file already exists whether the filename contains the video ID or not. 
         If true, this will raise an error.
 
         This function only runs when `--strict-duplicate-check` is enabled.
         """
+
+        if strict_duplicate_check is None:
+            return
 
         for root, _, filenames in os.walk(DOWNLOAD_PATH):
             for f in filenames:

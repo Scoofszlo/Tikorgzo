@@ -52,8 +52,7 @@ class Video:
         self._video_link = processor.validate_video_link(video_link)
         self._video_id: int = processor.extract_video_id(video_link)
 
-        if strict_duplicate_check:
-            processor.check_if_already_downloaded(self._video_id)
+        processor.check_if_already_downloaded(self._video_id, strict_duplicate_check)
 
         self._username: Optional[str] = processor._process_username(video_link)
         self._date: datetime = processor.get_date(self._video_id)
