@@ -85,6 +85,16 @@ class HrefLinkMissingError(Exception):
         super().__init__(self.message)
 
 
+class FileSizeNotSetError(Exception):
+    """Raised when FileSize doesn't have yet file size value, but something attempts to get the
+    value through its `get()`.
+    """
+
+    def __init__(self) -> None:
+        self.message = "File size has not been set yet."
+        super().__init__(self.message)
+
+
 class FileTooLargeError(Exception):
     """Raised when file is way too large, although this isn't likely to happen."""
 

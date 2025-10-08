@@ -6,7 +6,7 @@ from typing import Optional
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.processor import VideoInfoProcessor
-from tikorgzo.exceptions import FileTooLargeError
+from tikorgzo.exceptions import FileSizeNotSetError, FileTooLargeError
 
 
 USERNAME_REGEX = r"\/@([\w\.\-]+)\/video\/\d+"
@@ -57,7 +57,7 @@ class Video:
         self._username: Optional[str] = processor._process_username(video_link)
         self._date: datetime = processor.get_date(self._video_id)
         self._download_link: Optional[str] = None
-        self._file_size: Optional[FileSize] = None
+        self._file_size = FileSize()
         self._download_status: Optional[DownloadStatus] = None
         self._filename_template: Optional[str] = filename_template
         self._output_file_dir: Optional[str] = None
@@ -93,12 +93,12 @@ class Video:
         return self._video_id
 
     @property
-    def file_size(self) -> Optional["FileSize"]:
+    def file_size(self) -> "FileSize":
         return self._file_size
 
     @file_size.setter
     def file_size(self, file_size: float) -> None:
-        self._file_size = FileSize(file_size)
+        self._file_size.update(file_size)
 
     @property
     def download_status(self) -> Optional[DownloadStatus]:
@@ -119,7 +119,7 @@ class Video:
 
 @dataclass
 class FileSize:
-    size_in_bytes: float
+    size_in_bytes: Optional[float] = None
 
     def get(self, formatted: bool = False) -> float | str:
         """
@@ -127,6 +127,9 @@ class FileSize:
         If formatted=True, returns a human-readable string (e.g., '1.23 MB').
         If formatted=False, returns the raw float value in bytes.
         """
+        if self.size_in_bytes is None:
+            raise FileSizeNotSetError()
+
         if not formatted:
             return self.size_in_bytes
 
@@ -137,3 +140,6 @@ class FileSize:
             size /= 1024.0
 
         raise FileTooLargeError()
+
+    def update(self, value: float) -> None:
+        self.size_in_bytes = value
