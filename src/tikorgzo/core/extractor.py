@@ -1,7 +1,7 @@
 import asyncio
 from typing import Optional
 import aiohttp
-from playwright._impl._errors import Error, TimeoutError
+from playwright._impl._errors import Error
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 
 from tikorgzo.console import console
