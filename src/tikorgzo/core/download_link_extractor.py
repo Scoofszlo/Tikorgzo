@@ -1,8 +1,8 @@
-import asyncio
-from typing import Optional
 import aiohttp
+import asyncio
 from playwright._impl._errors import Error
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
+from typing import Optional
 
 from tikorgzo.console import console
 from tikorgzo.core.video.model import Video
@@ -17,12 +17,12 @@ MAX_CONCURRENT_EXTRACTION_TASKS = 5
 class Extractor:
     """Uses Playwright to browse the API for download link extraction."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
         self.semaphore = asyncio.Semaphore(MAX_CONCURRENT_EXTRACTION_TASKS)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> 'Extractor':
         try:
             self.playwright = await async_playwright().start()
             self.browser = await self.playwright.chromium.launch(headless=True)
@@ -36,7 +36,7 @@ class Extractor:
 
             raise MissingPlaywrightBrowserError()
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[BaseException], exc_tb: Optional[object]) -> None:
         with console.status("Hit Ctrl+C to exit again..."):
             await self._cleanup()
 
@@ -81,7 +81,7 @@ class Extractor:
                 console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
                 raise e
 
-    async def _open_webpage(self, page: Page):
+    async def _open_webpage(self, page: Page) -> None:
         try:
             await page.goto(TIKTOK_DOWNLOADER_URL, timeout=WEBPAGE_LOAD_TIMEOUT)
             await page.wait_for_load_state("networkidle", timeout=WEBPAGE_LOAD_TIMEOUT)
@@ -160,11 +160,11 @@ class Extractor:
 
         return video
 
-    async def _get_file_size(self, download_url: str) -> int:
+    async def _get_file_size(self, download_url: str) -> float:
         async with aiohttp.ClientSession() as session:
             async with session.get(download_url) as response:
                 response.raise_for_status()
-                total_size_bytes = int(response.headers.get('content-length', 0))
+                total_size_bytes = float(response.headers.get('content-length', 0))
                 return total_size_bytes
 
     async def _cleanup(self) -> None:
