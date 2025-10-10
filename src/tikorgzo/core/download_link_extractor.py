@@ -1,8 +1,8 @@
-import asyncio
-from typing import Optional
 import aiohttp
+import asyncio
 from playwright._impl._errors import Error
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
+from typing import Optional
 
 from tikorgzo.console import console
 from tikorgzo.core.video.model import Video

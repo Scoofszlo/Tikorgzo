@@ -1,8 +1,8 @@
-import asyncio
-from typing import Optional
 import aiofiles
 import aiohttp
+import asyncio
 from rich.progress import Progress
+from typing import Optional
 
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.model import Video

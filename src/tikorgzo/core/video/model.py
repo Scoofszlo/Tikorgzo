@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
-from rich.panel import Panel
 from typing import Optional
 
-from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.processor import VideoInfoProcessor
 from tikorgzo.exceptions import FileSizeNotSetError, FileTooLargeError

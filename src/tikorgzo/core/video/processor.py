@@ -1,13 +1,11 @@
-from datetime import datetime, timezone
 import os
 import re
-from typing import Optional
-
 import requests
+from datetime import datetime, timezone
+from typing import Optional, TYPE_CHECKING
 
 from tikorgzo.constants import DOWNLOAD_PATH
 from tikorgzo.exceptions import InvalidDateFormat, InvalidVideoLink, VideoFileAlreadyExistsError, VideoIDExtractionError
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from tikorgzo.core.video.model import Video

@@ -1,7 +1,7 @@
 import asyncio
 import sys
-from typing import Optional
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
+from typing import Optional
 
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus

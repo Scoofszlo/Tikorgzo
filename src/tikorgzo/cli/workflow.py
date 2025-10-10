@@ -8,8 +8,8 @@ from tikorgzo.cli.args_handler import ArgsHandler
 from tikorgzo.cli.args_validator import validate_args
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
-from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.download_link_extractor import Extractor
+from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.video.model import Video
 
 
