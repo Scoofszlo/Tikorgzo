@@ -37,7 +37,7 @@ class ArgsHandler:
         )
         self._parser.add_argument(
             "--lazy-duplicate-check",
-            help="Enables lazy duplicate checking by checking if the whole filename is similar",
+            help="Enable lazy duplicate check by comparing filenames to detect already downloaded videos.",
             action="store_true",
             default=None
         )
