@@ -34,7 +34,7 @@ class Video:
     Args:
         video_link (str): The TikTok video link or video ID.
         filename_template (Optional[str]): Template for naming the output file.
-        strict_duplicate_check (Optional[bool]): Enables strict duplicate checking whether to proceed downloading or not.
+        lazy_duplicate_check (Optional[bool]): Enables lazy duplicate checking whether to proceed downloading or not.
 
     Raises:
         InvalidVideoLink: If the provided video link is not valid.
@@ -45,12 +45,12 @@ class Video:
         self,
         video_link: str,
         filename_template: Optional[str] = None,
-        strict_duplicate_check: Optional[bool] = None
+        lazy_duplicate_check: Optional[bool] = None
     ):
         self._video_link = processor.validate_video_link(video_link)
         self._video_id: int = processor.extract_video_id(video_link)
 
-        processor.check_if_already_downloaded(self._video_id, strict_duplicate_check)
+        processor.check_if_already_downloaded(self._video_id, lazy_duplicate_check)
 
         self._username: Optional[str] = processor._process_username(video_link)
         self._date: datetime = processor.get_date(self._video_id)
