@@ -32,20 +32,21 @@ Hhere is a short, quick installation and usage guide for this program.
     ```console
     uv tool install git+https://github.com/Scoofszlo/Tikorgzo
     ```
+5. If `warning: C:\Users\$USERNAME\.local\bin is not on your PATH...` appears, add the specified directory to your [user or system PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), then reopen your command-line.
 
-5. Install the Playwright browser. This is needed to allow download link extraction from the API.
+6. Install the Playwright browser. This is needed to allow download link extraction from the API.
 
     ```console
     uvx playwright install
     ```
 
-6. To download a single TikTok video, simply run this:
+7. To download a single TikTok video, simply run this:
   
     ```console
     tikorgzo -l 7123456789109876543
     ```
 
-7. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
+8. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
 
 ## Usage
 
