@@ -65,8 +65,8 @@ async def main() -> None:
 
                 for video, result in zip(download_queue.get_queue(), results):
                     # If any kind of exception (URLParsingError or any HTML-related exceptions,
-                    # they will be skipped based on this condition and will print the error.
-                    # Otherwise, it will append it to the successful_videos list then replaces
+                    # they will be skipped based on this condition.
+                    # Otherwise, this will be appended to successful_videos list then replaces
                     # the videos that holds the Video objects
                     if isinstance(result, BaseException):
                         pass
