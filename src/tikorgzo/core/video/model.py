@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
-from rich.panel import Panel
 from typing import Optional
 
-from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.processor import VideoInfoProcessor
-from tikorgzo.exceptions import FileTooLargeError
+from tikorgzo.exceptions import FileSizeNotSetError, FileTooLargeError
 
 
 USERNAME_REGEX = r"\/@([\w\.\-]+)\/video\/\d+"
@@ -57,93 +55,81 @@ class Video:
         self._username: Optional[str] = processor._process_username(video_link)
         self._date: datetime = processor.get_date(self._video_id)
         self._download_link: Optional[str] = None
-        self._file_size: Optional[FileSize] = None
-        self._download_status: Optional[DownloadStatus] = None
+        self._file_size = FileSize()
+        self._download_status = DownloadStatus.UNSTARTED
         self._filename_template: Optional[str] = filename_template
         self._output_file_dir: Optional[str] = None
         self._output_file_path: Optional[str] = None
         processor.process_output_paths(self)
 
     @property
-    def username(self):
+    def username(self) -> Optional[str]:
         return self._username
 
     @username.setter
-    def username(self, username: str):
+    def username(self, username: str) -> None:
         if username.startswith("@"):
             self._username = username[1:]
         else:
             self._username = username
 
     @property
-    def video_link(self):
-        assert self._video_link is not None
+    def video_link(self) -> str:
         return self._video_link
 
     @property
-    def download_link(self):
+    def download_link(self) -> str:
         assert self._download_link is not None
         return self._download_link
 
     @download_link.setter
-    def download_link(self, download_link: str):
+    def download_link(self, download_link: str) -> None:
         self._download_link = download_link
         self._video_id = processor.extract_video_id(download_link)
 
     @property
-    def video_id(self):
-        assert self._video_id is not None
+    def video_id(self) -> int:
         return self._video_id
 
     @property
-    def file_size(self):
-        assert self._file_size is not None
+    def file_size(self) -> "FileSize":
         return self._file_size
 
     @file_size.setter
-    def file_size(self, file_size: int):
-        self._file_size = FileSize(file_size)
+    def file_size(self, file_size: float) -> None:
+        self._file_size.update(file_size)
 
     @property
-    def download_status(self):
+    def download_status(self) -> DownloadStatus:
         return self._download_status
 
     @download_status.setter
-    def download_status(self, download_status: DownloadStatus):
+    def download_status(self, download_status: DownloadStatus) -> None:
         self._download_status = download_status
 
     @property
-    def output_file_dir(self):
-        assert self._output_file_dir is not None
+    def output_file_dir(self) -> Optional[str]:
         return self._output_file_dir
 
     @property
-    def output_file_path(self):
+    def output_file_path(self) -> str:
         assert self._output_file_path is not None
         return self._output_file_path
-
-    def print_video_details(self):
-        console.print(Panel.fit(
-            (
-                f"Username: {self.username}\n"
-                f"Video URL: {self.video_link}\n"
-                f"Download URL: {self._download_link}\n"
-                f"File Size: {self.file_size.get(formatted=True)}"
-            ),
-            title="Video details"
-        ))
 
 
 @dataclass
 class FileSize:
-    size_in_bytes: int
+    size_in_bytes: Optional[float] = None
 
-    def get(self, formatted: bool = False) -> int | str:
+    def get(self, formatted: bool = False) -> float | str:
         """
         Returns the file size.
         If formatted=True, returns a human-readable string (e.g., '1.23 MB').
         If formatted=False, returns the raw float value in bytes.
         """
+        if self.size_in_bytes is None:
+            raise FileSizeNotSetError()
+
         if not formatted:
             return self.size_in_bytes
 
@@ -154,3 +140,6 @@ class FileSize:
             size /= 1024.0
 
         raise FileTooLargeError()
+
+    def update(self, value: float) -> None:
+        self.size_in_bytes = value

@@ -2,7 +2,7 @@ from tikorgzo.core.video.model import Video
 
 
 class DownloadQueueManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self._queue: list[Video] = []
 
     def add(self, video: Video) -> None:

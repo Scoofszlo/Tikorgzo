@@ -1,7 +1,7 @@
 import asyncio
 import sys
-from typing import Optional
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
+from typing import Optional
 
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
@@ -10,8 +10,8 @@ from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import InvalidLinkSourceExtractionError
 
 
-def video_link_extractor(file_path: str, links: str) -> list[str]:
-    """Extracts the video ID of a TikTok video based from a list of strings."""
+def extract_video_links(file_path: str, links: str) -> list[str]:
+    """Extracts the video links based from a list of strings or from a file. """
 
     if file_path:
         try:
@@ -62,7 +62,7 @@ async def download_video(
                 return videos
 
 
-def cleanup_interrupted_downloads(videos: list[Video]):
+def cleanup_interrupted_downloads(videos: list[Video]) -> None:
     import os
     with console.status("Cleaning up unfinished files..."):
         for video in videos:
@@ -70,7 +70,7 @@ def cleanup_interrupted_downloads(videos: list[Video]):
                 os.remove(video.output_file_path)
 
 
-def print_download_results(videos: list[Video]):
+def print_download_results(videos: list[Video]) -> None:
     unstarted_downloads = 0
     failed_downloads = 0
     successful_downloads = 0

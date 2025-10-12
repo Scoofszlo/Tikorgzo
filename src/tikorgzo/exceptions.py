@@ -20,8 +20,16 @@ class InvalidLinkSourceExtractionError(Exception):
 class InvalidVideoLink(Exception):
     """Raised when the video link specified is invalid."""
 
-    def __init__(self, video_link) -> None:
+    def __init__(self, video_link: str) -> None:
         self.message = f"Video link '{video_link}' is not valid. Please check again."
+        super().__init__(self.message)
+
+
+class InvalidDateFormat(Exception):
+    """Raised when invalid date format is used."""
+
+    def __init__(self) -> None:
+        self.message = "Date format is invalid. Please ensure your format is correct by checking the supported formats here: https://strftime.org/"
         super().__init__(self.message)
 
 
@@ -74,6 +82,16 @@ class HrefLinkMissingError(Exception):
 
     def __init__(self) -> None:
         self.message = "Could not find the 'href' attribute on the download link element."
+        super().__init__(self.message)
+
+
+class FileSizeNotSetError(Exception):
+    """Raised when FileSize doesn't have yet file size value, but something attempts to get the
+    value through its `get()`.
+    """
+
+    def __init__(self) -> None:
+        self.message = "File size has not been set yet."
         super().__init__(self.message)
 
 

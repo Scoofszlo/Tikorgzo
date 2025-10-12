@@ -1,8 +1,8 @@
-import asyncio
-from typing import Optional
 import aiofiles
 import aiohttp
+import asyncio
 from rich.progress import Progress
+from typing import Optional
 
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.model import Video
@@ -16,7 +16,7 @@ class Downloader:
         self.session = aiohttp.ClientSession()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[BaseException], exc_tb: Optional[object]) -> None:
         if self.session:
             await self.session.close()
 
@@ -26,7 +26,7 @@ class Downloader:
                 async with self.session.get(video.download_link) as response:
                     total_size = video.file_size.get()
 
-                    assert isinstance(total_size, int)
+                    assert isinstance(total_size, float)
 
                     task = progress_displayer.add_task(str(video.video_id), total=total_size)
                     async with aiofiles.open(video.output_file_path, 'wb') as file:
