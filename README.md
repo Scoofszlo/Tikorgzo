@@ -1,20 +1,20 @@
 # Tikorgzo
 
-**Tikorgzo** is a TikTok video downloader written in Python that downloads videos in the highest available quality and saves them to your Downloads folder, organized by username. The project utilizes Playwright to get download links from <b>[TikWM](https://www.tikwm.com/)</b> API. Currently, the project supports Windows only (for now).
+**Tikorgzo** is a TikTok video downloader written in Python that downloads videos in the highest available quality and saves them to your Downloads folder, organized by username. The project utilizes Playwright to obtain download links from the <b>[TikWM](https://www.tikwm.com/)</b> API. The project supports both Windows and Linux distributions.
 
 Some of the key features include:
 
 - Download TikTok video from command-line just by supplying the ID or video link.
 - Supports multiple links to be downloaded.
+- Set max number of simultaneous downloads.
 - Supports link extraction from a text file.
+- Customize the filename of downloaded videos.
 - Extracts downloads link asynchronously for faster link extraction.
 
-## Quickstart
-
-Hhere is a short, quick installation and usage guide for this program.
+## Installation
 
 ### Requirements
-- Windows
+- Windows, or any Linux distros
 - Python `v3.10` or greater
 - uv
 
@@ -27,12 +27,19 @@ Hhere is a short, quick installation and usage guide for this program.
     pip install uv
     ```
 
-4. Install the latest development release of Tikorgzo into your system.
+4. Install the latest published stable release into your system.
+
+    ```
+    uv tool install tikorgzo
+    ```
+
+    Or if you want to get the latest features without having to wait for official release, choose this one instead:
 
     ```console
     uv tool install git+https://github.com/Scoofszlo/Tikorgzo
     ```
-5. If `warning: C:\Users\$USERNAME\.local\bin is not on your PATH...` appears, add the specified directory to your [user or system PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), then reopen your command-line.
+
+5. For Windows users, if `warning: C:\Users\$USERNAME\.local\bin is not on your PATH...` appears, add the specified directory to your [user or system PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), then reopen your command-line.
 
 6. Install the Playwright browser. This is needed to allow download link extraction from the API.
 
@@ -40,19 +47,25 @@ Hhere is a short, quick installation and usage guide for this program.
     uvx playwright install
     ```
 
-7. To download a single TikTok video, simply run this:
+7. For Linux users, Playwright might display a message containing `sudo playwright install-deps`. Follow the instructions, but replace the command with:
+
+    ```console
+    uvx playwright install-deps
+    ```
+
+8. To download a TikTok video, run the following command (replace the number with your actual video ID or link):
   
     ```console
     tikorgzo -l 7123456789109876543
     ```
 
-8. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
+9. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
 
 ## Usage
 
 ### Downloading a video
 
-To download a TikTok video, simply add put the video ID, or the video link:
+To download a TikTok video, simply put the video ID, or the video link:
 
 ```console
 tikorgzo -l 7123456789109876543
@@ -65,6 +78,8 @@ The program supports multiple video links to download. Simply separate those lin
 ```console
 tikorgzo -l 7123456789109876543 7023456789109876544 "https://www.tiktok.com/@username/video/7123456789109876540"
 ```
+It is recommended to enclose video links with double quotation marks to handle special characters properly.
+
 ### Downloading multiple links from a `.txt` file
 
 Alternatively, you can also use a `.txt` file containing multiple video links and use it to download those. Ensure that each link are separated by newline.
@@ -112,7 +127,18 @@ You can use the following placeholders in your template:
     # Result: myusername-241230_235901-1234567898765432100.mp4
     ```
 
-### Lazy duplicate checking
+
+### Setting the maximum number of simultaneous downloads
+
+When downloading many videos, the program limits downloads to 4 at a time by default.
+
+To change the maximum number of simultaneous downloads, use the `--max-concurrent-downloads <value>` arg, where `<value>` must be in range of 1 to 16:
+
+```console
+tikorgzo -f "C:\path\to\100_video_files.txt" --max-concurrent-downloads 10
+```
+
+### Using lazy duplicate checking
 
 The program checks if the video you are attempting to download has already been downloaded. By default, duplicate checking is based on the 19-digit video ID in the filename. This means that even if the filenames are different, as long as both contain the same video ID, the program will detect them as duplicates.
 
@@ -120,14 +146,17 @@ For example, if you previously downloaded `250101-username-1234567898765432100.m
 
 If you want to change this behavior so that duplicate checking is based on filename similarity instead, use the `--lazy-duplicate-check` option.
 
+### Upgrading and uninstalling the app
+
+To upgrade the app, just run `uv tool upgrade tikorgzo` and wait for uv to fetch updates from the source.
+
+To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. Take note that this doesn't remove the Tikorgzo folder generated in your Downloads directory.
+
 ## Reminders
 - Source/high-quality videos may not always be available, depending on the source. If not available, the downloaded videos are usually 1080p or 720p.
 - The program may be a bit slow during download link extraction (Stage 2), as it runs a browser in the background to extract the actual download link.
 - For this reason, the program is much more aligned to those who want to download multiple videos at once. However, you can still use it to download any number of videos you want.
-
-## Documentation
-
-Currently, there is no external site for project documentation. All documentation will be maintained within this README.md for now. If the README.md becomes too lengthy, a dedicated documentation site will be created and the relevant content will be moved there.
+- The program has been thoroughly tested on Windows 11 and is expected to work reliably on Windows systems. For Linux, testing was performed using Ubuntu through WSL so it should generally work fine on most Linux distributions, but compatibility is not guaranteed.
 
 ## License
 
