@@ -13,8 +13,6 @@ Some of the key features include:
 
 ## Installation
 
-Here is a short, quick installation and usage guide for this program.
-
 ### Requirements
 - Windows, or any Linux distros
 - Python `v3.10` or greater
