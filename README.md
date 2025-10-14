@@ -146,17 +146,17 @@ For example, if you previously downloaded `250101-username-1234567898765432100.m
 
 If you want to change this behavior so that duplicate checking is based on filename similarity instead, use the `--lazy-duplicate-check` option.
 
+### Upgrading and uninstalling the app
+
+To upgrade the app, just run `uv tool upgrade tikorgzo` and wait for uv to fetch updates from the source.
+
+To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. Take note that this doesn't remove the Tikorgzo folder generated in your Downloads directory.
+
 ## Reminders
 - Source/high-quality videos may not always be available, depending on the source. If not available, the downloaded videos are usually 1080p or 720p.
 - The program may be a bit slow during download link extraction (Stage 2), as it runs a browser in the background to extract the actual download link.
 - For this reason, the program is much more aligned to those who want to download multiple videos at once. However, you can still use it to download any number of videos you want.
 - The program has been thoroughly tested on Windows 11 and is expected to work reliably on Windows systems. For Linux, testing was performed using Ubuntu through WSL so it should generally work fine on most Linux distributions, but compatibility is not guaranteed.
-
-## Upgrading and uninstalling the app
-
-To upgrade the app, just run `uv tool upgrade tikorgzo` and wait for uv to fetch updates from the source.
-
-To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. Take note that this doesn't remove the Tikorgzo folder generated in your Downloads directory.
 
 ## License
 
