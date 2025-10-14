@@ -17,3 +17,7 @@ playground
 
 # setuptools_scm
 _version.py
+
+# VS Code
+.vscode/
+*.code-workspace
