@@ -6,7 +6,9 @@ Some of the key features include:
 
 - Download TikTok video from command-line just by supplying the ID or video link.
 - Supports multiple links to be downloaded.
+- Set max number of simultaneous downloads.
 - Supports link extraction from a text file.
+- Customize the filename of downloaded videos.
 - Extracts downloads link asynchronously for faster link extraction.
 
 ## Installation
