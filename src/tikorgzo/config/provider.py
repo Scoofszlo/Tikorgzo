@@ -1,4 +1,5 @@
 from argparse import Namespace
+from typing import Any
 from tikorgzo.config import mapper
 from tikorgzo.config import parser
 from tikorgzo.config.model import ConfigKey
@@ -14,7 +15,7 @@ class ConfigProvider:
             "config_file": None
         }
 
-    def get_value(self, key: ConfigKey) -> str | int | bool | None:
+    def get_value(self, key: ConfigKey) -> Any:
         """Get the config value for the given key, prioritizing CLI over config file over default."""
 
         cli_config = self.config.get("cli")
