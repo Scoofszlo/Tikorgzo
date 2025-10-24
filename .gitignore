@@ -21,3 +21,6 @@ _version.py
 # VS Code
 .vscode/
 *.code-workspace
+
+# User-specific files
+tikorgzo.conf
