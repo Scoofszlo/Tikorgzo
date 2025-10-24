@@ -6,6 +6,9 @@ from tikorgzo import exceptions as exc
 from tikorgzo import generic as fn
 from tikorgzo.cli.args_handler import ArgsHandler
 from tikorgzo.cli.args_validator import validate_args
+from tikorgzo.config.model import ConfigKey
+from tikorgzo.config.provider import ConfigProvider
+from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_link_extractor import Extractor
@@ -19,8 +22,18 @@ async def main() -> None:
 
     validate_args(ah, args)
 
+    config = ConfigProvider()
+    config.map_from_cli(args)
+    config.map_from_config_file(CONFIG_PATH_LOCATIONS)
+
     # Get the video IDs
-    video_links = fn.extract_video_links(args.file, args.link)
+    file_path = config.get_value(ConfigKey.FILE)
+    link_list = config.get_value(ConfigKey.LINK)
+
+    assert isinstance(file_path, str) or file_path is None
+    assert isinstance(link_list, list)
+
+    video_links = fn.extract_video_links(file_path, link_list)
     download_queue = DownloadQueueManager()
 
     console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")
