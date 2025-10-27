@@ -13,9 +13,11 @@ def map_from_cli(args: Namespace) -> dict:
     config = {}
 
     for config_key in CONFIG_VARIABLES:
+        # Use getattr to safely get attribute from Namespace
+        value = getattr(args, config_key, None)
 
-        if getattr(args, config_key, None) is not None:
-            config[config_key] = getattr(args, config_key, None)
+        if value is not None:
+            config[config_key] = value
         else:
             config[config_key] = None
 
@@ -36,28 +38,28 @@ def map_from_config_file(loaded_config: dict) -> Optional[dict]:
     config = {}
 
     for key in loaded_config:
-        if key in CONFIG_VARIABLES:
-            expected_type = CONFIG_VARIABLES[key]["type"]
-            value = loaded_config[key]
-
-            if value is not None and not isinstance(value, expected_type):
-                # Program must be stopped here as loading incompatible types (which obviously has different data) can
-                # lead to unexpected behavior.
-                console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file expects type [green]'{expected_type.__name__}[/green]', got '[yellow]{type(value).__name__}[/yellow]'.")
-                sys.exit(1)
-
-            if key == ConfigKey.MAX_CONCURRENT_DOWNLOADS:
-                constraints = CONFIG_VARIABLES[key]["constraints"]
-                min_value = constraints["min"]
-                max_value = constraints["max"]
-
-                if value > max_value or value < min_value:
-                    console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file must be in the range of 1 to 16.")
-                    sys.exit(1)
-
-            config[key] = loaded_config[key]
-        else:
+        if key not in CONFIG_VARIABLES:
             console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file isn't a valid config key.")
             sys.exit(1)
+
+        expected_type = CONFIG_VARIABLES[key]["type"]
+        value = loaded_config[key]
+
+        if value is not None and not isinstance(value, expected_type):
+            # Program must be stopped here as loading incompatible types (which obviously has different data) can
+            # lead to unexpected behavior.
+            console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file expects type [green]'{expected_type.__name__}[/green]', got '[yellow]{type(value).__name__}[/yellow]'.")
+            sys.exit(1)
+
+        if key == ConfigKey.MAX_CONCURRENT_DOWNLOADS:
+            constraints = CONFIG_VARIABLES[key]["constraints"]
+            min_value = constraints["min"]
+            max_value = constraints["max"]
+
+            if value > max_value or value < min_value:
+                console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file must be in the range of 1 to 16.")
+                sys.exit(1)
+
+        config[key] = loaded_config[key]
 
     return config
