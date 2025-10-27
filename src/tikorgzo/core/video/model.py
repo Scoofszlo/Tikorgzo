@@ -22,6 +22,7 @@ class Video:
     Video class that handles the information of a TikTok video.
 
     Attributes:
+        _config (ConfigProvider): The configuration provider instance that holds the app's configuration.
         _video_link (str): The normalized video link.
         _video_id (int): The unique identifier for the video.
         _username (Optional[str]): The username associated with the video.
@@ -47,10 +48,15 @@ class Video:
         video_link: str,
         config: ConfigProvider,
     ):
+        self._config = config
         self._video_link = processor.validate_video_link(video_link)
         self._video_id: int = processor.extract_video_id(video_link)
 
-        processor.check_if_already_downloaded(self._video_id, config.get_value(ConfigKey.LAZY_DUPLICATE_CHECK))
+        processor.check_if_already_downloaded(
+            video_id=self._video_id,
+            lazy_duplicate_check=config.get_value(ConfigKey.LAZY_DUPLICATE_CHECK),
+            custom_download_dir=config.get_value(ConfigKey.DOWNLOAD_DIR),
+        )
 
         self._username: Optional[str] = processor._process_username(video_link)
         self._date: datetime = processor.get_date(self._video_id)
