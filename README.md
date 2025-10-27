@@ -1,6 +1,6 @@
 # Tikorgzo
 
-**Tikorgzo** is a TikTok video downloader written in Python that downloads videos in the highest available quality and saves them to your Downloads folder, organized by username. The project utilizes Playwright to obtain download links from the <b>[TikWM](https://www.tikwm.com/)</b> API. The project supports both Windows and Linux distributions.
+**Tikorgzo** is a TikTok video downloader written in Python that downloads videos in the highest available quality (4K, 2K, or 1080p), and saves them to your Downloads folder, organized by username. The project utilizes Playwright to obtain download links from the <b>[TikWM](https://www.tikwm.com/)</b> API. The project supports both Windows and Linux distributions.
 
 Some of the key features include:
 
@@ -9,17 +9,17 @@ Some of the key features include:
 - Set max number of simultaneous downloads.
 - Supports link extraction from a text file.
 - Customize the filename of downloaded videos.
-- Extracts downloads link asynchronously for faster link extraction.
+- Config file support.
 
 ## Installation
 
 ### Requirements
 - Windows, or any Linux distros
-- Python `v3.10` or greater
+- Python `v3.11` or greater
 - uv
 
 ### Steps
-1. Install Python 3.10.0 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
+1. Install Python 3.11.0 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
 2. Open your command-line.
 3. Install uv through `pip` command or via [Standalone installer](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer).
 
@@ -53,7 +53,7 @@ Some of the key features include:
     uvx playwright install-deps
     ```
 
-8. To download a TikTok video, run the following command (replace the number with your actual video ID or link):
+8. You can now download a TikTok video by running the following command (replace the number with your actual video ID or link):
   
     ```console
     tikorgzo -l 7123456789109876543
@@ -92,9 +92,9 @@ tikorgzo -f "C:\path\to\txt.file"
 
 ### Customizing the filename of the downloaded video
 
-By default, downloaded videos are saved with their video ID as the filename (e.g., `1234567898765432100.mp4`). If you want to change how your files are named, you can use the `--filename-template` arg.
+By default, downloaded videos are saved with their video ID as the filename (e.g., `1234567898765432100.mp4`). If you want to change how your files are named, you can use the `--filename-template <value>` arg, where `<value>` is your desired filename template.
 
-You can use the following placeholders in your template:
+Filename template is built using the following placeholders:
 
 - **`{video_id}`** (required): The unique ID of the video.
 - **`{username}`**: The TikTok username who posted the video.
@@ -126,6 +126,14 @@ You can use the following placeholders in your template:
     tikorgzo -l 1234567898765432100 --filename-template "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
     # Result: myusername-241230_235901-1234567898765432100.mp4
     ```
+
+Alternatively, you can also set this via config file:
+
+```toml
+[generic]
+filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
+```
+
 ### Changing the download directory
 
 By default, downloaded videos are saved in the `Tikorgzo` folder inside your system's Downloads directory.
@@ -153,13 +161,25 @@ To change the maximum number of simultaneous downloads, use the `--max-concurren
 tikorgzo -f "C:\path\to\100_video_files.txt" --max-concurrent-downloads 10
 ```
 
+Alternatively, you can also set this via config file:
+
+```toml
+[generic]
+max_concurrent_downloads = 10
+```
+
 ### Using lazy duplicate checking
 
 The program checks if the video you are attempting to download has already been downloaded. By default, duplicate checking is based on the 19-digit video ID in the filename. This means that even if the filenames are different, as long as both contain the same video ID, the program will detect them as duplicates.
 
 For example, if you previously downloaded `250101-username-1234567898765432100.mp4` and now attempt to download `username-1234567898765432100.mp4`, the program will detect it as a duplicate since both filenames contain the same video ID.
 
-If you want to change this behavior so that duplicate checking is based on filename similarity instead, use the `--lazy-duplicate-check` option.
+If you want to change this behavior so that duplicate checking is based on filename similarity instead, use the `--lazy-duplicate-check` option. Alternatively, you can also set this via config file:
+
+```toml
+[generic]
+lazy_duplicate_check = true
+```
 
 ### Using a config file
 
@@ -170,27 +190,29 @@ In order to use this, create first a file named `tikorgzo.conf` in either one of
 - Windows:
     - `./tikorgzo.conf` (the config file in the current working directory)
     - `%LocalAppData%/Tikorgzo/tikorgzo.conf`
-    - `%UserProfile%/Documents/tikorgzo.conf`
+    - `%UserProfile%/Documents/Tikorgzo/tikorgzo.conf`
 - Linux:
     - `./tikorgzo.conf` (the config file in the current working directory)
     - `~/.local/share/Tikorgzo/tikorgzo.conf`
-    - `~/Documents/tikorgzo.conf`
+    - `~/Documents/Tikorgzo/tikorgzo.conf`
 
 > [!IMPORTANT]
 > If you have multiple config files in the above locations, the program will use the first one it finds (in the order listed above).
 
-After that, create a table named `[generic]` and add your desired configurations in it. For example:
+After that, create a table named `[generic]` and add your desired configurations in it by supplying key-value pairs, where key is the name of the config option while value is the desired value.
+
+For example, if you want to set `max_concurrent_downloads` to `8`, enable `lazy_duplicate_check`, and set a custom `filename_template`, your config file should look like this:
 
 ```toml
 [generic]
-max_concurrent_downloads = 4
+max_concurrent_downloads = 8
 lazy_duplicate_check = true
 filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
 ```
 
-The key name (e.g., `max_concurrent_downloads`) that you will put here must be the same as the command-line argument name but in a snake_case form.
+The key name (i.e., `max_concurrent_downloads`, `lazy_duplicate_check`, `filename_template`) that you will put here must be the same as the command-line argument name that you used but in a snake_case form.
 
-String values must be enclosed in double quotes (`"`), while boolean and integer values must not. Moreover, boolean values must be either `true` or `false` (all lowercase).
+Take note that string values must be enclosed in double quotes (`"`), while boolean and integer values must not. Moreover, boolean values must be either `true` or `false` (all lowercase).
 
 If you wish to temporarily disable a configuration option without deleting it, you can comment out lines in the config file by adding a hash (`#`) at the beginning of the line:
 
@@ -204,6 +226,9 @@ If you wish to temporarily disable a configuration option without deleting it, y
 > [!IMPORTANT]
 > Command-line arguments will always take precedence over config file settings.
 > For example, if you set `max_concurrent_downloads` to `4` in the config file but specify `--max-concurrent-downloads 2` in the command line, the program will use `2` as the value for this config option.
+
+> [!WARNING]
+> Special characters in string values (e.g., backslashes in Windows file paths) must be properly escaped using single backslash (`\`) to avoid parsing errors. Otherwise, the program will not start and will display an error message. For example, if you are using the `--download-dir` option and you have a custom Windows path `C:\Users\%UserProfile%\A_Different_Location\Tikorgzo`, the value for this option must be written as `C:\\Users\\%UserProfile%\\A_Different_Location\\Tikorgzo`.
 
 ### Upgrading and uninstalling the app
 
