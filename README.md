@@ -170,11 +170,11 @@ In order to use this, create first a file named `tikorgzo.conf` in either one of
 - Windows:
     - `./tikorgzo.conf` (the config file in the current working directory)
     - `%LocalAppData%/Tikorgzo/tikorgzo.conf`
-    - `%UserProfile%/Documents/tikorgzo.conf`
+    - `%UserProfile%/Documents/Tikorgzo/tikorgzo.conf`
 - Linux:
     - `./tikorgzo.conf` (the config file in the current working directory)
     - `~/.local/share/Tikorgzo/tikorgzo.conf`
-    - `~/Documents/tikorgzo.conf`
+    - `~/Documents/Tikorgzo/tikorgzo.conf`
 
 > [!IMPORTANT]
 > If you have multiple config files in the above locations, the program will use the first one it finds (in the order listed above).
