@@ -15,11 +15,11 @@ Some of the key features include:
 
 ### Requirements
 - Windows, or any Linux distros
-- Python `v3.10` or greater
+- Python `v3.11` or greater
 - uv
 
 ### Steps
-1. Install Python 3.10.0 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
+1. Install Python 3.11.0 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
 2. Open your command-line.
 3. Install uv through `pip` command or via [Standalone installer](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer).
 
@@ -53,7 +53,7 @@ Some of the key features include:
     uvx playwright install-deps
     ```
 
-8. To download a TikTok video, run the following command (replace the number with your actual video ID or link):
+8. You can now download a TikTok video by running the following command (replace the number with your actual video ID or link):
   
     ```console
     tikorgzo -l 7123456789109876543
