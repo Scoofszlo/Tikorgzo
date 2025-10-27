@@ -146,11 +146,55 @@ For example, if you previously downloaded `250101-username-1234567898765432100.m
 
 If you want to change this behavior so that duplicate checking is based on filename similarity instead, use the `--lazy-duplicate-check` option.
 
+### Using a config file
+
+This program can be configured via a TOML-formmatted config file so that you don't have to supply the same arguments every time you run the program.
+
+In order to use this, create first a file named `tikorgzo.conf` in either one of these locations:
+
+- Windows:
+    - `./tikorgzo.conf` (the config file in the current working directory)
+    - `%LocalAppData%/Tikorgzo/tikorgzo.conf`
+    - `%UserProfile%/Documents/tikorgzo.conf`
+- Linux:
+    - `./tikorgzo.conf` (the config file in the current working directory)
+    - `~/.local/share/Tikorgzo/tikorgzo.conf`
+    - `~/Documents/tikorgzo.conf`
+
+> [!IMPORTANT]
+> If you have multiple config files in the above locations, the program will use the first one it finds (in the order listed above).
+
+After that, create a table named `[generic]` and add your desired configurations in it. For example:
+
+```toml
+[generic]
+max_concurrent_downloads = 4
+lazy_duplicate_check = true
+filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
+```
+
+The key name (e.g., `max_concurrent_downloads`) that you will put here must be the same as the command-line argument name but in a snake_case form.
+
+String values must be enclosed in double quotes (`"`), while boolean and integer values must not. Moreover, boolean values must be either `true` or `false` (all lowercase).
+
+If you wish to temporarily disable a configuration option without deleting it, you can comment out lines in the config file by adding a hash (`#`) at the beginning of the line:
+
+```toml
+[generic]
+# max_concurrent_downloads = 4
+# lazy_duplicate_check = true
+# filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
+```
+
+> [!IMPORTANT]
+> Command-line arguments will always take precedence over config file settings.
+> For example, if you set `max_concurrent_downloads` to `4` in the config file but specify `--max-concurrent-downloads 2` in the command line, the program will use `2` as the value for this config option.
+
 ### Upgrading and uninstalling the app
 
 To upgrade the app, just run `uv tool upgrade tikorgzo` and wait for uv to fetch updates from the source.
 
-To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. Take note that this doesn't remove the Tikorgzo folder generated in your Downloads directory.
+To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. Take note that this doesn't remove the Tikorgzo folder generated in your Downloads directory, as well as your config file/s that you have created.
 
 ## Reminders
 - Source/high-quality videos may not always be available, depending on the source. If not available, the downloaded videos are usually 1080p or 720p.

@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+from tikorgzo.config.model import ConfigKey
+from tikorgzo.config.provider import ConfigProvider
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.processor import VideoInfoProcessor
 from tikorgzo.exceptions import FileSizeNotSetError, FileTooLargeError
@@ -33,8 +35,7 @@ class Video:
 
     Args:
         video_link (str): The TikTok video link or video ID.
-        filename_template (Optional[str]): Template for naming the output file.
-        lazy_duplicate_check (Optional[bool]): Enables lazy duplicate checking whether to proceed downloading or not.
+        config (ConfigProvider): The configuration provider instance that holds the app's configuration.
 
     Raises:
         InvalidVideoLink: If the provided video link is not valid.
@@ -44,20 +45,19 @@ class Video:
     def __init__(
         self,
         video_link: str,
-        filename_template: Optional[str] = None,
-        lazy_duplicate_check: Optional[bool] = None
+        config: ConfigProvider,
     ):
         self._video_link = processor.validate_video_link(video_link)
         self._video_id: int = processor.extract_video_id(video_link)
 
-        processor.check_if_already_downloaded(self._video_id, lazy_duplicate_check)
+        processor.check_if_already_downloaded(self._video_id, config.get_value(ConfigKey.LAZY_DUPLICATE_CHECK))
 
         self._username: Optional[str] = processor._process_username(video_link)
         self._date: datetime = processor.get_date(self._video_id)
         self._download_link: Optional[str] = None
         self._file_size = FileSize()
         self._download_status = DownloadStatus.UNSTARTED
-        self._filename_template: Optional[str] = filename_template
+        self._filename_template: Optional[str] = config.get_value(ConfigKey.FILENAME_TEMPLATE)
         self._output_file_dir: Optional[str] = None
         self._output_file_path: Optional[str] = None
         processor.process_output_paths(self)

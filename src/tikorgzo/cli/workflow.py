@@ -6,6 +6,9 @@ from tikorgzo import exceptions as exc
 from tikorgzo import generic as fn
 from tikorgzo.cli.args_handler import ArgsHandler
 from tikorgzo.cli.args_validator import validate_args
+from tikorgzo.config.model import ConfigKey
+from tikorgzo.config.provider import ConfigProvider
+from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_link_extractor import Extractor
@@ -19,8 +22,15 @@ async def main() -> None:
 
     validate_args(ah, args)
 
+    config = ConfigProvider()
+    config.map_from_cli(args)
+    config.map_from_config_file(CONFIG_PATH_LOCATIONS)
+
     # Get the video IDs
-    video_links = fn.extract_video_links(args.file, args.link)
+    file_path = args.file
+    link_list = args.link
+
+    video_links = fn.extract_video_links(file_path, link_list)
     download_queue = DownloadQueueManager()
 
     console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")
@@ -30,7 +40,7 @@ async def main() -> None:
             curr_pos = idx + 1
             with console.status(f"Checking video {curr_pos} if already exist..."):
                 try:
-                    video = Video(video_link=video_link, filename_template=args.filename_template, lazy_duplicate_check=args.lazy_duplicate_check)
+                    video = Video(video_link=video_link, config=config)
                     video.download_status = DownloadStatus.QUEUED
                     download_queue.add(video)
                     console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
@@ -85,7 +95,7 @@ async def main() -> None:
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
 
-    videos = await fn.download_video(args.max_concurrent_downloads, download_queue.get_queue())
+    videos = await fn.download_video(config.get_value(ConfigKey.MAX_CONCURRENT_DOWNLOADS), download_queue.get_queue())
     fn.cleanup_interrupted_downloads(videos)
     fn.print_download_results(videos)
 

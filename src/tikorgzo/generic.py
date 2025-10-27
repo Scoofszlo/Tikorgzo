@@ -1,7 +1,7 @@
 import asyncio
 import sys
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
-from typing import Optional
+from typing import List, Optional
 
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
@@ -10,7 +10,7 @@ from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import InvalidLinkSourceExtractionError
 
 
-def extract_video_links(file_path: str, links: str) -> list[str]:
+def extract_video_links(file_path: Optional[str], links: List[str]) -> list[str]:
     """Extracts the video links based from a list of strings or from a file. """
 
     if file_path:
