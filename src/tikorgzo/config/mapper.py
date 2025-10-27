@@ -1,6 +1,5 @@
 from argparse import Namespace
 import sys
-import sys
 from typing import Optional
 from tikorgzo.config.model import ConfigKey
 from tikorgzo.console import console
