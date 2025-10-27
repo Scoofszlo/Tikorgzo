@@ -10,13 +10,13 @@ from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import InvalidLinkSourceExtractionError
 
 
-def extract_video_links(file_path: Optional[str], links: List[str]) -> list[str]:
+def extract_video_links(file_path: Optional[str], links: List[str]) -> set[str]:
     """Extracts the video links based from a list of strings or from a file. """
 
     if file_path:
         try:
             with open(file_path, "r", encoding="utf-8") as f:
-                return [line.strip() for line in f if line.strip()]
+                return set([line.strip() for line in f if line.strip()])
         except FileNotFoundError:
             console.print(f"[red]error[/red]: '{file_path}' doesn't exist.")
             sys.exit(1)
@@ -30,7 +30,7 @@ def extract_video_links(file_path: Optional[str], links: List[str]) -> list[str]
         for link in links:
             links_list.append(link)
 
-        return links_list
+        return set(links_list)
 
     raise InvalidLinkSourceExtractionError()
 
