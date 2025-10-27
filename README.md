@@ -92,9 +92,9 @@ tikorgzo -f "C:\path\to\txt.file"
 
 ### Customizing the filename of the downloaded video
 
-By default, downloaded videos are saved with their video ID as the filename (e.g., `1234567898765432100.mp4`). If you want to change how your files are named, you can use the `--filename-template` arg.
+By default, downloaded videos are saved with their video ID as the filename (e.g., `1234567898765432100.mp4`). If you want to change how your files are named, you can use the `--filename-template <value>` arg, where `<value>` is your desired filename template.
 
-You can use the following placeholders in your template:
+Filename template is built using the following placeholders:
 
 - **`{video_id}`** (required): The unique ID of the video.
 - **`{username}`**: The TikTok username who posted the video.
