@@ -126,6 +126,14 @@ Filename template is built using the following placeholders:
     tikorgzo -l 1234567898765432100 --filename-template "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
     # Result: myusername-241230_235901-1234567898765432100.mp4
     ```
+
+Alternatively, you can also set this via config file:
+
+```toml
+[generic]
+filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
+```
+
 ### Changing the download directory
 
 By default, downloaded videos are saved in the `Tikorgzo` folder inside your system's Downloads directory.
@@ -153,13 +161,25 @@ To change the maximum number of simultaneous downloads, use the `--max-concurren
 tikorgzo -f "C:\path\to\100_video_files.txt" --max-concurrent-downloads 10
 ```
 
+Alternatively, you can also set this via config file:
+
+```toml
+[generic]
+max_concurrent_downloads = 10
+```
+
 ### Using lazy duplicate checking
 
 The program checks if the video you are attempting to download has already been downloaded. By default, duplicate checking is based on the 19-digit video ID in the filename. This means that even if the filenames are different, as long as both contain the same video ID, the program will detect them as duplicates.
 
 For example, if you previously downloaded `250101-username-1234567898765432100.mp4` and now attempt to download `username-1234567898765432100.mp4`, the program will detect it as a duplicate since both filenames contain the same video ID.
 
-If you want to change this behavior so that duplicate checking is based on filename similarity instead, use the `--lazy-duplicate-check` option.
+If you want to change this behavior so that duplicate checking is based on filename similarity instead, use the `--lazy-duplicate-check` option. Alternatively, you can also set this via config file:
+
+```toml
+[generic]
+lazy_duplicate_check = true
+```
 
 ### Using a config file
 
