@@ -1,6 +1,6 @@
 # Tikorgzo
 
-**Tikorgzo** is a TikTok video downloader written in Python that downloads videos in the highest available quality and saves them to your Downloads folder, organized by username. The project utilizes Playwright to obtain download links from the <b>[TikWM](https://www.tikwm.com/)</b> API. The project supports both Windows and Linux distributions.
+**Tikorgzo** is a TikTok video downloader written in Python that downloads videos in the highest available quality (4K, 2K, or 1080p), and saves them to your Downloads folder, organized by username. The project utilizes Playwright to obtain download links from the <b>[TikWM](https://www.tikwm.com/)</b> API. The project supports both Windows and Linux distributions.
 
 Some of the key features include:
 
@@ -9,7 +9,7 @@ Some of the key features include:
 - Set max number of simultaneous downloads.
 - Supports link extraction from a text file.
 - Customize the filename of downloaded videos.
-- Extracts downloads link asynchronously for faster link extraction.
+- Config file support.
 
 ## Installation
 
