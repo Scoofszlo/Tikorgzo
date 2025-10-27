@@ -68,7 +68,11 @@ def _raise_error_if_invalid_filename_string() -> None:
         # Check for illegal filename characters (Windows and Linux)
         illegal_chars = r'<>:"/\\|?*\0'
         if any(char in date_fmt for char in illegal_chars):
-            console.print(f"[red]error[/red]: '[blue]--filename-template[/blue]' contains illegal characters in your '[green]{{date:{date_fmt}}}[/green]' placeholder. Avoid using any of these [yellow]{illegal_chars}[/yellow] on it.")
+            console.print(
+                f"[red]error[/red]: '[blue]--filename-template[/blue]' contains illegal characters in your "
+                f"'[green]{{date:{date_fmt}}}[/green]' placeholder. Avoid using any of these "
+                f"[yellow]{illegal_chars}[/yellow] on it."
+            )
             sys.exit(1)
 
         # Print an error and exit the program when user tries to use a format that doesn't work

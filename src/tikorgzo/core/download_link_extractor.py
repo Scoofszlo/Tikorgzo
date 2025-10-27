@@ -107,7 +107,7 @@ class Extractor:
             # Wait for either the limit message or the next step to appear
             limit_selector = "div:has-text('Free Api Limit: 1 request/second.')"
             try:
-                # Wait briefly to see if the limit message appears 
+                # Wait briefly to see if the limit message appears
                 await page.wait_for_selector(limit_selector, state="visible", timeout=2000)
                 # If limit message appears, wait and retry
                 await asyncio.sleep(1)
