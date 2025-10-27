@@ -29,6 +29,7 @@ dev = [
     "setuptools-scm>=9.2.0",
     "types-aiofiles>=24.1.0.20250822",
     "types-requests>=2.32.4.20250913",
+    "types-toml>=0.10.8.20240310",
 ]
 
 [project.scripts]
