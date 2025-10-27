@@ -5,6 +5,10 @@ from platformdirs import user_data_path, user_documents_path
 from tikorgzo.constants import APP_NAME
 
 CONFIG_VARIABLES: Dict[str, Dict[str, Any]] = {
+    "download_dir": {
+        "default": None,
+        "type": str,
+    },
     "max_concurrent_downloads": {
         "default": 4,
         "type": int,

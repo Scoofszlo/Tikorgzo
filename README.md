@@ -126,7 +126,22 @@ You can use the following placeholders in your template:
     tikorgzo -l 1234567898765432100 --filename-template "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
     # Result: myusername-241230_235901-1234567898765432100.mp4
     ```
+### Changing the download directory
 
+By default, downloaded videos are saved in the `Tikorgzo` folder inside your system's Downloads directory.
+
+If you want to save the downloaded videos to a different directory, you can use the `--download-dir <path>` arg, where `<path>` is the path to your desired download directory:
+
+```console
+tikorgzo -l 1234567898765432100 --download-dir "C:\path\to\custom\downloads"
+```
+
+Alternatively, you can also set this via config file:
+
+```toml
+[generic]
+download_dir = "C:\\path\\to\\custom\\downloads"
+```
 
 ### Setting the maximum number of simultaneous downloads
 
