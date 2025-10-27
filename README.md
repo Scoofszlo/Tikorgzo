@@ -154,11 +154,11 @@ In order to use this, create first a file named `tikorgzo.conf` in either one of
 
 - Windows:
     - `%CWD%/tikorgzo.conf`
-    - `%LocalAppData%/tikorgzo/tikorgzo.conf`
+    - `%LocalAppData%/Tikorgzo/tikorgzo.conf`
     - `%UserProfile%/Documents/tikorgzo.conf`
 - Linux:
     - `%CWD%/tikorgzo.conf`
-    - `~/.local/share/tikorgzo/tikorgzo.conf`
+    - `~/.local/share/Tikorgzo/tikorgzo.conf`
     - `~/Documents/tikorgzo.conf`
 
 > [!IMPORTANT]
