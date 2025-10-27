@@ -154,7 +154,7 @@ In order to use this, create first a file named `tikorgzo.conf` in either one of
 
 - Windows:
     - `%CWD%/tikorgzo.conf`
-    - `%LocalAppData%/tk3u8/tk3u8.conf`
+    - `%LocalAppData%/tikorgzo/tikorgzo.conf`
     - `%UserProfile%/Documents/tikorgzo.conf`
 - Linux:
     - `%CWD%/tikorgzo.conf`
