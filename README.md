@@ -179,18 +179,20 @@ In order to use this, create first a file named `tikorgzo.conf` in either one of
 > [!IMPORTANT]
 > If you have multiple config files in the above locations, the program will use the first one it finds (in the order listed above).
 
-After that, create a table named `[generic]` and add your desired configurations in it. For example:
+After that, create a table named `[generic]` and add your desired configurations in it by supplying key-value pairs, where key is the name of the config option while value is the desired value.
+
+For example, if you want to set `max_concurrent_downloads` to `8`, enable `lazy_duplicate_check`, and set a custom `filename_template`, your config file should look like this:
 
 ```toml
 [generic]
-max_concurrent_downloads = 4
+max_concurrent_downloads = 8
 lazy_duplicate_check = true
 filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
 ```
 
-The key name (e.g., `max_concurrent_downloads`) that you will put here must be the same as the command-line argument name but in a snake_case form.
+The key name (i.e., `max_concurrent_downloads`, `lazy_duplicate_check`, `filename_template`) that you will put here must be the same as the command-line argument name that you used but in a snake_case form.
 
-String values must be enclosed in double quotes (`"`), while boolean and integer values must not. Moreover, boolean values must be either `true` or `false` (all lowercase).
+Take note that string values must be enclosed in double quotes (`"`), while boolean and integer values must not. Moreover, boolean values must be either `true` or `false` (all lowercase).
 
 If you wish to temporarily disable a configuration option without deleting it, you can comment out lines in the config file by adding a hash (`#`) at the beginning of the line:
 
