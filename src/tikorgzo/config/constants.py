@@ -1,9 +1,10 @@
 import os
+from typing import Any, Dict
 
 from platformdirs import user_data_path, user_documents_path
 from tikorgzo.constants import APP_NAME
 
-CONFIG_VARIABLES = {
+CONFIG_VARIABLES: Dict[str, Dict[str, Any]] = {
     "max_concurrent_downloads": {
         "default": 4,
         "type": int,
