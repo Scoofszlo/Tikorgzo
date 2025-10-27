@@ -153,11 +153,11 @@ This program can be configured via a TOML-formmatted config file so that you don
 In order to use this, create first a file named `tikorgzo.conf` in either one of these locations:
 
 - Windows:
-    - `%CWD%/tikorgzo.conf`
+    - `./tikorgzo.conf` (the config file in the current working directory)
     - `%LocalAppData%/Tikorgzo/tikorgzo.conf`
     - `%UserProfile%/Documents/tikorgzo.conf`
 - Linux:
-    - `%CWD%/tikorgzo.conf`
+    - `./tikorgzo.conf` (the config file in the current working directory)
     - `~/.local/share/Tikorgzo/tikorgzo.conf`
     - `~/Documents/tikorgzo.conf`
 
