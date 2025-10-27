@@ -4,6 +4,7 @@ import requests
 from datetime import datetime, timezone
 from typing import Optional, TYPE_CHECKING
 
+from tikorgzo.config.model import ConfigKey
 from tikorgzo.constants import DOWNLOAD_PATH
 from tikorgzo.exceptions import InvalidDateFormat, InvalidVideoLink, VideoFileAlreadyExistsError, VideoIDExtractionError
 
@@ -49,7 +50,12 @@ class VideoInfoProcessor:
 
         raise VideoIDExtractionError()
 
-    def check_if_already_downloaded(self, video_id: int, lazy_duplicate_check: bool) -> None:
+    def check_if_already_downloaded(
+            self,
+            video_id: int,
+            lazy_duplicate_check: bool,
+            custom_download_dir: Optional[str] = None,
+    ) -> None:
         """Recursively checks the output folder, which is the default DOWNLOAD_PATH,
         to see if a file already exists whether the filename contains the video ID or not.
         If true, this will raise an error.
@@ -60,7 +66,11 @@ class VideoInfoProcessor:
         if lazy_duplicate_check is True:
             return
 
-        for root, _, filenames in os.walk(DOWNLOAD_PATH):
+        download_dir = self._get_download_dir(custom_download_dir)
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir, exist_ok=True)
+
+        for root, _, filenames in os.walk(download_dir):
             for f in filenames:
                 if str(video_id) in f:
                     username = os.path.basename(root)
@@ -99,11 +109,14 @@ class VideoInfoProcessor:
         video_id = video._video_id
         filename_template = video._filename_template
         date = video._date
+        download_dir = self._get_download_dir(
+            custom_downloads_dir=video._config.get_value(ConfigKey.DOWNLOAD_DIR)
+        )
 
         assert isinstance(video_id, int)
 
         if username is not None:
-            output_path = os.path.join(DOWNLOAD_PATH, username)
+            output_path = os.path.join(download_dir, username)
             video_filename = self._get_video_filename(video_id, username, date, filename_template)
             os.makedirs(output_path, exist_ok=True)
             video_file = os.path.join(output_path, video_filename)
@@ -203,3 +216,8 @@ class VideoInfoProcessor:
         formatted_filename = re.sub(date_placeholder, formatted_date, filename_template)
 
         return formatted_filename
+
+    def _get_download_dir(self, custom_downloads_dir: Optional[str]) -> str:
+        if custom_downloads_dir:
+            return custom_downloads_dir
+        return DOWNLOAD_PATH
