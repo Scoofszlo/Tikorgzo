@@ -23,10 +23,9 @@ CONFIG_VARIABLES = {
 }
 
 DEFAULT_CONFIG_OPTS = {key: value["default"] for key, value in CONFIG_VARIABLES.items()}
-
-
+CONFIG_FILE_NAME = "tikorgzo.conf"
 CONFIG_PATH_LOCATIONS = [
-    os.path.join(os.getcwd(), "tikorgzo.conf"),
-    os.path.join(user_data_path(), APP_NAME, "tikorgzo.conf"),
-    os.path.join(user_documents_path(), APP_NAME, "tikorgzo.conf"),
+    os.path.join(os.getcwd(), CONFIG_FILE_NAME),
+    os.path.join(user_data_path(), APP_NAME, CONFIG_FILE_NAME),
+    os.path.join(user_documents_path(), APP_NAME, CONFIG_FILE_NAME),
 ]
