@@ -227,6 +227,9 @@ If you wish to temporarily disable a configuration option without deleting it, y
 > Command-line arguments will always take precedence over config file settings.
 > For example, if you set `max_concurrent_downloads` to `4` in the config file but specify `--max-concurrent-downloads 2` in the command line, the program will use `2` as the value for this config option.
 
+> [!WARNING]
+> Special characters in string values (e.g., backslashes in Windows file paths) must be properly escaped using single backslash (`\`) to avoid parsing errors. Otherwise, the program will not start and will display an error message. For example, if you are using the `--download-dir` option and you have a custom Windows path `C:\Users\%UserProfile%\A_Different_Location\Tikorgzo`, the value for this option must be written as `C:\\Users\\%UserProfile%\\A_Different_Location\\Tikorgzo`.
+
 ### Upgrading and uninstalling the app
 
 To upgrade the app, just run `uv tool upgrade tikorgzo` and wait for uv to fetch updates from the source.
