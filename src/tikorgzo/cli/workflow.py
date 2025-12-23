@@ -85,8 +85,8 @@ async def main() -> None:
                         successful_tasks.append(video)
 
             download_queue.replace_queue(successful_tasks)
-    except exc.MissingPlaywrightBrowserError:
-        console.print("[red]error:[/red] Playwright browser hasn't been installed. Run [b]'uvx playwright install'[/b] to install the browser.")
+    except exc.MissingChromeBrowserError:
+        console.print("[red]error:[/red] Google Chrome is not installed in your system. Please install it to proceed.")
         sys.exit(1)
     except (
         Exception,

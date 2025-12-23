@@ -3,7 +3,7 @@ from typing import Optional
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page, Playwright
 
 from tikorgzo.constants import CHROME_USER_DATA_DIR
-from tikorgzo.exceptions import MissingPlaywrightBrowserError
+from tikorgzo.exceptions import MissingChromeBrowserError, MissingPlaywrightBrowserError
 
 
 class ScrapeBrowser:
@@ -36,9 +36,8 @@ class ScrapeBrowser:
             if hasattr(self, 'playwright') and self._playwright:
                 await self._playwright.stop()
 
-            if "Executable doesn't exist" in str(e):
-                print(e)
-                raise MissingPlaywrightBrowserError() from e
+            if "Executable doesn't exist" or "'chrome is not found" in str(e):
+                raise MissingChromeBrowserError()
             else:
                 raise e
 
