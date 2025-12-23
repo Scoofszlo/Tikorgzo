@@ -1,10 +1,10 @@
-import aiohttp
 import asyncio
-from playwright._impl._errors import Error
-from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 from typing import Optional
+import aiohttp
+from playwright.async_api import Page
 
 from tikorgzo.console import console
+from tikorgzo.core.browser import ScrapeBrowser
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError, VagueErrorMessageError
 
@@ -17,28 +17,21 @@ MAX_CONCURRENT_EXTRACTION_TASKS = 5
 class Extractor:
     """Uses Playwright to browse the API for download link extraction."""
 
-    def __init__(self) -> None:
-        self.browser: Optional[Browser] = None
-        self.context: Optional[BrowserContext] = None
+    def __init__(self) -> 'Extractor':
         self.semaphore = asyncio.Semaphore(MAX_CONCURRENT_EXTRACTION_TASKS)
+        self.browser: Optional[ScrapeBrowser] = None
 
     async def __aenter__(self) -> 'Extractor':
         try:
-            self.playwright = await async_playwright().start()
-            self.browser = await self.playwright.chromium.launch(headless=True)
-            self.context = await self.browser.new_context(accept_downloads=True)
-
+            self.browser = ScrapeBrowser()
+            await self.browser.initialize()
             return self
-        except Error:
-            if self.browser:
-                await self.browser.close()
-            await self.playwright.stop()
-
-            raise MissingPlaywrightBrowserError()
+        except Exception as e:
+            await self.browser.cleanup()
+            raise e
 
     async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[BaseException], exc_tb: Optional[object]) -> None:
-        with console.status("Hit Ctrl+C to exit again..."):
-            await self._cleanup()
+        await self.browser.cleanup()
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
         tasks = [self._extract(video) for video in videos]
@@ -49,9 +42,7 @@ class Extractor:
         # at a time
         async with self.semaphore:
             try:
-                assert isinstance(self.context, BrowserContext)
-
-                page: Page = await self.context.new_page()
+                page = await self.browser.context.new_page()
 
                 await self._open_webpage(page)
                 await self._submit_link(page, video.video_link)
@@ -166,8 +157,3 @@ class Extractor:
                 response.raise_for_status()
                 total_size_bytes = float(response.headers.get('content-length', 0))
                 return total_size_bytes
-
-    async def _cleanup(self) -> None:
-        if self.browser:
-            await self.browser.close()
-        await self.playwright.stop()
