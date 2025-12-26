@@ -1,6 +1,7 @@
 import asyncio
 import sys
 from playwright.sync_api import Error as PlaywrightError
+from playwright.async_api import Error as PlaywrightAsyncError
 
 from tikorgzo import exceptions as exc
 from tikorgzo import generic as fn
@@ -84,8 +85,14 @@ async def main() -> None:
                         successful_tasks.append(video)
 
             download_queue.replace_queue(successful_tasks)
-    except exc.MissingPlaywrightBrowserError:
-        console.print("[red]error:[/red] Playwright browser hasn't been installed. Run [b]'uvx playwright install'[/b] to install the browser.")
+    except exc.MissingChromeBrowserError:
+        console.print("[red]error:[/red] Google Chrome is not installed in your system. Please install it to proceed.")
+        sys.exit(1)
+    except (
+        Exception,
+        PlaywrightAsyncError
+    ) as e:
+        console.print(f"[red]error:[/red] An unexpected error occurred during link extraction: {type(e).__name__}: {e}")
         sys.exit(1)
 
     if download_queue.is_empty():

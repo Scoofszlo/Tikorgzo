@@ -9,6 +9,14 @@ class MissingPlaywrightBrowserError(Exception):
         super().__init__(self.message)
 
 
+class MissingChromeBrowserError(Exception):
+    """Raised when Chrome browser to be used for extraction hasn't been installed."""
+
+    def __init__(self) -> None:
+        self.message = "Chrome browser isn't installed on this system. Please install Chrome to proceed."
+        super().__init__(self.message)
+
+
 class InvalidLinkSourceExtractionError(Exception):
     """Raised when there is no specified link or file for processing of links."""
 

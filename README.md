@@ -16,18 +16,20 @@ Some of the key features include:
 ### Requirements
 - Windows, or any Linux distros
 - Python `v3.11` or greater
+- Google Chrome
 - uv
 
 ### Steps
 1. Install Python 3.11.0 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
-2. Open your command-line.
-3. Install uv through `pip` command or via [Standalone installer](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer).
+2. Install Google Chrome from the official website. For Linux users, choose the appropriate package according to your installed distribution.
+3. Open your command-line.
+4. Install uv through `pip` command or via [Standalone installer](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer).
 
     ```console
     pip install uv
     ```
 
-4. Install the latest published stable release into your system.
+5. Install the latest published stable release into your system.
 
     ```
     uv tool install tikorgzo
@@ -39,18 +41,13 @@ Some of the key features include:
     uv tool install git+https://github.com/Scoofszlo/Tikorgzo
     ```
 
-5. For Windows users, if `warning: C:\Users\$USERNAME\.local\bin is not on your PATH...` appears, add the specified directory to your [user or system PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), then reopen your command-line.
+6. For Windows users, if `warning: C:\Users\$USERNAME\.local\bin is not on your PATH...` appears, add the specified directory to your [user or system PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), then reopen your command-line.
 
-6. Install the Playwright browser. This is needed to allow download link extraction from the API.
 
-    ```console
-    uvx playwright install
-    ```
-
-7. For Linux users, Playwright might display a message containing `sudo playwright install-deps`. Follow the instructions, but replace the command with:
+7. For Linux users who run Ubuntu through WSL, you can install Google Chrome with this command:
 
     ```console
-    uvx playwright install-deps
+    uvx playwright install chrome
     ```
 
 8. You can now download a TikTok video by running the following command (replace the number with your actual video ID or link):
@@ -59,7 +56,9 @@ Some of the key features include:
     tikorgzo -l 7123456789109876543
     ```
 
-9. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
+9. After running this command, Google Chrome will open automatically. If the Cloudflare verification does not complete on its own, manually check the box.
+
+10. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
 
 ## Usage
 
@@ -240,7 +239,8 @@ To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. T
 - Source/high-quality videos may not always be available, depending on the source. If not available, the downloaded videos are usually 1080p or 720p.
 - The program may be a bit slow during download link extraction (Stage 2), as it runs a browser in the background to extract the actual download link.
 - For this reason, the program is much more aligned to those who want to download multiple videos at once. However, you can still use it to download any number of videos you want.
-- The program has been thoroughly tested on Windows 11 and is expected to work reliably on Windows systems. For Linux, testing was performed using Ubuntu through WSL so it should generally work fine on most Linux distributions, but compatibility is not guaranteed.
+- The program has been thoroughly tested on Windows 11 and is expected to work reliably on Windows systems. For Linux, testing was performed on a virtual machine running Linux Mint, as well as on Ubuntu through WSL so it should generally work fine on most Linux distributions, but compatibility is not guaranteed.
+- Recently, TikWM has implemented strict checks on their website visitors, which has affected the way the program works. With the recent fix I made on Dec 23, 2025, the program now requires Google Chrome to be installed on your system in order for this program to work. Additionally, every time you download, a browser will open in the background, which might be a bit annoying for some, but this is the best workaround (yet) I have found so far.
 
 ## License
 
