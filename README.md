@@ -31,7 +31,7 @@ Some of the key features include:
 
 5. Install the latest published stable release into your system.
 
-    ```
+    ```console
     uv tool install tikorgzo
     ```
 
@@ -43,8 +43,14 @@ Some of the key features include:
 
 6. For Windows users, if `warning: C:\Users\$USERNAME\.local\bin is not on your PATH...` appears, add the specified directory to your [user or system PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), then reopen your command-line.
 
-
 7. For Linux users who run Ubuntu through WSL, you can install Google Chrome with this command:
+
+    ```console
+    curl -O https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    sudo apt install ./google-chrome-stable_current_amd64.deb
+    ```
+
+    Alternatively, you can also use this command:
 
     ```console
     uvx playwright install chrome
