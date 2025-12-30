@@ -12,7 +12,7 @@ from tikorgzo.config.provider import ConfigProvider
 from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
-from tikorgzo.core.download_link_extractor import Extractor
+from tikorgzo.core.extractors.tikwm.download_link_extractor import Extractor
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.video.model import Video
 

@@ -4,7 +4,7 @@ import aiohttp
 from playwright.async_api import Page
 
 from tikorgzo.console import console
-from tikorgzo.core.browser import ScrapeBrowser
+from tikorgzo.core.extractors.tikwm.browser import ScrapeBrowser
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError, VagueErrorMessageError
 
