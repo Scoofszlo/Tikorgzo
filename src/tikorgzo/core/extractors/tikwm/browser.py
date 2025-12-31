@@ -9,13 +9,13 @@ from tikorgzo.exceptions import MissingChromeBrowserError, MissingPlaywrightBrow
 class ScrapeBrowser:
     """A class for Playwright browser instance management."""
 
-    def __init__(self) -> 'ScrapeBrowser':
+    def __init__(self) -> None:
         self._playwright: Optional[Playwright] = None
         self._browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
         self.page: Optional[Page] = None
 
-    async def initialize(self) -> 'ScrapeBrowser':
+    async def initialize(self) -> None:
         """Initializes the Playwright browser instance."""
 
         try:
@@ -44,4 +44,5 @@ class ScrapeBrowser:
     async def cleanup(self) -> None:
         if self._browser:
             await self._browser.close()
-        await self._playwright.stop()
+        if self._playwright:
+            await self._playwright.stop()
