@@ -1,7 +1,7 @@
 from abc import abstractmethod
 import asyncio
 
-from tikorgzo.core.extractors.tikwm.download_link_extractor import MAX_CONCURRENT_EXTRACTION_TASKS
+from tikorgzo.core.extractors.constants import MAX_CONCURRENT_EXTRACTION_TASKS
 from tikorgzo.core.video.model import Video
 
 
