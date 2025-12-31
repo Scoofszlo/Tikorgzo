@@ -12,8 +12,9 @@ from tikorgzo.config.provider import ConfigProvider
 from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
-from tikorgzo.core.extractors.tikwm.download_link_extractor import Extractor
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
+from tikorgzo.core.extractors.context_manager import ExtractorHandler
+from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
 from tikorgzo.core.video.model import Video
 
 
@@ -66,12 +67,14 @@ async def main() -> None:
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
     try:
-        async with Extractor() as extr:
+        extractor = TikWMExtractor()
+        await extractor.initialize()
+
+        async with ExtractorHandler(extractor) as eh:
             with console.status(f"Extracting links from {download_queue.total()} videos..."):
 
                 # Extracts video asynchronously
-                results = await extr.process_video_links(download_queue.get_queue())
-
+                results = await eh.process_video_links(download_queue.get_queue())
                 successful_tasks = []
 
                 for video, result in zip(download_queue.get_queue(), results):
