@@ -17,7 +17,7 @@ MAX_CONCURRENT_EXTRACTION_TASKS = 5
 class Extractor:
     """Uses Playwright to browse the API for download link extraction."""
 
-    def __init__(self) -> 'Extractor':
+    def __init__(self) -> None:
         self.semaphore = asyncio.Semaphore(MAX_CONCURRENT_EXTRACTION_TASKS)
         self.browser: Optional[ScrapeBrowser] = None
 
@@ -27,11 +27,13 @@ class Extractor:
             await self.browser.initialize()
             return self
         except Exception as e:
-            await self.browser.cleanup()
+            if self.browser:
+                await self.browser.cleanup()
             raise e
 
     async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[BaseException], exc_tb: Optional[object]) -> None:
-        await self.browser.cleanup()
+        if self.browser:
+            await self.browser.cleanup()
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
         tasks = [self._extract(video) for video in videos]
@@ -42,6 +44,9 @@ class Extractor:
         # at a time
         async with self.semaphore:
             try:
+                if self.browser is None or self.browser.context is None:
+                    raise MissingPlaywrightBrowserError()
+
                 page = await self.browser.context.new_page()
 
                 await self._open_webpage(page)
