@@ -22,8 +22,8 @@ from tikorgzo.exceptions import APIChangeError
 class DirectExtractor(BaseExtractor):
     """Extractor that handles download link extraction directly from TikTok
     site."""
-    def __init__(self):
-        self.session = requests.Session()
+    def __init__(self, session: requests.Session) -> None:
+        self.session = session
         super().__init__()
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
@@ -52,6 +52,7 @@ class DirectExtractor(BaseExtractor):
                 video.download_link = download_link
                 video.file_size = float(best_quality_details["PlayAddr"]["DataSize"])
 
+                console.print(f"Download link retrieved for {video.video_id} (@{video.username})")
                 return video
             except Exception as e:
                 console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")

@@ -68,11 +68,13 @@ async def main() -> None:
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
     try:
-        # extractor = TikWMExtractor()
-        extractor = DirectExtractor()
+        session = fn.get_session(config.get_value(ConfigKey.STRATEGY))
+        extractor = fn.get_extractor(config.get_value(ConfigKey.STRATEGY), session)
         await extractor.initialize()
 
-        async with ExtractorHandler(extractor, disallow_cleanup=True) as eh:
+        disallow_cleanup = True if config.get_value(ConfigKey.STRATEGY) == 2 else False
+
+        async with ExtractorHandler(extractor, disallow_cleanup=disallow_cleanup) as eh:
             with console.status(f"Extracting links from {download_queue.total()} videos..."):
 
                 # Extracts video asynchronously
@@ -92,16 +94,19 @@ async def main() -> None:
             download_queue.replace_queue(successful_tasks)
     except exc.MissingChromeBrowserError:
         console.print("[red]error:[/red] Google Chrome is not installed in your system. Please install it to proceed.")
+        await fn.close_session(session)
         sys.exit(1)
     except (
         Exception,
         PlaywrightAsyncError
     ) as e:
         console.print(f"[red]error:[/red] An unexpected error occurred during link extraction: {type(e).__name__}: {e}")
+        await fn.close_session(session)
         sys.exit(1)
 
     if download_queue.is_empty():
         console.print("\nThe program will now exit as no links were extracted.")
+        await fn.close_session(session)
         sys.exit(1)
 
     console.print("\n[b]Stage 3/3[/b]: Download")
@@ -110,10 +115,11 @@ async def main() -> None:
     videos = await fn.download_video(
         config.get_value(ConfigKey.MAX_CONCURRENT_DOWNLOADS),
         download_queue.get_queue(),
-        session=extractor.session
+        session=session
     )
     fn.cleanup_interrupted_downloads(videos)
     fn.print_download_results(videos)
+    await fn.close_session(session)
 
 
 def run() -> None:

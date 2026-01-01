@@ -3,6 +3,7 @@ import aiohttp
 import asyncio
 from requests import Session, HTTPError
 
+import requests
 from rich.progress import Progress
 from typing import Optional
 
@@ -13,7 +14,7 @@ from tikorgzo.core.video.model import Video
 class Downloader:
     def __init__(
             self,
-            session: Optional[Session] = None,
+            session: requests.Session | aiohttp.ClientSession,
             max_concurrent_downloads: Optional[int] = None,
     ) -> None:
         self.session = session if session else aiohttp.ClientSession()
@@ -23,8 +24,7 @@ class Downloader:
         return self
 
     async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[BaseException], exc_tb: Optional[object]) -> None:
-        if self.session and isinstance(self.session, aiohttp.ClientSession):
-            await self.session.close()
+        pass
 
     async def download(self, video: Video, progress_displayer: Progress) -> None:
         if isinstance(self.session, aiohttp.ClientSession):
@@ -56,7 +56,6 @@ class Downloader:
                     video.download_status = DownloadStatus.INTERRUPTED
                     raise
         elif isinstance(self.session, Session):
-            print(f"Using requests.Session for downloading video ID: {video.video_id}")
             req_response = self.session.get(video.download_link, stream=True)
             try:
                 if req_response.status_code != 200:

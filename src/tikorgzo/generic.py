@@ -37,11 +37,42 @@ def extract_video_links(file_path: Optional[str], links: List[str]) -> set[str]:
 
     raise InvalidLinkSourceExtractionError()
 
+def get_session(strategy_val: int) -> requests.Session | aiohttp.ClientSession:
+    """Get a requests Session or aiohttp ClientSession depending on the chosen link extractor."""
+
+    if strategy_val == 1:
+        return aiohttp.ClientSession()
+    elif strategy_val == 2:
+        return requests.Session()
+    else:
+        console.print("[red]error[/red]: Invalid strategy value provided for session creation.")
+        sys.exit(1)
+
+
+def get_extractor(strategy_val: int, session: requests.Session | aiohttp.ClientSession):
+    if strategy_val == 1:
+        from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
+        return TikWMExtractor()
+    elif strategy_val == 2 and isinstance(session, requests.Session):
+        from tikorgzo.core.extractors.direct.extractor import DirectExtractor
+        return DirectExtractor(session)
+    else:
+        console.print("[red]error[/red]: Invalid strategy value provided for extractor creation.")
+        sys.exit(1)
+
+
+async def close_session(session: requests.Session | aiohttp.ClientSession) -> None:
+    """Close the given session depending on its type."""
+    if isinstance(session, aiohttp.ClientSession):
+        await session.close()
+    elif isinstance(session, requests.Session):
+        session.close()
+
 
 async def download_video(
     max_concurrent_downloads: Optional[int],
     videos: list[Video],
-    session: requests.Session,
+    session: requests.Session | aiohttp.ClientSession,
 ) -> list[Video]:
     """Download all the videos from queue that has the list of Video instances."""
 
