@@ -3,19 +3,20 @@ from typing import Optional
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page, Playwright
 
 from tikorgzo.constants import CHROME_USER_DATA_DIR
-from tikorgzo.exceptions import MissingChromeBrowserError, MissingPlaywrightBrowserError
+from tikorgzo.exceptions import MissingChromeBrowserError
 
 
 class ScrapeBrowser:
-    """A class for Playwright browser instance management."""
+    """Manages the initialization and cleanup of a Playwright browser instance that
+    will be used for getting download links from TikWM API."""
 
-    def __init__(self) -> 'ScrapeBrowser':
+    def __init__(self) -> None:
         self._playwright: Optional[Playwright] = None
         self._browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
         self.page: Optional[Page] = None
 
-    async def initialize(self) -> 'ScrapeBrowser':
+    async def initialize(self) -> None:
         """Initializes the Playwright browser instance."""
 
         try:
@@ -44,4 +45,5 @@ class ScrapeBrowser:
     async def cleanup(self) -> None:
         if self._browser:
             await self._browser.close()
-        await self._playwright.stop()
+        if self._playwright:
+            await self._playwright.stop()

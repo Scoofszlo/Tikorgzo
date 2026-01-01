@@ -1,49 +1,49 @@
 import asyncio
 from typing import Optional
+
 import aiohttp
 from playwright.async_api import Page
-
 from tikorgzo.console import console
-from tikorgzo.core.browser import ScrapeBrowser
+from tikorgzo.core.extractors.base import BaseExtractor
+from tikorgzo.core.extractors.tikwm.browser import ScrapeBrowser
+from tikorgzo.core.extractors.tikwm.constants import ELEMENT_LOAD_TIMEOUT, TIKTOK_DOWNLOADER_URL, WEBPAGE_LOAD_TIMEOUT
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError, VagueErrorMessageError
 
-TIKTOK_DOWNLOADER_URL = r"https://www.tikwm.com/originalDownloader.html"
-WEBPAGE_LOAD_TIMEOUT = 10000
-ELEMENT_LOAD_TIMEOUT = 30000
-MAX_CONCURRENT_EXTRACTION_TASKS = 5
 
+class TikWMExtractor(BaseExtractor):
+    """A link extractor from TikWM API."""
 
-class Extractor:
-    """Uses Playwright to browse the API for download link extraction."""
-
-    def __init__(self) -> 'Extractor':
-        self.semaphore = asyncio.Semaphore(MAX_CONCURRENT_EXTRACTION_TASKS)
+    def __init__(self):
         self.browser: Optional[ScrapeBrowser] = None
-
-    async def __aenter__(self) -> 'Extractor':
-        try:
-            self.browser = ScrapeBrowser()
-            await self.browser.initialize()
-            return self
-        except Exception as e:
-            await self.browser.cleanup()
-            raise e
-
-    async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[BaseException], exc_tb: Optional[object]) -> None:
-        await self.browser.cleanup()
+        super().__init__()
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
         tasks = [self._extract(video) for video in videos]
         return await asyncio.gather(*tasks, return_exceptions=True)
+
+    async def cleanup(self) -> None:
+        if self.browser:
+            await self.browser.cleanup()
+
+    async def initialize(self) -> None:
+        try:
+            self.browser = ScrapeBrowser()
+            await self.browser.initialize()
+        except Exception as e:
+            if self.browser:
+                await self.browser.cleanup()
+            raise e
 
     async def _extract(self, video: Video) -> Video:
         # The code is wrapped inside the semaphore so that a maximum number of tasks will be handled
         # at a time
         async with self.semaphore:
             try:
-                page = await self.browser.context.new_page()
+                if self.browser is None or self.browser.context is None:
+                    raise MissingPlaywrightBrowserError()
 
+                page = await self.browser.context.new_page()
                 await self._open_webpage(page)
                 await self._submit_link(page, video.video_link)
                 video = await self._get_download_link(page, video)
