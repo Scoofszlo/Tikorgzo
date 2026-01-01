@@ -1,5 +1,8 @@
 import asyncio
 import sys
+import aiohttp
+from requests import Session
+import requests
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 from typing import List, Optional
 
@@ -37,7 +40,8 @@ def extract_video_links(file_path: Optional[str], links: List[str]) -> set[str]:
 
 async def download_video(
     max_concurrent_downloads: Optional[int],
-    videos: list[Video]
+    videos: list[Video],
+    session: requests.Session,
 ) -> list[Video]:
     """Download all the videos from queue that has the list of Video instances."""
 
@@ -48,7 +52,7 @@ async def download_video(
         TransferSpeedColumn(),
         TimeRemainingColumn(),
     ) as progress_displayer:
-        async with Downloader(max_concurrent_downloads) as downloader:
+        async with Downloader(session, max_concurrent_downloads) as downloader:
             download_tasks = [downloader.download(video, progress_displayer) for video in videos]
             try:
                 await asyncio.gather(*download_tasks)
@@ -60,7 +64,6 @@ async def download_video(
                 pass
             finally:
                 return videos
-
 
 def cleanup_interrupted_downloads(videos: list[Video]) -> None:
     import os

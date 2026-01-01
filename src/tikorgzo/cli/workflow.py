@@ -14,6 +14,7 @@ from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.extractors.context_manager import ExtractorHandler
+from tikorgzo.core.extractors.direct.extractor import DirectExtractor
 from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
 from tikorgzo.core.video.model import Video
 
@@ -67,10 +68,11 @@ async def main() -> None:
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
     try:
-        extractor = TikWMExtractor()
+        # extractor = TikWMExtractor()
+        extractor = DirectExtractor()
         await extractor.initialize()
 
-        async with ExtractorHandler(extractor) as eh:
+        async with ExtractorHandler(extractor, disallow_cleanup=True) as eh:
             with console.status(f"Extracting links from {download_queue.total()} videos..."):
 
                 # Extracts video asynchronously
@@ -105,7 +107,11 @@ async def main() -> None:
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
 
-    videos = await fn.download_video(config.get_value(ConfigKey.MAX_CONCURRENT_DOWNLOADS), download_queue.get_queue())
+    videos = await fn.download_video(
+        config.get_value(ConfigKey.MAX_CONCURRENT_DOWNLOADS),
+        download_queue.get_queue(),
+        session=extractor.session
+    )
     fn.cleanup_interrupted_downloads(videos)
     fn.print_download_results(videos)
 
