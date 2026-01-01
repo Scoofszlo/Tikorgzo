@@ -17,6 +17,7 @@ def validate_args(ah_param: ArgsHandler, args_param: Namespace) -> None:
     args = args_param
 
     _show_cli_help()
+    _raise_error_if_invalid_strategy()
     _raise_error_if_invalid_max_concurrent_downloads()
     _raise_error_if_invalid_filename_string()
 
@@ -27,8 +28,15 @@ def _show_cli_help() -> None:
         exit(0)
 
 
+def _raise_error_if_invalid_strategy() -> None:
+    if args.strategy is not None:
+        if args.strategy not in [1, 2]:
+            console.print("[red]error[/red]: '[blue]--strategy[/blue]' must be either 1 or 2.")
+            sys.exit(1)
+
+
 def _raise_error_if_invalid_max_concurrent_downloads() -> None:
-    if args.max_concurrent_downloads:
+    if args.max_concurrent_downloads is not None:
         if args.max_concurrent_downloads > 16 or args.max_concurrent_downloads < 1:
             console.print("[red]error[/red]: '[blue]--max-concurrent-downloads[/blue]' must be in the range of 1 to 16.")
             sys.exit(1)
