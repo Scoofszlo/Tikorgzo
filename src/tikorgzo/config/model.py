@@ -4,6 +4,7 @@ from enum import StrEnum
 class ConfigKey(StrEnum):
     FILE = "file"
     LINK = "link"
+    STRATEGY = "strategy"
     DOWNLOAD_DIR = "download_dir"
     MAX_CONCURRENT_DOWNLOADS = "max_concurrent_downloads"
     FILENAME_TEMPLATE = "filename_template"

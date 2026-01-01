@@ -5,6 +5,10 @@ from platformdirs import user_data_path, user_documents_path
 from tikorgzo.constants import APP_NAME
 
 CONFIG_VARIABLES: Dict[str, Dict[str, Any]] = {
+    "strategy": {
+        "default": 1,
+        "type": int,
+    },
     "download_dir": {
         "default": None,
         "type": str,
