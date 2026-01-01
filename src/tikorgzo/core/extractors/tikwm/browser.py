@@ -3,11 +3,12 @@ from typing import Optional
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page, Playwright
 
 from tikorgzo.constants import CHROME_USER_DATA_DIR
-from tikorgzo.exceptions import MissingChromeBrowserError, MissingPlaywrightBrowserError
+from tikorgzo.exceptions import MissingChromeBrowserError
 
 
 class ScrapeBrowser:
-    """A class for Playwright browser instance management."""
+    """Manages the initialization and cleanup of a Playwright browser instance that
+    will be used for getting download links from TikWM API."""
 
     def __init__(self) -> None:
         self._playwright: Optional[Playwright] = None

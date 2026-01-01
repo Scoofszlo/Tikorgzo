@@ -12,7 +12,7 @@ from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, Ht
 
 
 class TikWMExtractor(BaseExtractor):
-    """An extractor for TikWM platform."""
+    """A link extractor from TikWM API."""
 
     def __init__(self):
         self.browser: Optional[ScrapeBrowser] = None
