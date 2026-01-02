@@ -36,6 +36,12 @@ dev = [
 [project.scripts]
 tikorgzo = "tikorgzo.cli.workflow:run"
 
+[tool.pylint."messages control"]
+disable = "missing-module-docstring, missing-function-docstring, invalid-name, import-outside-toplevel"
+
+[tool.pylint.FORMAT]
+max-line-length = 200
+
 [tool.ruff]
 line-length = 200
 
@@ -52,3 +58,4 @@ preview = true
 version_file = "src/tikorgzo/_version.py"
 version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
+
