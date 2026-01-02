@@ -1,10 +1,5 @@
-import json
-from bs4 import BeautifulSoup
-from requests import Session
-
 import aiohttp
-from playwright.async_api import Page
-from tikorgzo.exceptions import APIChangeError, MissingSourceDataError
+from tikorgzo.exceptions import APIChangeError
 
 URL_TEMPLATE = "https://m.tiktok.com/v/{}.html"
 
@@ -15,22 +10,6 @@ def get_initial_url(video_id: str) -> str:
 
     return URL_TEMPLATE.format(video_id)
 
-
-async def get_source_data(session: Session, url: str) -> dict:
-    """Gets the content of the script tag that contains the initial
-    data"""
-
-    response = session.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    script_tag = soup.find("script", id="__UNIVERSAL_DATA_FOR_REHYDRATION__")
-
-    if script_tag is None or script_tag.string is None:
-        raise MissingSourceDataError(f"Script tag with id '__UNIVERSAL_DATA_FOR_REHYDRATION__' not found")
-
-    data = json.loads(script_tag.string)
-    script_content_as_json = data
-
-    return script_content_as_json
 
 async def get_download_addresses(data: dict):
     path_to_download_addrs = [
@@ -74,16 +53,3 @@ async def get_best_quality(download_addresses: dict) -> dict:
 
     best_quality = max(download_addresses, key=quality_score)
     return best_quality
-
-
-async def get_file_size(download_url: str) -> float:
-    """Gets the file size in bytes from the download URL."""
-
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(download_url) as response:
-                response.raise_for_status()
-                total_size_bytes = float(response.headers.get('content-length', 0))
-                return total_size_bytes
-    except Exception as e:
-        raise e

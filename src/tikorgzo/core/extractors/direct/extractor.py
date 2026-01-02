@@ -2,21 +2,18 @@ import asyncio
 import json
 from typing import Optional
 
-import aiohttp
-from playwright.async_api import Page
+from bs4 import BeautifulSoup
 import requests
 from tikorgzo.core.extractors.base import BaseExtractor
-from tikorgzo.core.extractors.direct.util import (
+from tikorgzo.core.extractors.direct.helpers import (
     get_initial_url,
-    get_source_data,
     get_download_addresses,
     get_best_quality,
-    get_file_size
 )
 from tikorgzo.console import console
 from tikorgzo.core.video.model import Video
 from tikorgzo.core.video.processor import VideoInfoProcessor
-from tikorgzo.exceptions import APIChangeError
+from tikorgzo.exceptions import APIChangeError, MissingSourceDataError
 
 
 class DirectExtractor(BaseExtractor):
@@ -37,8 +34,7 @@ class DirectExtractor(BaseExtractor):
         async with self.semaphore:
             try:
                 url = await self._get_url(video.video_link)
-                source_data = await get_source_data(self.session, url)
-
+                source_data = await self._get_source_data(self.session, url)
                 best_quality_details = await self._get_best_quality_details(source_data)
                 download_link = best_quality_details["PlayAddr"]["UrlList"][1]
                 username = await self._get_username(source_data)
@@ -70,6 +66,22 @@ class DirectExtractor(BaseExtractor):
             video_url = video_link
 
         return video_url
+
+    async def _get_source_data(self, session: requests.Session, url: str) -> dict:
+        """Gets the content of the script tag that contains the initial
+        data"""
+
+        response = session.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        script_tag = soup.find("script", id="__UNIVERSAL_DATA_FOR_REHYDRATION__")
+
+        if script_tag is None or script_tag.string is None:
+            raise MissingSourceDataError("Script tag with id '__UNIVERSAL_DATA_FOR_REHYDRATION__' not found")
+
+        data = json.loads(script_tag.string)
+        script_content_as_json = data
+
+        return script_content_as_json
 
     async def _get_best_quality_details(
             self,
