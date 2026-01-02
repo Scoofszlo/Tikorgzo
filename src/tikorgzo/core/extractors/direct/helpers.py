@@ -11,7 +11,7 @@ def get_initial_url(video_id: str) -> str:
     return URL_TEMPLATE.format(video_id)
 
 
-async def get_download_addresses(data: dict):
+async def get_download_addresses(data: dict) -> list[dict]:
     path_to_download_addrs = [
         "__DEFAULT_SCOPE__",
         "webapp.video-detail",
@@ -31,7 +31,13 @@ async def get_download_addresses(data: dict):
             broken_path = " -> ".join(path_to_download_addrs[:i+1])
             raise APIStructureMismatchError(f"Data containing download addresses from API is missing or may have changed. Failed at {broken_path}") from e
 
-    return current
+    try:
+        # Assert that data is a list (specifically a list of dicts). If AssertionError
+        # happens, this means the API structure for this data may have changed.
+        assert isinstance(current, list)
+        return current
+    except AssertionError as e:
+        raise APIStructureMismatchError("Download addresses data from API is not in expected format.") from e
 
 async def get_best_quality(download_addresses: dict) -> dict:
     """Gets the best quality download link from the download addresses
