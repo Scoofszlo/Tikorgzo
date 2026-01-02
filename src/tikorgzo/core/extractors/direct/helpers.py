@@ -38,17 +38,12 @@ async def get_best_quality(download_addresses: dict) -> dict:
     dict."""
 
     def quality_score(item):
-        # 1. Calculate total pixels (Resolution)
         width = item.get("PlayAddr", {}).get("Width", 0)
         height = item.get("PlayAddr", {}).get("Height", 0)
         resolution = width * height
 
-        # 2. Get the Bitrate
         bitrate = item.get("Bitrate", 0)
 
-        # Return a tuple: (Resolution, Bitrate)
-        # Python's max() compares tuples element-by-element.
-        # If Resolution is a tie, it looks at Bitrate.
         return (resolution, bitrate)
 
     best_quality = max(download_addresses, key=quality_score)

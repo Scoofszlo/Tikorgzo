@@ -17,7 +17,7 @@ class Downloader:
             session: requests.Session | aiohttp.ClientSession,
             max_concurrent_downloads: Optional[int] = None,
     ) -> None:
-        self.session = session if session else aiohttp.ClientSession()
+        self.session = session
         self.semaphore = asyncio.Semaphore(4) if max_concurrent_downloads is None else asyncio.Semaphore(max_concurrent_downloads)
 
     async def __aenter__(self) -> 'Downloader':

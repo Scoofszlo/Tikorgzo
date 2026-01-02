@@ -1,10 +1,9 @@
 import asyncio
 import sys
+from typing import List, Optional
 import aiohttp
-from requests import Session
 import requests
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
-from typing import List, Optional
 
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
@@ -36,6 +35,7 @@ def extract_video_links(file_path: Optional[str], links: List[str]) -> set[str]:
         return set(links_list)
 
     raise InvalidLinkSourceExtractionError()
+
 
 def get_session(strategy_val: int) -> requests.Session | aiohttp.ClientSession:
     """Get a requests Session or aiohttp ClientSession depending on the chosen link extractor."""
@@ -95,6 +95,7 @@ async def download_video(
                 pass
             finally:
                 return videos
+
 
 def cleanup_interrupted_downloads(videos: list[Video]) -> None:
     import os
