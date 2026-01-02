@@ -7,6 +7,7 @@ import requests
 from rich.progress import Progress
 from typing import Optional
 
+from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.model import Video
 
@@ -37,7 +38,7 @@ class Downloader:
                                 request_info=aio_response.request_info,
                                 history=aio_response.history,
                                 status=aio_response.status,
-                                message=f"Failed to download video: {aio_response.status}",
+                                message=f"Failed to download {video.video_id}: {aio_response.status}",
                                 headers=aio_response.headers
                             )
 
@@ -60,8 +61,8 @@ class Downloader:
             try:
                 if req_response.status_code != 200:
                     video.download_status = DownloadStatus.INTERRUPTED
-                    print(f"Failed to download video: {req_response.status_code}")
-                    raise HTTPError(f"Failed to download video: {req_response.status_code}")
+                    console.print(f"Failed to download {video.video_id}: {req_response.status_code}")
+                    raise HTTPError(f"Failed to download {video.video_id}: {req_response.status_code}")
 
                 total_size = video.file_size.get()
 
