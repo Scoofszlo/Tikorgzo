@@ -13,7 +13,7 @@ from tikorgzo.core.extractors.direct.helpers import (
 from tikorgzo.console import console
 from tikorgzo.core.video.model import Video
 from tikorgzo.core.video.processor import VideoInfoProcessor
-from tikorgzo.exceptions import APIChangeError, MissingSourceDataError
+from tikorgzo.exceptions import APIStructureMismatchError, MissingSourceDataError
 
 
 class DirectExtractor(BaseExtractor):
@@ -114,7 +114,7 @@ class DirectExtractor(BaseExtractor):
                 except (KeyError, TypeError) as e:
                     # i + 1 shows how deep we got
                     broken_path = " -> ".join(path_to_username[:i+1])
-                    raise APIChangeError(f"API structure has changed; cannot find username. Failed at {broken_path}") from e
+                    raise APIStructureMismatchError(f"Data containing username from API is missing or may have changed. Failed at {broken_path}") from e
             return str(current)
         except Exception as e:
             raise e

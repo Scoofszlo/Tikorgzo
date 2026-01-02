@@ -134,8 +134,8 @@ class MissingSourceDataError(Exception):
         super().__init__(self.message)
 
 
-class APIChangeError(Exception):
-    """Raised when the API structure has changed, preventing extraction."""
+class APIStructureMismatchError(Exception):
+    """Raised when the API structure is different and doesn't match expected structure."""
 
     def __init__(self, message: str) -> None:
         self.message = message

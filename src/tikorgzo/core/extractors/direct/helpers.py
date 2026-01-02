@@ -1,5 +1,5 @@
 import aiohttp
-from tikorgzo.exceptions import APIChangeError
+from tikorgzo.exceptions import APIStructureMismatchError
 
 URL_TEMPLATE = "https://m.tiktok.com/v/{}.html"
 
@@ -29,7 +29,7 @@ async def get_download_addresses(data: dict):
         except (KeyError, TypeError) as e:
             # i + 1 shows how deep we got
             broken_path = " -> ".join(path_to_download_addrs[:i+1])
-            raise APIChangeError(f"API structure has changed; cannot find download addresses. Failed at {broken_path}") from e
+            raise APIStructureMismatchError(f"Data containing download addresses from API is missing or may have changed. Failed at {broken_path}") from e
 
     return current
 
