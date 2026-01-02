@@ -39,11 +39,11 @@ async def get_download_addresses(data: dict) -> list[dict]:
     except AssertionError as e:
         raise APIStructureMismatchError("Download addresses data from API is not in expected format.") from e
 
-async def get_best_quality(download_addresses: dict) -> dict:
+async def get_best_quality(download_addresses: list[dict]) -> dict:
     """Gets the best quality download link from the download addresses
     dict."""
 
-    def quality_score(item):
+    def quality_score(item: dict):
         width = item.get("PlayAddr", {}).get("Width", 0)
         height = item.get("PlayAddr", {}).get("Height", 0)
         resolution = width * height
