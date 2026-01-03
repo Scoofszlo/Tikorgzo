@@ -203,17 +203,17 @@ For some reason, using an asynchronous library like `aiohttp` for scraping and d
 
 However, since `requests` is not designed for asynchronous use, downloads are performed one by one, making simultaneous downloading impossible with this approach. Fortunately, this is still much faster than the default extractor because of its direct way of extracting download links.
 
-To use the alternative extractor despite the downsides, use the `--strategy <value>` arg, where `<value>` is `2`. Putting `1` or not using this arg option will use the default extractor.
+To use the alternative extractor despite the downsides, use the `--extractor <value>` arg, where `<value>` is `direct`. Putting `tikwm` or not using this arg option at all will use the default extractor (`tikwm`).
 
 ```console
-tikorgzo -l 1234567898765432100 --strategy 2
+tikorgzo -l 1234567898765432100 --extractor direct
 ```
 
 Alternatively, you can also set this in config file:
 
 ```toml
 [generic]
-strategy = 2
+extractor = direct
 ```
 
 ### Using a config file

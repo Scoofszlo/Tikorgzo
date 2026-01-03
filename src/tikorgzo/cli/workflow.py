@@ -68,12 +68,11 @@ async def main() -> None:
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
     try:
-        session = fn.get_session(config.get_value(ConfigKey.STRATEGY))
-        extractor = fn.get_extractor(config.get_value(ConfigKey.STRATEGY), session)
+        session = fn.get_session(config.get_value(ConfigKey.EXTRACTOR))
+        extractor = fn.get_extractor(config.get_value(ConfigKey.EXTRACTOR), session)
         await extractor.initialize()
 
-        disallow_cleanup = True if config.get_value(ConfigKey.STRATEGY) == 2 else False
-
+        disallow_cleanup = True if config.get_value(ConfigKey.EXTRACTOR) == 2 else False
         async with ExtractorHandler(extractor, disallow_cleanup=disallow_cleanup) as eh:
             with console.status(f"Extracting links from {download_queue.total()} videos..."):
 

@@ -6,7 +6,7 @@ import requests
 from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
 from tikorgzo.console import console
-from tikorgzo.constants import DownloadStatus
+from tikorgzo.constants import DIRECT_EXTRACTOR_NAME, TIKWM_EXTRACTOR_NAME, DownloadStatus
 from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import InvalidLinkSourceExtractionError
@@ -37,23 +37,23 @@ def extract_video_links(file_path: Optional[str], links: List[str]) -> set[str]:
     raise InvalidLinkSourceExtractionError()
 
 
-def get_session(strategy_val: int) -> requests.Session | aiohttp.ClientSession:
+def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
     """Get a requests Session or aiohttp ClientSession depending on the chosen link extractor."""
 
-    if strategy_val == 1:
+    if extractor == TIKWM_EXTRACTOR_NAME:
         return aiohttp.ClientSession()
-    elif strategy_val == 2:
+    elif extractor == DIRECT_EXTRACTOR_NAME:
         return requests.Session()
     else:
         console.print("[red]error[/red]: Invalid strategy value provided for session creation.")
         sys.exit(1)
 
 
-def get_extractor(strategy_val: int, session: requests.Session | aiohttp.ClientSession):
-    if strategy_val == 1:
+def get_extractor(extractor: str, session: requests.Session | aiohttp.ClientSession):
+    if extractor == TIKWM_EXTRACTOR_NAME:
         from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
         return TikWMExtractor()
-    elif strategy_val == 2 and isinstance(session, requests.Session):
+    elif extractor == DIRECT_EXTRACTOR_NAME and isinstance(session, requests.Session):
         from tikorgzo.core.extractors.direct.extractor import DirectExtractor
         return DirectExtractor(session)
     else:

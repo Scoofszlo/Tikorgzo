@@ -58,9 +58,10 @@ def map_from_config_file(loaded_config: dict) -> Optional[dict]:
             if value > max_value or value < min_value:
                 console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file must be in the range of 1 to 16.")
                 sys.exit(1)
-        elif key == ConfigKey.STRATEGY:
-            if value not in [1, 2]:
-                console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file must be either 1 or 2.")
+        elif key == ConfigKey.EXTRACTOR:
+            allowed_values = CONFIG_VARIABLES[key]["allowed_values"]
+            if value not in allowed_values:
+                console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file must be one of the allowed values: {allowed_values}.")
                 sys.exit(1)
 
         config[key] = loaded_config[key]

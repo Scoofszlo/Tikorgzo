@@ -27,9 +27,9 @@ class ArgsHandler:
             help="A text file containing links"
         )
         self._parser.add_argument(
-            "--strategy",
-            help="Set the extractor strategy to use for downloading videos (default: 1)",
-            type=int,
+            "--extractor",
+            help="Set the extractor to use for downloading videos (default: tikwm)",
+            type=str,
         )
         self._parser.add_argument(
             "--download-dir",
