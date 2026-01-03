@@ -9,6 +9,7 @@ from tikorgzo.core.extractors.tikwm.browser import ScrapeBrowser
 from tikorgzo.core.extractors.tikwm.constants import ELEMENT_LOAD_TIMEOUT, TIKTOK_DOWNLOADER_URL, WEBPAGE_LOAD_TIMEOUT
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError, VagueErrorMessageError
+from tikorgzo.core.video.processor import VideoInfoProcessor
 
 
 class TikWMExtractor(BaseExtractor):
@@ -138,7 +139,6 @@ class TikWMExtractor(BaseExtractor):
         username = await h4_elements.nth(2).inner_text()
 
         if video.username is None:
-            from tikorgzo.core.video.processor import VideoInfoProcessor
             processor = VideoInfoProcessor()
 
             video.username = username

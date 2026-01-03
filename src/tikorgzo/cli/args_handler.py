@@ -27,6 +27,11 @@ class ArgsHandler:
             help="A text file containing links"
         )
         self._parser.add_argument(
+            "--extractor",
+            help="Set the extractor to use for downloading videos (default: tikwm)",
+            type=str,
+        )
+        self._parser.add_argument(
             "--download-dir",
             help="Set the download directory (default: Downloads folder)",
             type=str,

@@ -124,3 +124,19 @@ class ExtractionTimeoutError(Exception):
 
     def __init__(self, message: str) -> None:
         super().__init__(message)
+
+
+class MissingSourceDataError(Exception):
+    """Raised when source data for extraction is missing."""
+
+    def __init__(self, message: Optional[str]) -> None:
+        self.message = message or "Source data for extraction is missing."
+        super().__init__(self.message)
+
+
+class APIStructureMismatchError(Exception):
+    """Raised when the API structure is different and doesn't match expected structure."""
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)

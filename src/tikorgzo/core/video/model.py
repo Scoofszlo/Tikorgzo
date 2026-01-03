@@ -91,11 +91,14 @@ class Video:
     @download_link.setter
     def download_link(self, download_link: str) -> None:
         self._download_link = download_link
-        self._video_id = processor.extract_video_id(download_link)
 
     @property
     def video_id(self) -> int:
         return self._video_id
+
+    @video_id.setter
+    def video_id(self, video_id: int) -> None:
+        self._video_id = video_id
 
     @property
     def file_size(self) -> "FileSize":
