@@ -213,7 +213,7 @@ Alternatively, you can also set this in config file:
 
 ```toml
 [generic]
-extractor = direct
+extractor = "direct"
 ```
 
 ### Using a config file
