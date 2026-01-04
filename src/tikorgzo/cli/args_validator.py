@@ -19,6 +19,7 @@ def validate_args(ah_param: ArgsHandler, args_param: Namespace) -> None:
 
     _show_cli_help()
     _raise_error_if_invalid_extractor()
+    _raise_error_if_invalid_extraction_delay()
     _raise_error_if_invalid_max_concurrent_downloads()
     _raise_error_if_invalid_filename_string()
 
@@ -35,6 +36,13 @@ def _raise_error_if_invalid_extractor() -> None:
 
         if args.extractor not in allowed_values:
             console.print(f"[red]error[/red]: '[blue]--extractor[/blue]' must be one of the allowed values: {allowed_values}.")
+            sys.exit(1)
+
+
+def _raise_error_if_invalid_extraction_delay() -> None:
+    if args.extraction_delay is not None:
+        if 0 < args.extraction_delay > 60:
+            console.print("[red]error[/red]: '[blue]--extraction-delay[/blue]' must be greater than 0 but less than or equal to 60 seconds.")
             sys.exit(1)
 
 

@@ -49,13 +49,17 @@ def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
         sys.exit(1)
 
 
-def get_extractor(extractor: str, session: requests.Session | aiohttp.ClientSession):
+def get_extractor(
+        extractor: str,
+        extraction_delay: float,
+        session: requests.Session | aiohttp.ClientSession
+):
     if extractor == TIKWM_EXTRACTOR_NAME:
         from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
-        return TikWMExtractor()
+        return TikWMExtractor(extraction_delay)
     elif extractor == DIRECT_EXTRACTOR_NAME and isinstance(session, requests.Session):
         from tikorgzo.core.extractors.direct.extractor import DirectExtractor
-        return DirectExtractor(session)
+        return DirectExtractor(extraction_delay, session)
     else:
         console.print("[red]error[/red]: Invalid strategy value provided for extractor creation.")
         sys.exit(1)

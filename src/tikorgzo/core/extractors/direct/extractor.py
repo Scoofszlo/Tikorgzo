@@ -19,9 +19,9 @@ from tikorgzo.exceptions import APIStructureMismatchError, MissingSourceDataErro
 class DirectExtractor(BaseExtractor):
     """Extractor that handles download link extraction directly from TikTok
     site."""
-    def __init__(self, session: requests.Session) -> None:
+    def __init__(self, delay: float, session: requests.Session) -> None:
         self.session = session
-        super().__init__()
+        super().__init__(delay)
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
         tasks = [self._extract(video) for video in videos]
@@ -31,28 +31,36 @@ class DirectExtractor(BaseExtractor):
         self.session.close()
 
     async def _extract(self, video: Video) -> Video:
-        async with self.semaphore:
-            try:
-                url = await self._get_url(video.video_link)
-                source_data = await self._get_source_data(self.session, url)
-                best_quality_details = await self._get_best_quality_details(source_data)
-                download_link = best_quality_details["PlayAddr"]["UrlList"][1]
-                username = await self._get_username(source_data)
+        # Add delay between link extraction to limit rate of requests
+        # being sent
+        async with self._delay_lock:
+            if self._done_first_task:
+                await asyncio.sleep(self._extraction_delay)
+            else:
+                self._done_first_task = True
 
-                if video.username is None:
-                    processor = VideoInfoProcessor()
+        try:
+            url = await self._get_url(video.video_link)
+            source_data = await self._get_source_data(self.session, url)
+            best_quality_details = await self._get_best_quality_details(source_data)
+            download_link = best_quality_details["PlayAddr"]["UrlList"][1]
+            username = await self._get_username(source_data)
 
-                    video.username = username
-                    processor.process_output_paths(video)
+            if video.username is None:
+                processor = VideoInfoProcessor()
 
-                video.download_link = download_link
-                video.file_size = float(best_quality_details["PlayAddr"]["DataSize"])
+                video.username = username
+                processor.process_output_paths(video)
 
-                console.print(f"Download link retrieved for {video.video_id} (@{video.username})")
-                return video
-            except Exception as e:
-                console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
-                raise e
+            video.download_link = download_link
+            video.file_size = float(best_quality_details["PlayAddr"]["DataSize"])
+
+            console.print(f"Download link retrieved for {video.video_id} (@{video.username})")
+
+            return video
+        except Exception as e:
+            console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
+            raise e
 
     async def _get_url(
             self,

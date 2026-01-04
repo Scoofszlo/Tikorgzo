@@ -42,6 +42,11 @@ class ArgsHandler:
             help="Set the maximum number of concurrent downloads (default: 4)"
         )
         self._parser.add_argument(
+            "--extraction-delay",
+            help="Set the extraction delay (in seconds) between downloads to avoid rate limiting",
+            type=float,
+        )
+        self._parser.add_argument(
             "--filename-template",
             help="Set a customized filename for the downloaded video"
         )

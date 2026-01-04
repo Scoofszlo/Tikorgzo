@@ -69,7 +69,11 @@ async def main() -> None:
 
     try:
         session = fn.get_session(config.get_value(ConfigKey.EXTRACTOR))
-        extractor = fn.get_extractor(config.get_value(ConfigKey.EXTRACTOR), session)
+        extractor = fn.get_extractor(
+            config.get_value(ConfigKey.EXTRACTOR),
+            config.get_value(ConfigKey.EXTRACTION_DELAY),
+            session
+        )
         await extractor.initialize()
 
         disallow_cleanup = True if config.get_value(ConfigKey.EXTRACTOR) == 2 else False

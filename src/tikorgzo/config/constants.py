@@ -14,6 +14,14 @@ CONFIG_VARIABLES: Dict[str, Dict[str, Any]] = {
         "default": None,
         "type": str,
     },
+    "extraction_delay": {
+        "default": 1,
+        "type": (float, int),
+        "constraints": {
+            "min": 0,
+            "max": 60,
+        }
+    },
     "max_concurrent_downloads": {
         "default": 4,
         "type": int,

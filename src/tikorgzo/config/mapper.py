@@ -63,6 +63,14 @@ def map_from_config_file(loaded_config: dict) -> Optional[dict]:
             if value not in allowed_values:
                 console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file must be one of the allowed values: {allowed_values}.")
                 sys.exit(1)
+        elif key == ConfigKey.EXTRACTION_DELAY:
+            constraints = CONFIG_VARIABLES[key]["constraints"]
+            min_value = constraints["min"]
+            max_value = constraints["max"]
+
+            if value > max_value or value < min_value:
+                console.print(f"[red]error[/red]: Key '[blue]{key}[/blue]' from config file must be greater than 0 seconds but less than or equal to 60 seconds.")
+                sys.exit(1)
 
         config[key] = loaded_config[key]
 
