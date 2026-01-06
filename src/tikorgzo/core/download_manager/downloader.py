@@ -75,6 +75,6 @@ class Downloader:
                             file.write(chunk)
                             progress_displayer.update(task, advance=len(chunk))
                 video.download_status = DownloadStatus.COMPLETED
-            finally:
-                aio_response.close()
-                self.session.close()
+            except (asyncio.CancelledError, Exception):
+                video.download_status = DownloadStatus.INTERRUPTED
+                raise
