@@ -1,10 +1,12 @@
 import asyncio
 import sys
-from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 from typing import List, Optional
+import aiohttp
+import requests
+from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
 from tikorgzo.console import console
-from tikorgzo.constants import DownloadStatus
+from tikorgzo.constants import DIRECT_EXTRACTOR_NAME, TIKWM_EXTRACTOR_NAME, DownloadStatus
 from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import InvalidLinkSourceExtractionError
@@ -35,9 +37,46 @@ def extract_video_links(file_path: Optional[str], links: List[str]) -> set[str]:
     raise InvalidLinkSourceExtractionError()
 
 
+def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
+    """Get a requests Session or aiohttp ClientSession depending on the chosen link extractor."""
+
+    if extractor == TIKWM_EXTRACTOR_NAME:
+        return aiohttp.ClientSession()
+    elif extractor == DIRECT_EXTRACTOR_NAME:
+        return requests.Session()
+    else:
+        console.print("[red]error[/red]: Invalid strategy value provided for session creation.")
+        sys.exit(1)
+
+
+def get_extractor(
+        extractor: str,
+        extraction_delay: float,
+        session: requests.Session | aiohttp.ClientSession
+):
+    if extractor == TIKWM_EXTRACTOR_NAME:
+        from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
+        return TikWMExtractor(extraction_delay)
+    elif extractor == DIRECT_EXTRACTOR_NAME and isinstance(session, requests.Session):
+        from tikorgzo.core.extractors.direct.extractor import DirectExtractor
+        return DirectExtractor(extraction_delay, session)
+    else:
+        console.print("[red]error[/red]: Invalid strategy value provided for extractor creation.")
+        sys.exit(1)
+
+
+async def close_session(session: requests.Session | aiohttp.ClientSession) -> None:
+    """Close the given session depending on its type."""
+    if isinstance(session, aiohttp.ClientSession):
+        await session.close()
+    elif isinstance(session, requests.Session):
+        session.close()
+
+
 async def download_video(
     max_concurrent_downloads: Optional[int],
-    videos: list[Video]
+    videos: list[Video],
+    session: requests.Session | aiohttp.ClientSession,
 ) -> list[Video]:
     """Download all the videos from queue that has the list of Video instances."""
 
@@ -48,7 +87,7 @@ async def download_video(
         TransferSpeedColumn(),
         TimeRemainingColumn(),
     ) as progress_displayer:
-        async with Downloader(max_concurrent_downloads) as downloader:
+        async with Downloader(session, max_concurrent_downloads) as downloader:
             download_tasks = [downloader.download(video, progress_displayer) for video in videos]
             try:
                 await asyncio.gather(*download_tasks)

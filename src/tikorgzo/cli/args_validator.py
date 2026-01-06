@@ -3,6 +3,7 @@ from datetime import datetime
 import re
 import sys
 
+from tikorgzo.config.constants import CONFIG_VARIABLES
 from tikorgzo.console import console
 from tikorgzo.cli.args_handler import ArgsHandler
 
@@ -17,6 +18,8 @@ def validate_args(ah_param: ArgsHandler, args_param: Namespace) -> None:
     args = args_param
 
     _show_cli_help()
+    _raise_error_if_invalid_extractor()
+    _raise_error_if_invalid_extraction_delay()
     _raise_error_if_invalid_max_concurrent_downloads()
     _raise_error_if_invalid_filename_string()
 
@@ -27,8 +30,24 @@ def _show_cli_help() -> None:
         exit(0)
 
 
+def _raise_error_if_invalid_extractor() -> None:
+    if args.extractor is not None:
+        allowed_values = CONFIG_VARIABLES["extractor"]["allowed_values"]
+
+        if args.extractor not in allowed_values:
+            console.print(f"[red]error[/red]: '[blue]--extractor[/blue]' must be one of the allowed values: {allowed_values}.")
+            sys.exit(1)
+
+
+def _raise_error_if_invalid_extraction_delay() -> None:
+    if args.extraction_delay is not None:
+        if 0 < args.extraction_delay > 60:
+            console.print("[red]error[/red]: '[blue]--extraction-delay[/blue]' must be greater than 0 but less than or equal to 60 seconds.")
+            sys.exit(1)
+
+
 def _raise_error_if_invalid_max_concurrent_downloads() -> None:
-    if args.max_concurrent_downloads:
+    if args.max_concurrent_downloads is not None:
         if args.max_concurrent_downloads > 16 or args.max_concurrent_downloads < 1:
             console.print("[red]error[/red]: '[blue]--max-concurrent-downloads[/blue]' must be in the range of 1 to 16.")
             sys.exit(1)

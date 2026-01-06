@@ -9,14 +9,15 @@ from tikorgzo.core.extractors.tikwm.browser import ScrapeBrowser
 from tikorgzo.core.extractors.tikwm.constants import ELEMENT_LOAD_TIMEOUT, TIKTOK_DOWNLOADER_URL, WEBPAGE_LOAD_TIMEOUT
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, HtmlElementMissingError, MissingPlaywrightBrowserError, URLParsingError, VagueErrorMessageError
+from tikorgzo.core.video.processor import VideoInfoProcessor
 
 
 class TikWMExtractor(BaseExtractor):
     """A link extractor from TikWM API."""
 
-    def __init__(self):
+    def __init__(self, extraction_delay):
         self.browser: Optional[ScrapeBrowser] = None
-        super().__init__()
+        super().__init__(extraction_delay)
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
         tasks = [self._extract(video) for video in videos]
@@ -101,7 +102,7 @@ class TikWMExtractor(BaseExtractor):
                 # Wait briefly to see if the limit message appears
                 await page.wait_for_selector(limit_selector, state="visible", timeout=2000)
                 # If limit message appears, wait and retry
-                await asyncio.sleep(1)
+                await asyncio.sleep(self._extraction_delay)
                 continue
             except Exception:
                 # If limit message does not appear, break loop
@@ -138,7 +139,6 @@ class TikWMExtractor(BaseExtractor):
         username = await h4_elements.nth(2).inner_text()
 
         if video.username is None:
-            from tikorgzo.core.video.processor import VideoInfoProcessor
             processor = VideoInfoProcessor()
 
             video.username = username

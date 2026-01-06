@@ -186,6 +186,53 @@ If you want to change this behavior so that duplicate checking is based on filen
 lazy_duplicate_check = true
 ```
 
+### Setting extraction delay
+
+You can change the delay between each extraction of a download link to reduce the number of requests sent to the server and help avoid potential rate limiting or IP bans. Use the `--extraction-delay <seconds>` argument to specify the delay (in seconds) between each extraction:
+
+```console
+tikorgzo -f "C:\path\to\links.txt" --extraction-delay 2
+```
+
+Alternatively, you can set this in the config file:
+
+```toml
+[generic]
+extraction_delay = 2
+```
+
+The value should be a non-negative integer or float (e.g., `2` or `0.5`).
+
+### Choosing extractor to use
+
+By default, this program uses `TikWMExtractor` as its extractor for grabbing high-quality download links for videos. However, you can choose `DirectExtractor` as an alternative if you prefer a faster method at the expense of potential lower resolution videos. This method directly scrapes download links from TikTok itself.
+
+The source data used here is similar to what `yt-dlp` uses, so the highest quality available quality it shows there should be also the same here.
+
+The downsides of this method include:
+
+- You cannot download 4K videos.
+- Certain videos will be downloaded at 720p even if a 1080p version is available.
+- Certain videos may not be downloadable.
+- Videos are downloaded one by one (see next two pararaphs if you are interested for technical explanation).
+
+For some reason, using an asynchronous library like `aiohttp` for scraping and downloading results in a 403 error, regardless when downloading a single video or more. Because of this, `requests` is used instead for these operations.
+
+However, since `requests` is not designed for asynchronous use, downloads are performed one by one, making simultaneous downloading impossible with this approach. Fortunately, this is still much faster than the default extractor because of its direct way of extracting download links.
+
+To use the alternative extractor despite the downsides, use the `--extractor <value>` arg, where `<value>` is `direct`. Putting `tikwm` or not using this arg option at all will use the default extractor (`tikwm`).
+
+```console
+tikorgzo -l 1234567898765432100 --extractor direct
+```
+
+Alternatively, you can also set this in config file:
+
+```toml
+[generic]
+extractor = "direct"
+```
+
 ### Using a config file
 
 This program can be configured via a TOML-formmatted config file so that you don't have to supply the same arguments every time you run the program.
@@ -246,7 +293,7 @@ To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. T
 - The program may be a bit slow during download link extraction (Stage 2), as it runs a browser in the background to extract the actual download link.
 - For this reason, the program is much more aligned to those who want to download multiple videos at once. However, you can still use it to download any number of videos you want.
 - The program has been thoroughly tested on Windows 11 and is expected to work reliably on Windows systems. For Linux, testing was performed on a virtual machine running Linux Mint, as well as on Ubuntu through WSL so it should generally work fine on most Linux distributions, but compatibility is not guaranteed.
-- Recently, TikWM has implemented strict checks on their website visitors, which has affected the way the program works. With the recent fix I made on Dec 23, 2025, the program now requires Google Chrome to be installed on your system in order for this program to work. Additionally, every time you download, a browser will open in the background, which might be a bit annoying for some, but this is the best workaround (yet) I have found so far.
+- Recently, TikWM has implemented strict checks on their website visitors, which has affected the way the program works. Starting `v0.3.0`, the program now requires Google Chrome to be installed on your system (not required if you are using the alternative extractor). Additionally, every time you download, a browser will open in the background, which might be a bit annoying for some, but this is the best workaround (yet) I have found so far.
 
 ## License
 
