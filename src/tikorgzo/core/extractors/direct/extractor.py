@@ -58,6 +58,9 @@ class DirectExtractor(BaseExtractor):
             console.print(f"Download link retrieved for {video.video_id} (@{video.username})")
 
             return video
+        except asyncio.CancelledError as e:
+            console.print(f"Skipping {video.video_id} due to: [red]UserCancelledAction[/red]")
+            raise e
         except Exception as e:
             console.print(f"Skipping {video.video_id} due to: [red]{type(e).__name__}: {e}[/red]")
             raise e
@@ -79,17 +82,20 @@ class DirectExtractor(BaseExtractor):
         """Gets the content of the script tag that contains the initial
         data"""
 
-        response = session.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        script_tag = soup.find("script", id="__UNIVERSAL_DATA_FOR_REHYDRATION__")
+        def fetch():
+            response = session.get(url)
+            soup = BeautifulSoup(response.text, "html.parser")
+            script_tag = soup.find("script", id="__UNIVERSAL_DATA_FOR_REHYDRATION__")
 
-        if script_tag is None or script_tag.string is None:
-            raise MissingSourceDataError("Script tag with id '__UNIVERSAL_DATA_FOR_REHYDRATION__' not found")
+            if script_tag is None or script_tag.string is None:
+                raise MissingSourceDataError("Script tag with id '__UNIVERSAL_DATA_FOR_REHYDRATION__' not found")
 
-        data = json.loads(script_tag.string)
-        script_content_as_json = data
+            data = json.loads(script_tag.string)
+            script_content_as_json = data
 
-        return script_content_as_json
+            return script_content_as_json
+
+        return await asyncio.to_thread(fetch)
 
     async def _get_best_quality_details(
             self,
