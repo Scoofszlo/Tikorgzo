@@ -295,6 +295,12 @@ To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. T
 - The program has been thoroughly tested on Windows 11 and is expected to work reliably on Windows systems. For Linux, testing was performed on a virtual machine running Linux Mint, as well as on Ubuntu through WSL so it should generally work fine on most Linux distributions, but compatibility is not guaranteed.
 - Recently, TikWM has implemented strict checks on their website visitors, which has affected the way the program works. Starting `v0.3.0`, the program now requires Google Chrome to be installed on your system (not required if you are using the alternative extractor). Additionally, every time you download, a browser will open in the background, which might be a bit annoying for some, but this is the best workaround (yet) I have found so far.
 
+## Project versioning policy
+
+Tikorgzo uses a custom project versioning policy. Minor version is bumped for every new feature added, while patch version is bumped for bug fixes and minor changes.
+
+Please take note that every new minor version may or may not introduce breaking changes, so be sure to check the changelog for details. This is the reason why major version is fixed to `0` for now.
+
 ## License
 
 Tikorgzo is an open-source program licensed under the [MIT](LICENSE) license.
