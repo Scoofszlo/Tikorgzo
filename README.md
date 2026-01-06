@@ -186,6 +186,23 @@ If you want to change this behavior so that duplicate checking is based on filen
 lazy_duplicate_check = true
 ```
 
+### Setting extraction delay
+
+You can change the delay between each extraction of a download link to reduce the number of requests sent to the server and help avoid potential rate limiting or IP bans. Use the `--extraction-delay <seconds>` argument to specify the delay (in seconds) between each extraction:
+
+```console
+tikorgzo -f "C:\path\to\links.txt" --extraction-delay 2
+```
+
+Alternatively, you can set this in the config file:
+
+```toml
+[generic]
+extraction_delay = 2
+```
+
+The value should be a non-negative integer or float (e.g., `2` or `0.5`).
+
 ### Choosing extractor to use
 
 By default, this program uses `TikWMExtractor` as its extractor for grabbing high-quality download links for videos. However, you can choose `DirectExtractor` as an alternative if you prefer a faster method at the expense of potential lower resolution videos. This method directly scrapes download links from TikTok itself.
