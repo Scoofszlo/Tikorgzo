@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 USERNAME_REGEX = r"\/@([\w\.\-]+)\/video\/\d+"
 NORMAL_TIKTOK_VIDEO_LINK_REGEX = r"(https?://)?(www\.)?tiktok\.com/@[\w\.\-]+/video/\d+(\?.*)?$"
 VT_TIKTOK_VIDEO_LINK_REGEX = r"(https?://)?vt\.tiktok\.com/"
+IDEAL_BINARY_NUM_LEN = 64
 
 
 class VideoInfoProcessor:
@@ -168,24 +169,22 @@ class VideoInfoProcessor:
 
     def _convert_decimal_to_binary(self, number: int) -> str:
         # Gets the binary num excluding the '0b' prefix returned by bin()
-        cur_binary_num = f"{number:b}"
-        cur_binary_num_len = len(cur_binary_num)
+        binary_num = f"{number:b}"
+        binary_num_len = len(binary_num)
 
-        ideal_binary_num_len = 64
-
-        if cur_binary_num_len == ideal_binary_num_len:
-            return cur_binary_num
+        if binary_num_len == IDEAL_BINARY_NUM_LEN:
+            return binary_num
 
         # If the length of the binary number is less than 64, prepend
         # enough zeros to ensure it is 64 digits long
 
-        zeros_to_prepend = ideal_binary_num_len - cur_binary_num_len
+        zeros_to_prepend = IDEAL_BINARY_NUM_LEN - binary_num_len
         zeros_string = ""
 
         for _ in range(zeros_to_prepend):
             zeros_string += "0"
 
-        return zeros_string + cur_binary_num
+        return zeros_string + binary_num
 
     def _format_date(self, date: datetime, filename_template: str) -> str:
         """Returns a filename with formatted date based on the
