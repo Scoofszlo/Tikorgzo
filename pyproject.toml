@@ -3,9 +3,7 @@ name = "Tikorgzo"
 dynamic = ["version"]
 description = "A TikTok video downloader that downloads source quality videos utilizing TikWM API."
 readme = "README.md"
-authors = [
-    { name = "Scoofszlo", email = "scoofszlo@gmail.com" }
-]
+authors = [{ name = "Scoofszlo", email = "scoofszlo@gmail.com" }]
 requires-python = ">=3.11"
 dependencies = [
     "aiofiles>=24.1.0",
@@ -27,6 +25,7 @@ build-backend = "setuptools.build_meta"
 [dependency-groups]
 dev = [
     "mypy>=1.18.2",
+    "pyright>=1.1.408",
     "setuptools-scm>=9.2.0",
     "types-aiofiles>=24.1.0.20250822",
     "types-requests>=2.32.4.20250913",
@@ -37,7 +36,15 @@ dev = [
 tikorgzo = "tikorgzo.cli.workflow:run"
 
 [tool.pylint."messages control"]
-disable = "missing-module-docstring, missing-function-docstring, invalid-name, import-outside-toplevel"
+disable = """
+    missing-module-docstring,
+    missing-function-docstring,
+    invalid-name,
+    import-outside-toplevel, 
+    missing-class-docstring,
+    too-few-public-methods,
+    broad-exception-caught
+    """
 
 [tool.pylint.FORMAT]
 max-line-length = 200
@@ -46,10 +53,56 @@ max-line-length = 200
 line-length = 200
 
 [tool.ruff.lint]
-extend-select = [
-    "E", "W"
+select = ["ALL"]
+extend-select = ["E", "W", "I"]
+ignore = [
+    # Consider removing
+    "PLR6301", # Checks for the presence of unused self parameter in methods definitions.
+    "FBT001",  # Boolean-typed positional argument in function
+    "FBT002",  # Boolean-typed keyword argument in function
+    "S101",    # Use of assertion
+    "C901",    # Checks for functions that are too complex based on McCabe complexity
+    "PLR0915", # Checks for functions or methods with too many statements.
+    "TRY300",  # Checks for return statements in try blocks. Personally, I think it's better to have
+    # return statement directly inside the try block
+
+    # Imports, exceptions, os module usages, and others
+    "PLC0415", # import should be on top of the file
+    "PTH107",  # Checks for uses of os.remove (encourages using pathlib.Path.unlink instead))
+    "PTH110",  # Checks for uses of os.path.exists (encourages using pathlib.Path.exists instead))
+    "SIM105",  #Use `contextlib.suppress(asyncio.CancelledError)` instead of `try`-`except`-`pass` 
+    "BLE001",  # Checks for except clauses that catch all exceptions
+    "PLR1702", # Nested blocks
+    "SIM108",  # Uses ternary or binary ooperator instead of `if`-`else` statement for simple assignments
+
+    # Docstyle
+    "D202", # No blank lines allowed after function docstring
+    "D205", # This D205 (which is about 1 blank line required between summary
+    # line and description in docstring) is ignored because sometimes
+    # you have docstrings that don't need summary and only description,
+    # and that description can be long and has chances to be separated
+    # into multiple lines so D205 may be violated in such cases    
+
+    "DOC201", # Missing returns in function docstring
+    "DOC202", # Checks for unnecessary "Returns:" section in function docstring
+    "D100",   # Missing docstring in public module
+    "D101",   # Missing docstring in public class
+    "D102",   # Missing docstring in public method
+    "D103",   # Missing docstring in public function
+    "D104",   # Missing docstring in public package
+    "D105",   # Missing docstring in magic method
+    "D106",   # Missing docstring in public nested class
+    "D107",   # Missing docstring in __init__
+    "DOC501", # Checks for function docstrings that do not document all explicitly raised exceptions.
+    "D401",   # First line should be in imperative mood; try rephrasing
+    "CPY001", # Checks for absence of copyright notices
 ]
 preview = true
+
+[tool.pyright]
+include = ["src/"]
+exclude = ["playground/", "tests/"]
+typeCheckingMode = "strict"
 
 [tool.ruff.format]
 preview = true
@@ -58,4 +111,3 @@ preview = true
 version_file = "src/tikorgzo/_version.py"
 version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
-
