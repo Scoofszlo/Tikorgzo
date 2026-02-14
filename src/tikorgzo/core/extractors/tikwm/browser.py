@@ -1,6 +1,6 @@
 
-from typing import Optional
-from playwright.async_api import async_playwright, Browser, BrowserContext, Page, Playwright
+
+from playwright.async_api import Browser, BrowserContext, Page, Playwright, async_playwright
 
 from tikorgzo.constants import CHROME_USER_DATA_DIR
 from tikorgzo.exceptions import MissingChromeBrowserError
@@ -8,13 +8,14 @@ from tikorgzo.exceptions import MissingChromeBrowserError
 
 class ScrapeBrowser:
     """Manages the initialization and cleanup of a Playwright browser instance that
-    will be used for getting download links from TikWM API."""
+    will be used for getting download links from TikWM API.
+    """
 
     def __init__(self) -> None:
-        self._playwright: Optional[Playwright] = None
-        self._browser: Optional[Browser] = None
-        self.context: Optional[BrowserContext] = None
-        self.page: Optional[Page] = None
+        self._playwright: Playwright | None = None
+        self._browser: Browser | None = None
+        self.context: BrowserContext | None = None
+        self.page: Page | None = None
 
     async def initialize(self) -> None:
         """Initializes the Playwright browser instance."""
@@ -29,18 +30,17 @@ class ScrapeBrowser:
                 args=[
                     "--disable-blink-features=AutomationControlled",
                 ],
-                viewport={'width': 500, 'height': 200},
+                viewport={"width": 500, "height": 200},
             )
         except Exception as e:
-            if hasattr(self, 'browser') and self._browser:
+            if hasattr(self, "browser") and self._browser:
                 await self._browser.close()
-            if hasattr(self, 'playwright') and self._playwright:
+            if hasattr(self, "playwright") and self._playwright:
                 await self._playwright.stop()
 
-            if "Executable doesn't exist" or "'chrome is not found" in str(e):
-                raise MissingChromeBrowserError()
-            else:
-                raise e
+            if "Executable doesn't exist" in str(e) or "'chrome is not found" in str(e):
+                raise MissingChromeBrowserError from None
+            raise e  # noqa: TRY201
 
     async def cleanup(self) -> None:
         if self._browser:

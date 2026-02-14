@@ -1,21 +1,20 @@
 import asyncio
 import sys
-from playwright.sync_api import Error as PlaywrightError
+
 from playwright.async_api import Error as PlaywrightAsyncError
+from playwright.sync_api import Error as PlaywrightError
 
 from tikorgzo import exceptions as exc
 from tikorgzo import generic as fn
 from tikorgzo.cli.args_handler import ArgsHandler
 from tikorgzo.cli.args_validator import validate_args
+from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.config.model import ConfigKey
 from tikorgzo.config.provider import ConfigProvider
-from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.extractors.context_manager import ExtractorHandler
-from tikorgzo.core.extractors.direct.extractor import DirectExtractor
-from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
 from tikorgzo.core.video.model import Video
 
 
@@ -49,7 +48,7 @@ async def main() -> None:
                     console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
                     break
                 except (
-                    exc.InvalidVideoLink,
+                    exc.InvalidVideoLinkError,
                     exc.VideoFileAlreadyExistsError,
                     exc.VideoIDExtractionError,
                 ) as e:
@@ -67,24 +66,25 @@ async def main() -> None:
 
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
+    successful_tasks: list[Video] = []
+    session = fn.get_session(config.get_value(ConfigKey.EXTRACTOR))
+
     try:
-        session = fn.get_session(config.get_value(ConfigKey.EXTRACTOR))
         extractor = fn.get_extractor(
             config.get_value(ConfigKey.EXTRACTOR),
             config.get_value(ConfigKey.EXTRACTION_DELAY),
-            session
+            session,
         )
         await extractor.initialize()
 
-        disallow_cleanup = True if config.get_value(ConfigKey.EXTRACTOR) == 2 else False
+        disallow_cleanup = bool(config.get_value(ConfigKey.EXTRACTOR) == 2)  # noqa: PLR2004
         async with ExtractorHandler(extractor, disallow_cleanup=disallow_cleanup) as eh:
             with console.status(f"Extracting links from {download_queue.total()} videos..."):
 
                 # Extracts video asynchronously
                 results = await eh.process_video_links(download_queue.get_queue())
-                successful_tasks = []
 
-                for video, result in zip(download_queue.get_queue(), results):
+                for video, result in zip(download_queue.get_queue(), results, strict=True):
                     # If any kind of exception (URLParsingError or any HTML-related exceptions,
                     # they will be skipped based on this condition.
                     # Otherwise, this will be appended to successful_videos list then replaces
@@ -101,7 +101,7 @@ async def main() -> None:
         sys.exit(1)
     except (
         Exception,
-        PlaywrightAsyncError
+        PlaywrightAsyncError,
     ) as e:
         console.print(f"[red]error:[/red] An unexpected error occurred during link extraction: {type(e).__name__}: {e}")
         await fn.close_session(session)
@@ -118,7 +118,7 @@ async def main() -> None:
     videos = await fn.download_video(
         config.get_value(ConfigKey.MAX_CONCURRENT_DOWNLOADS),
         download_queue.get_queue(),
-        session=session
+        session=session,
     )
     fn.cleanup_interrupted_downloads(videos)
     fn.print_download_results(videos)

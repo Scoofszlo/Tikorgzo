@@ -1,25 +1,26 @@
 from argparse import Namespace
+from pathlib import Path
 from typing import Any
-from tikorgzo.config import mapper
-from tikorgzo.config import parser
-from tikorgzo.config.model import ConfigKey
+
+from tikorgzo.config import mapper, parser
 from tikorgzo.config.constants import DEFAULT_CONFIG_OPTS
+from tikorgzo.config.model import ConfigKey
 
 
 class ConfigProvider:
     """Configuration provider that manages configuration from CLI and config files."""
 
     def __init__(self) -> None:
-        self.config: dict[str, dict | None] = {
+        self.config: dict[str, dict[str, Any] | None] = {
             "cli": None,
-            "config_file": None
+            "config_file": None,
         }
 
-    def get_value(self, key: ConfigKey) -> Any:
+    def get_value(self, key: ConfigKey) -> Any:  # noqa: ANN401
         """Get the config value for the given key, prioritizing CLI over config file over default."""
 
-        cli_config = self.config.get("cli")
-        config_file_config = self.config.get("config_file")
+        cli_config: dict[str, Any] | None = self.config.get("cli")
+        config_file_config: dict[str, Any] | None = self.config.get("config_file")
 
         cli_value = cli_config[key] if cli_config and key in cli_config else None
         file_value = config_file_config[key] if config_file_config and key in config_file_config else None
@@ -32,7 +33,7 @@ class ConfigProvider:
 
         self.config["cli"] = mapper.map_from_cli(args)
 
-    def map_from_config_file(self, config_paths: list[str]) -> None:
+    def map_from_config_file(self, config_paths: list[Path]) -> None:
         """Map loaded config file dict to internal config dict structure."""
 
         parsed_config = parser.parse_from_config(config_paths)

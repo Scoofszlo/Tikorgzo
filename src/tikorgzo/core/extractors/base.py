@@ -1,5 +1,5 @@
-from abc import abstractmethod
 import asyncio
+from abc import abstractmethod
 
 from tikorgzo.core.extractors.constants import MAX_CONCURRENT_EXTRACTION_TASKS
 from tikorgzo.core.video.model import Video
@@ -20,7 +20,7 @@ class BaseExtractor:
 
     @abstractmethod
     async def cleanup(self) -> None:
-        """ Cleans up any resources used by the extractor."""
+        """Cleans up any resources used by the extractor."""
 
     async def initialize(self) -> None:
         """Initializes any resources needed by the extractor."""

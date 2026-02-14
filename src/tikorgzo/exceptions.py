@@ -1,4 +1,3 @@
-from typing import Optional
 
 
 class MissingPlaywrightBrowserError(Exception):
@@ -25,7 +24,7 @@ class InvalidLinkSourceExtractionError(Exception):
         super().__init__(self.message)
 
 
-class InvalidVideoLink(Exception):
+class InvalidVideoLinkError(Exception):
     """Raised when the video link specified is invalid."""
 
     def __init__(self, video_link: str) -> None:
@@ -33,7 +32,7 @@ class InvalidVideoLink(Exception):
         super().__init__(self.message)
 
 
-class InvalidDateFormat(Exception):
+class InvalidDateFormatError(Exception):
     """Raised when invalid date format is used."""
 
     def __init__(self) -> None:
@@ -42,9 +41,9 @@ class InvalidDateFormat(Exception):
 
 
 class VideoFileAlreadyExistsError(Exception):
-    """Raised when the requested video file to download already exists in the downloads folder"""
+    """Raised when the requested video file to download already exists in the downloads folder."""
 
-    def __init__(self, vid_file: str, username: Optional[str] = None) -> None:
+    def __init__(self, vid_file: str, username: str | None = None) -> None:
         if username:
             self.message = f"Video '{vid_file}' (@{username}) already exists."
         else:
@@ -69,8 +68,7 @@ class HtmlElementMissingError(Exception):
 
 
 class URLParsingError(Exception):
-    """Raised when the video URL provided is invalid, most likely a mistyped
-    link or the video has been deleted."""
+    """Raised when the video URL provided is invalid, most likely a mistyped link or the video has been deleted."""
 
     def __init__(self) -> None:
         self.message = "Video URL is invalid. Please check for typos or if it's still publicly available."
@@ -94,9 +92,7 @@ class HrefLinkMissingError(Exception):
 
 
 class FileSizeNotSetError(Exception):
-    """Raised when FileSize doesn't have yet file size value, but something attempts to get the
-    value through its `get()`.
-    """
+    """Raised when FileSize doesn't have yet file size value, but something attempts to get the value through its `get()`."""
 
     def __init__(self) -> None:
         self.message = "File size has not been set yet."
@@ -129,7 +125,7 @@ class ExtractionTimeoutError(Exception):
 class MissingSourceDataError(Exception):
     """Raised when source data for extraction is missing."""
 
-    def __init__(self, message: Optional[str]) -> None:
+    def __init__(self, message: str | None) -> None:
         self.message = message or "Source data for extraction is missing."
         super().__init__(self.message)
 
