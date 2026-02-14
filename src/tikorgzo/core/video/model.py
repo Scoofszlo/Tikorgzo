@@ -120,13 +120,13 @@ class Video:
     def download_status(self) -> DownloadStatus:
         return self._download_status
 
-    @property
-    def filename_template(self) -> str | None:
-        return self._filename_template
-
     @download_status.setter
     def download_status(self, download_status: DownloadStatus) -> None:
         self._download_status = download_status
+
+    @property
+    def filename_template(self) -> str | None:
+        return self._filename_template
 
     @property
     def output_file_dir(self) -> Path | None:
