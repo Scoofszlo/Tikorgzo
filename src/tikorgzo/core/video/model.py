@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from tikorgzo.config.model import ConfigKey
 from tikorgzo.config.provider import ConfigProvider
@@ -8,18 +8,21 @@ from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.video.processor import VideoInfoProcessor
 from tikorgzo.exceptions import FileSizeNotSetError, FileTooLargeError
 
+if TYPE_CHECKING:
+    from datetime import datetime
 
 USERNAME_REGEX = r"\/@([\w\.\-]+)\/video\/\d+"
 NORMAL_TIKTOK_VIDEO_LINK_REGEX = r"https?://(www\.)?tiktok\.com/@[\w\.\-]+/video/\d+(\?.*)?$"
 VT_TIKTOK_VIDEO_LINK_REGEX = r"https?://vt\.tiktok\.com/"
 
+# File size conversion constant
+BYTES_PER_KB = 1024.0
 
 processor = VideoInfoProcessor()
 
 
 class Video:
-    """
-    Video class that handles the information of a TikTok video.
+    """Video class that handles the information of a TikTok video.
 
     Attributes:
         _config (ConfigProvider): The configuration provider instance that holds the app's configuration.
@@ -41,14 +44,15 @@ class Video:
     Raises:
         InvalidVideoLink: If the provided video link is not valid.
         VideoFileAlreadyExistsError: If the video file already exists in the output directory.
+
     """
 
     def __init__(
         self,
         video_link: str,
         config: ConfigProvider,
-    ):
-        self._config = config
+    ) -> None:
+        self.config = config
         self._video_link = processor.validate_video_link(video_link)
         self._video_id: int = processor.extract_video_id(video_link)
 
@@ -58,18 +62,18 @@ class Video:
             custom_download_dir=config.get_value(ConfigKey.DOWNLOAD_DIR),
         )
 
-        self._username: Optional[str] = processor._process_username(video_link)
+        self._username: str | None = processor.process_username(video_link)
         self._date: datetime = processor.get_date(self._video_id)
-        self._download_link: Optional[str] = None
+        self._download_link: str | None = None
         self._file_size = FileSize()
         self._download_status = DownloadStatus.UNSTARTED
-        self._filename_template: Optional[str] = config.get_value(ConfigKey.FILENAME_TEMPLATE)
-        self._output_file_dir: Optional[str] = None
-        self._output_file_path: Optional[str] = None
+        self._filename_template: str | None = config.get_value(ConfigKey.FILENAME_TEMPLATE)
+        self._output_file_dir: Path | None = None
+        self._output_file_path: Path | None = None
         processor.process_output_paths(self)
 
     @property
-    def username(self) -> Optional[str]:
+    def username(self) -> str | None:
         return self._username
 
     @username.setter
@@ -78,6 +82,10 @@ class Video:
             self._username = username[1:]
         else:
             self._username = username
+
+    @property
+    def date(self) -> "datetime":
+        return self._date
 
     @property
     def video_link(self) -> str:
@@ -112,43 +120,54 @@ class Video:
     def download_status(self) -> DownloadStatus:
         return self._download_status
 
+    @property
+    def filename_template(self) -> str | None:
+        return self._filename_template
+
     @download_status.setter
     def download_status(self, download_status: DownloadStatus) -> None:
         self._download_status = download_status
 
     @property
-    def output_file_dir(self) -> Optional[str]:
+    def output_file_dir(self) -> Path | None:
         return self._output_file_dir
 
+    @output_file_dir.setter
+    def output_file_dir(self, output_file_dir: Path) -> None:
+        self._output_file_dir = output_file_dir
+
     @property
-    def output_file_path(self) -> str:
+    def output_file_path(self) -> Path:
         assert self._output_file_path is not None
         return self._output_file_path
+
+    @output_file_path.setter
+    def output_file_path(self, output_file_path: Path) -> None:
+        self._output_file_path = output_file_path
 
 
 @dataclass
 class FileSize:
-    size_in_bytes: Optional[float] = None
+    size_in_bytes: float | None = None
 
     def get(self, formatted: bool = False) -> float | str:
-        """
-        Returns the file size.
+        """Returns the file size.
         If formatted=True, returns a human-readable string (e.g., '1.23 MB').
         If formatted=False, returns the raw float value in bytes.
         """
         if self.size_in_bytes is None:
-            raise FileSizeNotSetError()
+            raise FileSizeNotSetError
 
         if not formatted:
             return self.size_in_bytes
 
         size = self.size_in_bytes
-        for unit in ['B', 'KB', 'MB', 'GB']:
-            if size < 1024.0:
+        for unit in ["B", "KB", "MB", "GB"]:
+            if size < BYTES_PER_KB:
                 return f"{size:.2f} {unit}"
-            size /= 1024.0
+            size /= BYTES_PER_KB
 
-        raise FileTooLargeError()
+        raise FileTooLargeError
 
     def update(self, value: float) -> None:
         self.size_in_bytes = value

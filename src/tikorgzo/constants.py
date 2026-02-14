@@ -1,15 +1,21 @@
 from enum import Enum, auto
+from pathlib import Path
+
 from platformdirs import user_data_path, user_downloads_path
-import os
 
 # Program-wide constants
 APP_NAME = "Tikorgzo"
-DOWNLOAD_PATH = os.path.join(user_downloads_path(), APP_NAME)
-CHROME_USER_DATA_DIR = os.path.join(user_data_path(), APP_NAME, "chrome_user_data")
+DOWNLOAD_PATH = Path(user_downloads_path()) / APP_NAME
+CHROME_USER_DATA_DIR = Path(user_data_path()) / APP_NAME / "chrome_user_data"
+DEFAULT_DATE_FORMAT = r"%Y%m%d_%H%M%S"
+
+# TikTok constants
+TIKTOK_ID_LENGTH = 19
 
 # Extractor related constants
 TIKWM_EXTRACTOR_NAME = "tikwm"
 DIRECT_EXTRACTOR_NAME = "direct"
+
 
 class DownloadStatus(Enum):
     UNSTARTED = auto()

@@ -1,15 +1,16 @@
-from argparse import Namespace
 import sys
-from typing import Optional
+from argparse import Namespace
+from typing import Any
+
+from tikorgzo.config.constants import CONFIG_VARIABLES
 from tikorgzo.config.model import ConfigKey
 from tikorgzo.console import console
-from tikorgzo.config.constants import CONFIG_VARIABLES
 
 
-def map_from_cli(args: Namespace) -> dict:
+def map_from_cli(args: Namespace) -> dict[str, Any]:
     """Map argparse Namespace to internal config dict structure."""
 
-    config = {}
+    config: dict[str, Any] = {}
 
     for config_key in CONFIG_VARIABLES:
         # Use getattr to safely get attribute from Namespace
@@ -23,7 +24,7 @@ def map_from_cli(args: Namespace) -> dict:
     return config
 
 
-def map_from_config_file(loaded_config: dict) -> Optional[dict]:
+def map_from_config_file(loaded_config: dict[str, Any]) -> dict[str, Any] | None:
     """Map loaded config file dict to internal config dict structure."""
 
     try:
@@ -34,7 +35,7 @@ def map_from_config_file(loaded_config: dict) -> Optional[dict]:
         console.print("[yellow]warning[/yellow]: '[blue]generic[/blue]' section not found in config file. Skipping config file usage...")
         return None
 
-    config = {}
+    config: dict[str, Any] = {}
 
     for key in loaded_config:
         if key not in CONFIG_VARIABLES:

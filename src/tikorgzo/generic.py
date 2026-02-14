@@ -1,24 +1,27 @@
 import asyncio
+import pathlib
 import sys
-from typing import List, Optional
+
 import aiohttp
 import requests
-from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
+from rich.progress import BarColumn, DownloadColumn, Progress, TextColumn, TimeRemainingColumn, TransferSpeedColumn
 
 from tikorgzo.console import console
 from tikorgzo.constants import DIRECT_EXTRACTOR_NAME, TIKWM_EXTRACTOR_NAME, DownloadStatus
 from tikorgzo.core.download_manager.downloader import Downloader
+from tikorgzo.core.extractors.direct.extractor import DirectExtractor
+from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import InvalidLinkSourceExtractionError
 
 
-def extract_video_links(file_path: Optional[str], links: List[str]) -> set[str]:
-    """Extracts the video links based from a list of strings or from a file. """
+def extract_video_links(file_path: str | None, links: list[str]) -> set[str]:
+    """Extracts the video links based from a list of strings or from a file."""
 
     if file_path:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                return set([line.strip() for line in f if line.strip()])
+            with pathlib.Path(file_path).open("r", encoding="utf-8") as f:
+                return {line.strip() for line in f if line.strip()}
         except FileNotFoundError:
             console.print(f"[red]error[/red]: '{file_path}' doesn't exist.")
             sys.exit(1)
@@ -27,14 +30,9 @@ def extract_video_links(file_path: Optional[str], links: List[str]) -> set[str]:
             sys.exit(1)
 
     elif links:
-        links_list = []
+        return set(links)
 
-        for link in links:
-            links_list.append(link)
-
-        return set(links_list)
-
-    raise InvalidLinkSourceExtractionError()
+    raise InvalidLinkSourceExtractionError
 
 
 def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
@@ -42,39 +40,35 @@ def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
 
     if extractor == TIKWM_EXTRACTOR_NAME:
         return aiohttp.ClientSession()
-    elif extractor == DIRECT_EXTRACTOR_NAME:
+    if extractor == DIRECT_EXTRACTOR_NAME:
         return requests.Session()
-    else:
-        console.print("[red]error[/red]: Invalid strategy value provided for session creation.")
-        sys.exit(1)
+    console.print("[red]error[/red]: Invalid strategy value provided for session creation.")
+    sys.exit(1)
 
 
 def get_extractor(
         extractor: str,
         extraction_delay: float,
-        session: requests.Session | aiohttp.ClientSession
-):
+        session: requests.Session | aiohttp.ClientSession,
+) -> "TikWMExtractor | DirectExtractor":
     if extractor == TIKWM_EXTRACTOR_NAME:
-        from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
         return TikWMExtractor(extraction_delay)
-    elif extractor == DIRECT_EXTRACTOR_NAME and isinstance(session, requests.Session):
-        from tikorgzo.core.extractors.direct.extractor import DirectExtractor
+    if extractor == DIRECT_EXTRACTOR_NAME and isinstance(session, requests.Session):
         return DirectExtractor(extraction_delay, session)
-    else:
-        console.print("[red]error[/red]: Invalid strategy value provided for extractor creation.")
-        sys.exit(1)
+    console.print("[red]error[/red]: Invalid strategy value provided for extractor creation.")
+    sys.exit(1)
 
 
 async def close_session(session: requests.Session | aiohttp.ClientSession) -> None:
     """Close the given session depending on its type."""
     if isinstance(session, aiohttp.ClientSession):
         await session.close()
-    elif isinstance(session, requests.Session):
+    else:
         session.close()
 
 
 async def download_video(
-    max_concurrent_downloads: Optional[int],
+    max_concurrent_downloads: int | None,
     videos: list[Video],
     session: requests.Session | aiohttp.ClientSession,
 ) -> list[Video]:
@@ -98,7 +92,9 @@ async def download_video(
                 # status to the download status attribute of a Video instance
                 pass
             finally:
-                return videos
+                # Temporarily disable the recommendation here to remove return in finally block
+                # as this cause issues with downloader.py
+                return videos  # noqa: B012
 
 
 def cleanup_interrupted_downloads(videos: list[Video]) -> None:
