@@ -74,7 +74,7 @@ class Downloader:
                 assert isinstance(total_size, float)
 
                 task = progress_displayer.add_task(str(video.video_id), total=total_size)
-                with Path.open(video.output_file_path, "wb", encoding=None) as file:
+                with Path.open(video.output_file_path, "wb", encoding=None) as file:  # pylint: disable=unspecified-encoding
                     for chunk in req_response.iter_content(chunk_size=8192):
                         if chunk:
                             file.write(chunk)
