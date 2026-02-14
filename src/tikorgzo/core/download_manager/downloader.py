@@ -1,10 +1,10 @@
 import asyncio
+from pathlib import Path
 from types import TracebackType
 from typing import Self
 
 import aiofiles
 import aiohttp
-import anyio
 import requests
 from requests import HTTPError
 from rich.progress import Progress
@@ -51,10 +51,10 @@ class Downloader:
                         assert isinstance(total_size, float)
 
                         task = progress_displayer.add_task(str(video.video_id), total=total_size)
-                        async with aiofiles.open(video.output_file_path, "wb") as file:
+                        async with aiofiles.open(video.output_file_path, "wb") as output_file:
                             async for chunk in aio_response.content.iter_chunked(8192):
                                 if chunk:
-                                    await file.write(chunk)
+                                    await output_file.write(chunk)
                                     progress_displayer.update(task, advance=len(chunk))
                     video.download_status = DownloadStatus.COMPLETED
                 except (asyncio.CancelledError, Exception):
@@ -74,10 +74,10 @@ class Downloader:
                 assert isinstance(total_size, float)
 
                 task = progress_displayer.add_task(str(video.video_id), total=total_size)
-                async with await anyio.open_file(video.output_file_path, "wb") as file:
+                with Path.open(video.output_file_path, "wb", encoding=None) as output_file:  # pylint: disable=unspecified-encoding
                     for chunk in req_response.iter_content(chunk_size=8192):
                         if chunk:
-                            await file.write(chunk)
+                            output_file.write(chunk)
                             progress_displayer.update(task, advance=len(chunk))
                 video.download_status = DownloadStatus.COMPLETED
             except (asyncio.CancelledError, Exception):
