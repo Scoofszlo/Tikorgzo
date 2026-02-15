@@ -27,6 +27,7 @@ dev = [
     "mypy>=1.18.2",
     "poethepoet>=0.41.0",
     "pyright>=1.1.408",
+    "pytest>=9.0.2",
     "setuptools-scm>=9.2.0",
     "types-aiofiles>=24.1.0.20250822",
     "types-requests>=2.32.4.20250913",
