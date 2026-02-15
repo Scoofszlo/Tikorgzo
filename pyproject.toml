@@ -37,6 +37,9 @@ dev = [
 [project.scripts]
 tikorgzo = "tikorgzo.cli.workflow:run"
 
+[tool.pytest.ini_options]
+norecursedirs = ["playground"]
+
 [tool.pylint."messages control"]
 disable = """
     missing-module-docstring,
@@ -53,6 +56,7 @@ max-line-length = 200
 
 [tool.ruff]
 line-length = 200
+extend-exclude = ["playground/", "tests/"]
 
 [tool.ruff.lint]
 select = ["ALL"]
