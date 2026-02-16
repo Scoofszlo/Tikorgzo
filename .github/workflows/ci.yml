@@ -1,8 +1,6 @@
 name: CI
 
 on:
-  pull_request: # Remove later when this PR is pushed to main
-    branches: [main]
   push:
     branches: [main]
 
