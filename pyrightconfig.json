@@ -1,0 +1,12 @@
+{
+    "include": [
+        "src/**"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        ".git",
+        "tests/**",
+        "build/**"
+    ],
+}

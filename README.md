@@ -15,12 +15,12 @@ Some of the key features include:
 
 ### Requirements
 - Windows, or any Linux distros
-- Python `v3.11` or greater
+- Python `v3.12` or greater
 - Google Chrome
 - uv
 
 ### Steps
-1. Install Python 3.11.0 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
+1. Install Python v3.12 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
 2. Install Google Chrome from the official website. For Linux users, choose the appropriate package according to your installed distribution.
 3. Open your command-line.
 4. Install uv through `pip` command or via [Standalone installer](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer).
