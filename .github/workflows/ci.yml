@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Run tests
+    name: Test app
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +27,7 @@ jobs:
         run: uv run pytest
 
   lint:
-    name: Run linters
+    name: Lint check
     runs-on: ubuntu-latest
 
     steps:
@@ -46,7 +46,7 @@ jobs:
         run: uv run poe lint
 
   type:
-    name: Run type checker
+    name: Type check
     runs-on: ubuntu-latest
 
     steps:
