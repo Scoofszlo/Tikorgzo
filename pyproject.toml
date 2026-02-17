@@ -120,6 +120,7 @@ preview = true
 lint = "ruff check"
 lint-fix = "ruff check --fix"
 lint-watch = "ruff check --watch"
+lint-pylint = "pylint src"
 type = "pyright"
 type-watch = "pyright --watch"
 type-ty = "ty check"
