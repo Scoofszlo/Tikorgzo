@@ -1,6 +1,5 @@
 import asyncio
 import pathlib
-import sys
 
 import aiohttp
 import requests
@@ -12,7 +11,7 @@ from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.extractors.direct.extractor import DirectExtractor
 from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
 from tikorgzo.core.video.model import Video
-from tikorgzo.exceptions import InvalidLinkSourceExtractionError
+from tikorgzo.exceptions import ExtractorCreationError, InvalidVideoLinkExtractionError
 
 
 def extract_video_links(file_path: str | None, links: list[str]) -> set[str]:
@@ -22,17 +21,13 @@ def extract_video_links(file_path: str | None, links: list[str]) -> set[str]:
         try:
             with pathlib.Path(file_path).open("r", encoding="utf-8") as f:
                 return {line.strip() for line in f if line.strip()}
-        except FileNotFoundError:
-            console.print(f"[red]error[/red]: '{file_path}' doesn't exist.")
-            sys.exit(1)
-        except Exception as e:
-            console.print(f"[red]error[/red]: {e}")
-            sys.exit(1)
+        except FileNotFoundError as e:
+            raise FileNotFoundError from e
 
     elif links:
         return set(links)
 
-    raise InvalidLinkSourceExtractionError
+    raise InvalidVideoLinkExtractionError
 
 
 def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
@@ -40,10 +35,8 @@ def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
 
     if extractor == TIKWM_EXTRACTOR_NAME:
         return aiohttp.ClientSession()
-    if extractor == DIRECT_EXTRACTOR_NAME:
-        return requests.Session()
-    console.print("[red]error[/red]: Invalid strategy value provided for session creation.")
-    sys.exit(1)
+
+    return requests.Session()
 
 
 def get_extractor(
@@ -55,8 +48,7 @@ def get_extractor(
         return TikWMExtractor(extraction_delay)
     if extractor == DIRECT_EXTRACTOR_NAME and isinstance(session, requests.Session):
         return DirectExtractor(extraction_delay, session)
-    console.print("[red]error[/red]: Invalid strategy value provided for extractor creation.")
-    sys.exit(1)
+    raise ExtractorCreationError
 
 
 async def close_session(session: requests.Session | aiohttp.ClientSession) -> None:

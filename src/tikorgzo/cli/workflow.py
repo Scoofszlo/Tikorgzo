@@ -1,11 +1,14 @@
 import asyncio
 import sys
+from argparse import Namespace
 
+import aiohttp
+import requests
 from playwright.async_api import Error as PlaywrightAsyncError
 from playwright.sync_api import Error as PlaywrightError
 
+from tikorgzo import app_functions as fn
 from tikorgzo import exceptions as exc
-from tikorgzo import generic as fn
 from tikorgzo.cli.args_handler import ArgsHandler
 from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.config.model import ConfigKey
@@ -17,64 +20,103 @@ from tikorgzo.core.extractors.context_manager import ExtractorHandler
 from tikorgzo.core.video.model import Video
 
 
-async def main() -> None:  # noqa: PLR0912
-    # pylint: disable=too-many-branches, too-many-statements, too-many-locals
+async def main() -> None:
     ah = ArgsHandler()
     args = ah.parse_args()
 
-    # Show help message if no arguments are provided
+    # Show help/CLI welcome msg if no link or file argument is provided, then exit
     if not args.file and not args.link:
-        ah.parser.print_help()
+        ah.show_help()
         sys.exit(0)
 
+    config = _load_config(args)
+    video_links = _get_video_links(args.file, args.link)
+
+    # Stage 1
+    download_queue = _validate_video_links(video_links, config)
+
+    if download_queue.is_empty():
+        console.print("\nProgram will now stopped as there is nothing to process.")
+        sys.exit(0)
+
+    # Stage 2
+    download_queue, session = await _extract_download_links(download_queue, config)
+
+    if download_queue.is_empty():
+        console.print("\nThe program will now exit as no links were extracted.")
+        await fn.close_session(session)
+        sys.exit(1)
+
+    # Stage 3
+    await _download_videos(download_queue, config, session)
+
+
+def _load_config(args: Namespace) -> ConfigProvider:
+    """Build and return the configuration, exiting on invalid data."""
     config = ConfigProvider()
 
     try:
         config.map_from_cli(args)
         config.map_from_config_file(CONFIG_PATH_LOCATIONS)
     except exc.InvalidConfigDataError as e:
-        console.print(f"[red]error:[/red] Invalid config data from {e.source}: [orange1]{e}[/orange1]")
+        console.print(f"[red]error:[/red] Invalid config data from {e.source}: {e}")
         sys.exit(1)
 
-    # Get the video IDs
-    file_path = args.file
-    link_list = args.link
+    return config
 
-    video_links = fn.extract_video_links(file_path, link_list)
-    download_queue = DownloadQueueManager()
 
+def _get_video_links(file_path: str, links: list[str]) -> set[str]:
+    try:
+        return fn.extract_video_links(file_path, links)
+    except FileNotFoundError:
+        console.print(f"[red]error[/red]: '{file_path}' doesn't exist.")
+        sys.exit(1)
+    except exc.InvalidVideoLinkExtractionError:
+        console.print("[red]error:[/red] No valid source of video links provided. Please provide a file path or at least one video link.")
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"[red]error:[/red] An unexpected error occurred while extracting video links: {type(e).__name__}: {e}")
+        sys.exit(1)
+
+
+def _validate_video_links(
+    video_links: set[str],
+    config: ConfigProvider,
+) -> DownloadQueueManager:
+    """Stage 1 - validate each link and populate the download queue."""
     console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")
 
+    download_queue = DownloadQueueManager()
+
     for idx, video_link in enumerate(video_links):
-        while True:
-            curr_pos = idx + 1
-            with console.status(f"Checking video {curr_pos} if already exist..."):
-                try:
-                    video = Video(video_link=video_link, config=config)
-                    video.download_status = DownloadStatus.QUEUED
-                    download_queue.add(video)
-                    console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
-                    break
-                except (
-                    exc.InvalidVideoLinkError,
-                    exc.VideoFileAlreadyExistsError,
-                    exc.VideoIDExtractionError,
-                ) as e:
-                    console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
-                    break
-                except PlaywrightError:
-                    sys.exit(1)
-                except Exception as e:
-                    console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
-                    break
+        curr_pos = idx + 1
+        with console.status(f"Checking video {curr_pos} if already exist..."):
+            try:
+                video = Video(video_link=video_link, config=config)
+                video.download_status = DownloadStatus.QUEUED
+                download_queue.add(video)
+                console.print(f"Added video {curr_pos} ({video.video_id}) to download queue.")
+            except (
+                exc.InvalidVideoLinkError,
+                exc.VideoFileAlreadyExistsError,
+                exc.VideoIDExtractionError,
+            ) as e:
+                console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
+            except PlaywrightError:
+                sys.exit(1)
+            except Exception as e:
+                console.print(f"[gray50]Skipping video {curr_pos} due to: [orange1]{type(e).__name__}: {e}[/orange1][/gray50]")
 
-    if download_queue.is_empty():
-        console.print("\nProgram will now stopped as there is nothing to process.")
-        sys.exit(0)
+    return download_queue
 
+
+async def _extract_download_links(
+    download_queue: DownloadQueueManager,
+    config: ConfigProvider,
+) -> tuple[DownloadQueueManager, requests.Session | aiohttp.ClientSession]:
+    """Stage 2 - extract direct download URLs for every queued video."""
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
-    successful_tasks: list[Video] = []
     session = fn.get_session(config.get_value(ConfigKey.EXTRACTOR))
 
     try:
@@ -88,38 +130,37 @@ async def main() -> None:  # noqa: PLR0912
         disallow_cleanup = bool(config.get_value(ConfigKey.EXTRACTOR) == 2)  # noqa: PLR2004
         async with ExtractorHandler(extractor, disallow_cleanup=disallow_cleanup) as eh:
             with console.status(f"Extracting links from {download_queue.total()} videos..."):
-
-                # Extracts video asynchronously
                 results = await eh.process_video_links(download_queue.get_queue())
 
-                for video, result in zip(download_queue.get_queue(), results, strict=True):
-                    # If any kind of exception (URLParsingError or any HTML-related exceptions,
-                    # they will be skipped based on this condition.
-                    # Otherwise, this will be appended to successful_videos list then replaces
-                    # the videos that holds the Video objects
-                    if isinstance(result, BaseException):
-                        pass
-                    else:
-                        successful_tasks.append(video)
+                successful = [
+                    video
+                    for video, result in zip(download_queue.get_queue(), results, strict=True)
+                    if not isinstance(result, BaseException)
+                ]
 
-            download_queue.replace_queue(successful_tasks)
+            download_queue.replace_queue(successful)
     except exc.MissingChromeBrowserError:
         console.print("[red]error:[/red] Google Chrome is not installed in your system. Please install it to proceed.")
         await fn.close_session(session)
         sys.exit(1)
-    except (
-        Exception,
-        PlaywrightAsyncError,
-    ) as e:
+    except exc.ExtractorCreationError:
+        console.print("[red]error:[/red] Invalid extractor/extraction delay/session value provided for extractor creation.")
+        await fn.close_session(session)
+        sys.exit(1)
+    except (Exception, PlaywrightAsyncError) as e:
         console.print(f"[red]error:[/red] An unexpected error occurred during link extraction: {type(e).__name__}: {e}")
         await fn.close_session(session)
         sys.exit(1)
 
-    if download_queue.is_empty():
-        console.print("\nThe program will now exit as no links were extracted.")
-        await fn.close_session(session)
-        sys.exit(1)
+    return download_queue, session
 
+
+async def _download_videos(
+    download_queue: DownloadQueueManager,
+    config: ConfigProvider,
+    session: requests.Session | aiohttp.ClientSession,
+) -> None:
+    """Stage 3 - download all successfully extracted videos."""
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
 
