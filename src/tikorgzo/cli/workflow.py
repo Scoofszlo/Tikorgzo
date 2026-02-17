@@ -7,7 +7,6 @@ from playwright.sync_api import Error as PlaywrightError
 from tikorgzo import exceptions as exc
 from tikorgzo import generic as fn
 from tikorgzo.cli.args_handler import ArgsHandler
-from tikorgzo.cli.args_validator import validate_args
 from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.config.model import ConfigKey
 from tikorgzo.config.provider import ConfigProvider
@@ -18,7 +17,7 @@ from tikorgzo.core.extractors.context_manager import ExtractorHandler
 from tikorgzo.core.video.model import Video
 
 
-async def main() -> None:
+async def main() -> None:  # noqa: PLR0912
     ah = ArgsHandler()
     args = ah.parse_args()
 
@@ -27,11 +26,14 @@ async def main() -> None:
         ah.parser.print_help()
         sys.exit(0)
 
-    validate_args(ah, args)
-
     config = ConfigProvider()
-    config.map_from_cli(args)
-    config.map_from_config_file(CONFIG_PATH_LOCATIONS)
+
+    try:
+        config.map_from_cli(args)
+        config.map_from_config_file(CONFIG_PATH_LOCATIONS)
+    except exc.InvalidConfigValueError as e:
+        console.print(f"[red]error:[/red] Invalid config value from {e.source}: [orange1]{e}[/orange1]")
+        sys.exit(1)
 
     # Get the video IDs
     file_path = args.file
