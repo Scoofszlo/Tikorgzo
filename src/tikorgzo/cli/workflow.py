@@ -22,6 +22,11 @@ async def main() -> None:
     ah = ArgsHandler()
     args = ah.parse_args()
 
+    # Show help message if no arguments are provided
+    if not args.file and not args.link:
+        ah.parser.print_help()
+        sys.exit(0)
+
     validate_args(ah, args)
 
     config = ConfigProvider()

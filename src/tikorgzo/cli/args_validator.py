@@ -10,17 +10,10 @@ from tikorgzo.console import console
 
 def validate_args(ah: ArgsHandler, args: Namespace) -> None:
     """Validates args entered to ensure that all are properly set."""
-    _show_cli_help(ah, args)
     _raise_error_if_invalid_extractor(args)
     _raise_error_if_invalid_extraction_delay(args)
     _raise_error_if_invalid_max_concurrent_downloads(args)
     _raise_error_if_invalid_filename_string(args)
-
-
-def _show_cli_help(ah: ArgsHandler, args: Namespace) -> None:
-    if not args.file and not args.link:
-        ah.parser.print_help()
-        sys.exit(0)
 
 
 def _raise_error_if_invalid_extractor(args: Namespace) -> None:
