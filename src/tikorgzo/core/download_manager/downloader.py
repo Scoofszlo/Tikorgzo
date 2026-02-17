@@ -5,19 +5,19 @@ from typing import Self
 
 import aiofiles
 import aiohttp
-import requests
 from requests import HTTPError
 from rich.progress import Progress
 
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
+from tikorgzo.core.session.model import ClientSessionManager
 from tikorgzo.core.video.model import Video
 
 
 class Downloader:
     def __init__(
         self,
-        session: requests.Session | aiohttp.ClientSession,
+        session: ClientSessionManager,
         max_concurrent_downloads: int | None = None,
     ) -> None:
         self.session = session
@@ -32,10 +32,12 @@ class Downloader:
     async def download(self, video: Video, progress_displayer: Progress) -> None:
         status_ok = 200
 
-        if isinstance(self.session, aiohttp.ClientSession):
+        if isinstance(self.session.client_session, aiohttp.ClientSession):
+            aiohttp_session = self.session.client_session
+
             async with self.semaphore:
                 try:
-                    async with self.session.get(video.download_link) as aio_response:
+                    async with aiohttp_session.get(video.download_link) as aio_response:
                         if aio_response.status != status_ok:
                             video.download_status = DownloadStatus.INTERRUPTED
                             raise aiohttp.ClientResponseError(  # noqa: TRY301
@@ -61,7 +63,8 @@ class Downloader:
                     video.download_status = DownloadStatus.INTERRUPTED
                     raise
         else:
-            req_response = self.session.get(video.download_link, stream=True)
+            requests_session = self.session.client_session
+            req_response = requests_session.get(video.download_link, stream=True)
             try:
                 if req_response.status_code != status_ok:
                     video.download_status = DownloadStatus.INTERRUPTED

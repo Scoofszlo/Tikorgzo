@@ -1,7 +1,6 @@
 import asyncio
 import pathlib
 
-import aiohttp
 import requests
 from rich.progress import BarColumn, DownloadColumn, Progress, TextColumn, TimeRemainingColumn, TransferSpeedColumn
 
@@ -10,6 +9,7 @@ from tikorgzo.constants import DIRECT_EXTRACTOR_NAME, TIKWM_EXTRACTOR_NAME, Down
 from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.extractors.direct.extractor import DirectExtractor
 from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
+from tikorgzo.core.session.model import ClientSessionManager
 from tikorgzo.core.video.model import Video
 from tikorgzo.exceptions import ExtractorCreationError, InvalidVideoLinkExtractionError
 
@@ -30,39 +30,22 @@ def extract_video_links(file_path: str | None, links: list[str]) -> set[str]:
     raise InvalidVideoLinkExtractionError
 
 
-def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
-    """Get a requests Session or aiohttp ClientSession depending on the chosen link extractor."""
-
-    if extractor == TIKWM_EXTRACTOR_NAME:
-        return aiohttp.ClientSession()
-
-    return requests.Session()
-
-
 def get_extractor(
         extractor: str,
         extraction_delay: float,
-        session: requests.Session | aiohttp.ClientSession,
+        session: ClientSessionManager,
 ) -> "TikWMExtractor | DirectExtractor":
     if extractor == TIKWM_EXTRACTOR_NAME:
         return TikWMExtractor(extraction_delay)
-    if extractor == DIRECT_EXTRACTOR_NAME and isinstance(session, requests.Session):
-        return DirectExtractor(extraction_delay, session)
+    if extractor == DIRECT_EXTRACTOR_NAME and isinstance(session.client_session, requests.Session):
+        return DirectExtractor(extraction_delay, session.client_session)
     raise ExtractorCreationError
-
-
-async def close_session(session: requests.Session | aiohttp.ClientSession) -> None:
-    """Close the given session depending on its type."""
-    if isinstance(session, aiohttp.ClientSession):
-        await session.close()
-    else:
-        session.close()
 
 
 async def download_video(
     max_concurrent_downloads: int | None,
     videos: list[Video],
-    session: requests.Session | aiohttp.ClientSession,
+    session: ClientSessionManager,
 ) -> list[Video]:
     """Download all the videos from queue that has the list of Video instances."""
 
