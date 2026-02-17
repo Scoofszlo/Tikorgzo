@@ -1,5 +1,8 @@
 
 
+from tikorgzo.config.constants import MapSource
+
+
 class MissingPlaywrightBrowserError(Exception):
     """Raised when Playwright browser to be used for extraction hasn't been installed."""
 
@@ -135,4 +138,13 @@ class APIStructureMismatchError(Exception):
 
     def __init__(self, message: str) -> None:
         self.message = message
+        super().__init__(self.message)
+
+
+class InvalidConfigValueError(Exception):
+    """Raised when a config value is invalid."""
+
+    def __init__(self, message: str, source: MapSource) -> None:
+        self.message = message
+        self.source = source
         super().__init__(self.message)
