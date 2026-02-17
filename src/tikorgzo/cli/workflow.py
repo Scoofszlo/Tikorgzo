@@ -4,8 +4,8 @@ import sys
 from playwright.async_api import Error as PlaywrightAsyncError
 from playwright.sync_api import Error as PlaywrightError
 
+from tikorgzo import app_functions as fn
 from tikorgzo import exceptions as exc
-from tikorgzo import generic as fn
 from tikorgzo.cli.args_handler import ArgsHandler
 from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.config.model import ConfigKey
