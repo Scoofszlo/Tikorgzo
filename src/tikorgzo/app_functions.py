@@ -1,7 +1,6 @@
 import asyncio
 import pathlib
 
-import aiohttp
 import requests
 from rich.progress import BarColumn, DownloadColumn, Progress, TextColumn, TimeRemainingColumn, TransferSpeedColumn
 
@@ -30,15 +29,6 @@ def extract_video_links(file_path: str | None, links: list[str]) -> set[str]:
     raise InvalidVideoLinkExtractionError
 
 
-def get_session(extractor: str) -> requests.Session | aiohttp.ClientSession:
-    """Get a requests Session or aiohttp ClientSession depending on the chosen link extractor."""
-
-    if extractor == TIKWM_EXTRACTOR_NAME:
-        return aiohttp.ClientSession()
-
-    return requests.Session()
-
-
 def get_extractor(
         extractor: str,
         extraction_delay: float,
@@ -49,14 +39,6 @@ def get_extractor(
     if extractor == DIRECT_EXTRACTOR_NAME and isinstance(session, requests.Session):
         return DirectExtractor(extraction_delay, session)
     raise ExtractorCreationError
-
-
-async def close_session(session: requests.Session | aiohttp.ClientSession) -> None:
-    """Close the given session depending on its type."""
-    if isinstance(session, aiohttp.ClientSession):
-        await session.close()
-    else:
-        session.close()
 
 
 async def download_video(
