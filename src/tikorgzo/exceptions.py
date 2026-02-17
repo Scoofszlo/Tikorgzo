@@ -19,7 +19,7 @@ class MissingChromeBrowserError(Exception):
         super().__init__(self.message)
 
 
-class InvalidLinkSourceExtractionError(Exception):
+class InvalidVideoLinkExtractionError(Exception):
     """Raised when there is no specified link or file for processing of links."""
 
     def __init__(self) -> None:
@@ -40,6 +40,14 @@ class InvalidDateFormatError(Exception):
 
     def __init__(self) -> None:
         self.message = "Date format is invalid. Please ensure your format is correct by checking the supported formats here: https://strftime.org/"
+        super().__init__(self.message)
+
+
+class ExtractorCreationError(Exception):
+    """Raised when the value provided for extractor, extraction delay, or session is invalid."""
+
+    def __init__(self) -> None:
+        self.message = "Invalid extractor/extraction delay/session value provided for extractor or session creation."
         super().__init__(self.message)
 
 
