@@ -122,7 +122,8 @@ lint-watch = "ruff check --watch"
 type = "pyright"
 type-watch = "pyright --watch"
 type-ty = "ty check"
-type-mypy = "mypy -p tikorgzo --check-untyped-defs"
+type-ty-watch = "ty check --watch"
+type-mypy = "mypy -p tikorgzo --check-untyped-defs --disallow-incomplete-defs --disallow-untyped-defs"
 
 [tool.setuptools_scm]
 version_file = "src/tikorgzo/_version.py"
