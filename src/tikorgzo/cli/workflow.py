@@ -31,8 +31,8 @@ async def main() -> None:  # noqa: PLR0912
     try:
         config.map_from_cli(args)
         config.map_from_config_file(CONFIG_PATH_LOCATIONS)
-    except exc.InvalidConfigValueError as e:
-        console.print(f"[red]error:[/red] Invalid config value from {e.source}: [orange1]{e}[/orange1]")
+    except exc.InvalidConfigDataError as e:
+        console.print(f"[red]error:[/red] Invalid config data from {e.source}: [orange1]{e}[/orange1]")
         sys.exit(1)
 
     # Get the video IDs

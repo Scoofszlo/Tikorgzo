@@ -12,7 +12,7 @@ from tikorgzo.config.validator import (
     validate_config,
 )
 from tikorgzo.constants import DIRECT_EXTRACTOR_NAME, TIKWM_EXTRACTOR_NAME
-from tikorgzo.exceptions import InvalidConfigValueError
+from tikorgzo.exceptions import InvalidConfigDataError
 
 
 class TestValidateConfig:
@@ -37,31 +37,31 @@ class TestValidateConfig:
         validate_config(ConfigKey.LAZY_DUPLICATE_CHECK, True, MapSource.CONFIG_FILE)
 
     def test_invalid_config_key_raises(self) -> None:
-        with pytest.raises(InvalidConfigValueError):
+        with pytest.raises(InvalidConfigDataError):
             validate_config("nonexistent_key", "value", MapSource.CLI)
 
     def test_invalid_type_raises(self) -> None:
-        with pytest.raises(InvalidConfigValueError):
+        with pytest.raises(InvalidConfigDataError):
             validate_config(ConfigKey.EXTRACTOR, "123", MapSource.CLI)
 
     def test_invalid_extractor_value_raises(self) -> None:
-        with pytest.raises(InvalidConfigValueError):
+        with pytest.raises(InvalidConfigDataError):
             validate_config(ConfigKey.EXTRACTOR, "bad_extractor", MapSource.CLI)
 
     def test_invalid_extraction_delay_raises(self) -> None:
-        with pytest.raises(InvalidConfigValueError):
+        with pytest.raises(InvalidConfigDataError):
             validate_config(ConfigKey.EXTRACTION_DELAY, 999, MapSource.CLI)
 
     def test_invalid_max_concurrent_downloads_raises(self) -> None:
-        with pytest.raises(InvalidConfigValueError):
+        with pytest.raises(InvalidConfigDataError):
             validate_config(ConfigKey.MAX_CONCURRENT_DOWNLOADS, 100, MapSource.CLI)
 
     def test_invalid_filename_template_raises(self) -> None:
-        with pytest.raises(InvalidConfigValueError):
+        with pytest.raises(InvalidConfigDataError):
             validate_config(ConfigKey.FILENAME_TEMPLATE, "no_placeholder_here", MapSource.CLI)
 
     def test_source_is_carried_in_exception(self) -> None:
-        with pytest.raises(InvalidConfigValueError) as exc_info:
+        with pytest.raises(InvalidConfigDataError) as exc_info:
             validate_config("bad_key", "val", MapSource.CONFIG_FILE)
         assert exc_info.value.source == MapSource.CONFIG_FILE
 

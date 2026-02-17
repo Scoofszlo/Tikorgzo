@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from tikorgzo.config.constants import CONFIG_VARIABLES, MapSource
 from tikorgzo.config.model import ConfigKey
-from tikorgzo.exceptions import InvalidConfigValueError
+from tikorgzo.exceptions import InvalidConfigDataError
 
 
 def validate_config(
@@ -18,7 +18,7 @@ def validate_config(
     error_msg = error_msg or is_invalid_type(config_key, value)
 
     if error_msg is not None:
-        raise InvalidConfigValueError(error_msg, source)
+        raise InvalidConfigDataError(error_msg, source)
 
     if config_key == ConfigKey.EXTRACTOR:
         assert isinstance(value, str)
@@ -34,7 +34,7 @@ def validate_config(
         error_msg = is_invalid_filename_string(value)
 
     if error_msg is not None:
-        raise InvalidConfigValueError(error_msg, source)
+        raise InvalidConfigDataError(error_msg, source)
 
 
 def is_invalid_config_key(config_key: str) -> str | None:

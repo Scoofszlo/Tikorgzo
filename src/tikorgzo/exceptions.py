@@ -141,8 +141,8 @@ class APIStructureMismatchError(Exception):
         super().__init__(self.message)
 
 
-class InvalidConfigValueError(Exception):
-    """Raised when a config value is invalid."""
+class InvalidConfigDataError(Exception):
+    """Raised when the config data is invalid, either due to wrong key, wrong type, or wrong value."""
 
     def __init__(self, message: str, source: MapSource) -> None:
         self.message = message
