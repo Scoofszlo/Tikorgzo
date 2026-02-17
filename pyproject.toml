@@ -117,6 +117,7 @@ typeCheckingMode = "strict"
 preview = true
 
 [tool.poe.tasks]
+test = "pytest"
 lint = "ruff check"
 lint-fix = "ruff check --fix"
 lint-watch = "ruff check --watch"
