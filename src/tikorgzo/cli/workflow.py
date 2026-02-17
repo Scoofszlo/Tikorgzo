@@ -2,8 +2,6 @@ import asyncio
 import sys
 from argparse import Namespace
 
-import aiohttp
-import requests
 from playwright.async_api import Error as PlaywrightAsyncError
 from playwright.sync_api import Error as PlaywrightError
 
@@ -17,6 +15,7 @@ from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.extractors.context_manager import ExtractorHandler
+from tikorgzo.core.session.model import ClientSessionManager
 from tikorgzo.core.video.model import Video
 
 
@@ -44,7 +43,7 @@ async def main() -> None:
 
     if download_queue.is_empty():
         console.print("\nThe program will now exit as no links were extracted.")
-        await fn.close_session(session)
+        await session.close()
         sys.exit(1)
 
     # Stage 3
@@ -113,11 +112,11 @@ def _validate_video_links(
 async def _extract_download_links(
     download_queue: DownloadQueueManager,
     config: ConfigProvider,
-) -> tuple[DownloadQueueManager, requests.Session | aiohttp.ClientSession]:
+) -> tuple[DownloadQueueManager, ClientSessionManager]:
     """Stage 2 - extract direct download URLs for every queued video."""
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
-    session = fn.get_session(config.get_value(ConfigKey.EXTRACTOR))
+    session = ClientSessionManager(config.get_value(ConfigKey.EXTRACTOR))
 
     try:
         extractor = fn.get_extractor(
@@ -141,15 +140,15 @@ async def _extract_download_links(
             download_queue.replace_queue(successful)
     except exc.MissingChromeBrowserError:
         console.print("[red]error:[/red] Google Chrome is not installed in your system. Please install it to proceed.")
-        await fn.close_session(session)
+        await session.close()
         sys.exit(1)
     except exc.ExtractorCreationError:
         console.print("[red]error:[/red] Invalid extractor/extraction delay/session value provided for extractor creation.")
-        await fn.close_session(session)
+        await session.close()
         sys.exit(1)
     except (Exception, PlaywrightAsyncError) as e:
         console.print(f"[red]error:[/red] An unexpected error occurred during link extraction: {type(e).__name__}: {e}")
-        await fn.close_session(session)
+        await session.close()
         sys.exit(1)
 
     return download_queue, session
@@ -158,7 +157,7 @@ async def _extract_download_links(
 async def _download_videos(
     download_queue: DownloadQueueManager,
     config: ConfigProvider,
-    session: requests.Session | aiohttp.ClientSession,
+    session: ClientSessionManager,
 ) -> None:
     """Stage 3 - download all successfully extracted videos."""
     console.print("\n[b]Stage 3/3[/b]: Download")
@@ -171,7 +170,7 @@ async def _download_videos(
     )
     fn.cleanup_interrupted_downloads(videos)
     fn.print_download_results(videos)
-    await fn.close_session(session)
+    await session.close()
 
 
 def run() -> None:
