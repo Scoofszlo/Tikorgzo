@@ -24,8 +24,8 @@ jobs:
       - name: Run pytest
         run: uv run pytest
 
-  lint:
-    name: Lint check
+  lint-ruff:
+    name: Lint check (Ruff)
     runs-on: ubuntu-latest
 
     steps:
@@ -42,6 +42,25 @@ jobs:
 
       - name: Run lint checker
         run: uv run poe lint
+
+  lint-pylint:
+    name: Lint check (Pylint)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Run lint checker
+        run: uv run poe lint-pylint
 
   type-pyright:
     name: Type check (Pyright)

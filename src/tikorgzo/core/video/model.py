@@ -22,6 +22,7 @@ processor = VideoInfoProcessor()
 
 
 class Video:
+    # pylint: disable=too-many-instance-attributes
     """Video class that handles the information of a TikTok video.
 
     Attributes:

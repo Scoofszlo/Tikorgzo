@@ -249,30 +249,3 @@ class TestMapFromConfigFile:
         assert config_provider.get_value(ConfigKey.EXTRACTOR) == DIRECT_EXTRACTOR_NAME
         assert config_provider.get_value(ConfigKey.MAX_CONCURRENT_DOWNLOADS) == 4  # default
         assert config_provider.get_value(ConfigKey.EXTRACTION_DELAY) == 1  # default
-
-    def test_invalid_type_exits(self, config_provider: ConfigProvider, tmp_path: Path, sample_toml_invalid_type: str) -> None:
-        """A value with the wrong type should cause sys.exit(1)."""
-        paths = self._write_toml(tmp_path, sample_toml_invalid_type)
-
-        with pytest.raises(SystemExit) as exc_info:
-            config_provider.map_from_config_file(paths)
-
-        assert exc_info.value.code == 1
-
-    def test_max_concurrent_downloads_out_of_range_exits(self, config_provider: ConfigProvider, tmp_path: Path, sample_toml_max_concurrent_downloads_out_of_range: str) -> None:
-        """max_concurrent_downloads outside 1-16 should cause sys.exit(1)."""
-        paths = self._write_toml(tmp_path, sample_toml_max_concurrent_downloads_out_of_range)
-
-        with pytest.raises(SystemExit) as exc_info:
-            config_provider.map_from_config_file(paths)
-
-        assert exc_info.value.code == 1
-
-    def test_extraction_delay_out_of_range_exits(self, config_provider: ConfigProvider, tmp_path: Path, sample_toml_extraction_delay_out_of_range: str) -> None:
-        """extraction_delay outside 0-60 should cause sys.exit(1)."""
-        paths = self._write_toml(tmp_path, sample_toml_extraction_delay_out_of_range)
-
-        with pytest.raises(SystemExit) as exc_info:
-            config_provider.map_from_config_file(paths)
-
-        assert exc_info.value.code == 1

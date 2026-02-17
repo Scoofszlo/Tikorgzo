@@ -94,7 +94,7 @@ async def download_video(
             finally:
                 # Temporarily disable the recommendation here to remove return in finally block
                 # as this cause issues with downloader.py
-                return videos  # noqa: B012
+                return videos  # noqa: B012 # pylint: disable=lost-exception, return-in-finally
 
 
 def cleanup_interrupted_downloads(videos: list[Video]) -> None:

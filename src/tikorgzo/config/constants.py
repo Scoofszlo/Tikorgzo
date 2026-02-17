@@ -1,3 +1,4 @@
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -48,3 +49,8 @@ CONFIG_PATH_LOCATIONS = [
     Path(user_data_path(), APP_NAME, CONFIG_FILE_NAME),
     Path(user_documents_path(), APP_NAME, CONFIG_FILE_NAME),
 ]
+
+
+class MapSource(StrEnum):
+    CLI = "CLI"
+    CONFIG_FILE = "config file"
