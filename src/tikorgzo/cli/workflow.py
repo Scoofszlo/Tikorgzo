@@ -18,6 +18,7 @@ from tikorgzo.core.video.model import Video
 
 
 async def main() -> None:  # noqa: PLR0912
+    # pylint: disable=too-many-branches, too-many-statements, too-many-locals
     ah = ArgsHandler()
     args = ah.parse_args()
 
