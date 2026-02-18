@@ -18,8 +18,7 @@ class AioHTTPDownloadStrategy(BaseDownloadStrategy):
         async with self.session.get(video.download_link) as response:
             if response.status != STATUS_OK:
                 video.download_status = DownloadStatus.INTERRUPTED
-                msg = f"[gray50]Failed to download {video.video_id} due to[/gray50]: [orange1]{response.status} status code[/orange1]"
-                progress.console.print(msg)
+                self._print_failed_status(video, response.status, progress)
                 return
 
             total_size = video.file_size.get()
