@@ -13,9 +13,6 @@ from tikorgzo.exceptions import InvalidDateFormatError, InvalidVideoLinkError, V
 
 if TYPE_CHECKING:
     from tikorgzo.core.video.model import Video
-    # If doing this directly, this causes circular import so the alternative is
-    # to forward reference the VideoInfo of the _process_output_paths() for
-    # type hinting so that we don't need direct import of this class
 
 
 def validate_video_link(video_link: str) -> str:
