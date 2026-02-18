@@ -24,8 +24,8 @@ jobs:
       - name: Run pytest
         run: uv run pytest
 
-  lint-ruff:
-    name: Lint check (Ruff)
+  lint:
+    name: Lint check (Ruff, Pylint)
     runs-on: ubuntu-latest
 
     steps:
@@ -43,27 +43,8 @@ jobs:
       - name: Run lint checker
         run: uv run poe lint
 
-  lint-pylint:
-    name: Lint check (Pylint)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Run lint checker
-        run: uv run poe lint-pylint
-
-  type-pyright:
-    name: Type check (Pyright)
+  type:
+    name: Type check (Pyright, ty, mypy)
     runs-on: ubuntu-latest
 
     steps:
@@ -80,41 +61,3 @@ jobs:
 
       - name: Run type checker
         run: uv run poe type
-
-  type-ty:
-    name: Type check (ty)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Run type checker
-        run: uv run poe type-ty
-
-  type-mypy:
-    name: Type check (mypy)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Run type checker
-        run: uv run poe type-mypy
