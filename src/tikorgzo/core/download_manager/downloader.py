@@ -1,15 +1,13 @@
 import asyncio
-from pathlib import Path
-from types import TracebackType
-from typing import Self
+import os
 
-import aiofiles
 import aiohttp
-from requests import HTTPError
-from rich.progress import Progress
+from rich.progress import BarColumn, DownloadColumn, Progress, TextColumn, TimeRemainingColumn, TransferSpeedColumn
 
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
+from tikorgzo.core.download_manager.strategies.aiohttp import AioHTTPDownloadStrategy
+from tikorgzo.core.download_manager.strategies.requests import RequestsDownloadStrategy
 from tikorgzo.core.session.model import ClientSessionManager
 from tikorgzo.core.video.model import Video
 
@@ -18,71 +16,53 @@ class Downloader:
     def __init__(
         self,
         session: ClientSessionManager,
+        videos: list[Video],
         max_concurrent_downloads: int | None = None,
     ) -> None:
         self.session = session
+        self.videos = videos
         self.semaphore = asyncio.Semaphore(4) if max_concurrent_downloads is None else asyncio.Semaphore(max_concurrent_downloads)
+        self.download_strategy = self._get_download_strategy()
+        self.progress_displayer = Progress(
+            TextColumn("{task.description}"),
+            BarColumn(),
+            DownloadColumn(),
+            TransferSpeedColumn(),
+            TimeRemainingColumn(),
+            console=console,
+        )
 
-    async def __aenter__(self) -> Self:
-        return self
+    async def process_videos(self) -> None:
+        self.progress_displayer.start()
+        download_tasks = [self.download(video) for video in self.videos]
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
-        pass
+        try:
+            await asyncio.gather(*download_tasks)
+        except asyncio.CancelledError:
+            # This is needed to capture KeyboardInterrupt or the Ctrl+C thing as we all know.
+            # However, there is nothing need to do here since the handle of this exception
+            # is already done inisde the download() of our Downloader which assigns interrupted
+            # status to the download status attribute of a Video instance
+            pass
+        finally:
+            self.progress_displayer.stop()
 
-    async def download(self, video: Video, progress_displayer: Progress) -> None:
-        status_ok = 200
-
-        if isinstance(self.session.client_session, aiohttp.ClientSession):
-            aiohttp_session = self.session.client_session
-
-            async with self.semaphore:
-                try:
-                    async with aiohttp_session.get(video.download_link) as aio_response:
-                        if aio_response.status != status_ok:
-                            video.download_status = DownloadStatus.INTERRUPTED
-                            raise aiohttp.ClientResponseError(  # noqa: TRY301
-                                request_info=aio_response.request_info,
-                                history=aio_response.history,
-                                status=aio_response.status,
-                                message=f"Failed to download {video.video_id}: {aio_response.status}",
-                                headers=aio_response.headers,
-                            )
-
-                        total_size = video.file_size.get()
-
-                        assert isinstance(total_size, float)
-
-                        task = progress_displayer.add_task(str(video.video_id), total=total_size)
-                        async with aiofiles.open(video.output_file_path, "wb") as output_file:
-                            async for chunk in aio_response.content.iter_chunked(8192):
-                                if chunk:
-                                    await output_file.write(chunk)
-                                    progress_displayer.update(task, advance=len(chunk))
-                    video.download_status = DownloadStatus.COMPLETED
-                except (asyncio.CancelledError, Exception):
-                    video.download_status = DownloadStatus.INTERRUPTED
-                    raise
-        else:
-            requests_session = self.session.client_session
-            req_response = requests_session.get(video.download_link, stream=True)
+    async def download(self, video: Video) -> None:
+        async with self.semaphore:
             try:
-                if req_response.status_code != status_ok:
-                    video.download_status = DownloadStatus.INTERRUPTED
-                    console.print(f"Failed to download {video.video_id}: {req_response.status_code}")
-                    msg = f"Failed to download {video.video_id}: {req_response.status_code}"
-                    raise HTTPError(msg)  # noqa: TRY301
-
-                total_size = video.file_size.get()
-
-                assert isinstance(total_size, float)
-
-                task = progress_displayer.add_task(str(video.video_id), total=total_size)
-                with Path.open(video.output_file_path, "wb", encoding=None) as output_file:  # pylint: disable=unspecified-encoding
-                    for chunk in req_response.iter_content(chunk_size=8192):
-                        if chunk:
-                            output_file.write(chunk)
-                            progress_displayer.update(task, advance=len(chunk))
-                video.download_status = DownloadStatus.COMPLETED
+                await self.download_strategy.download(video, self.progress_displayer)
             except (asyncio.CancelledError, Exception):
                 video.download_status = DownloadStatus.INTERRUPTED
                 raise
+
+    def cleanup_interrupted_downloads(self) -> None:
+        for video in self.videos:
+            if video.download_status == DownloadStatus.INTERRUPTED and os.path.exists(video.output_file_path):
+                os.remove(video.output_file_path)
+
+    def _get_download_strategy(self) -> AioHTTPDownloadStrategy | RequestsDownloadStrategy:
+        """Return the appropriate download strategy based on the session type."""
+
+        if isinstance(self.session.client_session, aiohttp.ClientSession):
+            return AioHTTPDownloadStrategy(self.session.client_session)
+        return RequestsDownloadStrategy(self.session.client_session)

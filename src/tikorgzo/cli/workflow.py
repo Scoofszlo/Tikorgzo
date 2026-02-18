@@ -13,6 +13,7 @@ from tikorgzo.config.model import ConfigKey
 from tikorgzo.config.provider import ConfigProvider
 from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
+from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
 from tikorgzo.core.extractors.context_manager import ExtractorHandler
 from tikorgzo.core.session.model import ClientSessionManager
@@ -163,13 +164,16 @@ async def _download_videos(
     console.print("\n[b]Stage 3/3[/b]: Download")
     console.print(f"Downloading {download_queue.total()} videos...")
 
-    videos = await fn.download_video(
-        config.get_value(ConfigKey.MAX_CONCURRENT_DOWNLOADS),
-        download_queue.get_queue(),
+    downloader = Downloader(
         session=session,
+        videos=download_queue.get_queue(),
+        max_concurrent_downloads=config.get_value(ConfigKey.MAX_CONCURRENT_DOWNLOADS),
     )
-    fn.cleanup_interrupted_downloads(videos)
-    fn.print_download_results(videos)
+
+    await downloader.process_videos()
+
+    downloader.cleanup_interrupted_downloads()
+    fn.print_download_results(downloader.videos)
     await session.close()
 
 
