@@ -21,28 +21,34 @@ BYTES_PER_KB = 1024.0
 
 class Video:
     # pylint: disable=too-many-instance-attributes
-    """Video class that handles the information of a TikTok video.
+    """Represents a TikTok video and its associated metadata.
+
+    On construction, the provided link is normalized (full links are kept as-is,
+    shortened vt.tiktok.com links are resolved to their full form, and bare 19-digit
+    video IDs are accepted directly). The video ID, username, and upload date are then
+    extracted from the normalized link, duplicate-download checks are performed, and
+    output paths are assigned.
 
     Attributes:
-        _config (ConfigProvider): The configuration provider instance that holds the app's configuration.
-        _video_link (str): The normalized video link.
-        _video_id (int): The unique identifier for the video.
-        _username (Optional[str]): The username associated with the video.
-        _date (datetime): The date the video was uploaded.
-        _download_link (Optional[str]): The source quality download link of the video.
-        _file_size (Optional[FileSize]): The size of the video file.
-        _download_status (Optional[DownloadStatus]): The current download status of the Video object.
-        _filename_template (Optional[str]): Holds the passed filename template parameter.
-        _output_file_dir (Optional[str]): Directory where the video will be saved.
-        _output_file_path (Optional[str]): Full path to the output video file.
+        config (ConfigProvider): The configuration provider instance.
+        _video_link (str): The normalized TikTok video link (or bare video ID).
+        _video_id (int): The 19-digit unique identifier for the video.
+        _username (str | None): The creator's username, if present in the link.
+        _date (datetime): The upload date derived from the video ID.
+        _download_link (str | None): The resolved direct download URL, set by an extractor.
+        _file_size (FileSize): The size of the video file, set after the download link is resolved.
+        _download_status (DownloadStatus): The current download status of the video.
+        _filename_template (str | None): Custom filename template passed via config or CLI.
+        _output_file_dir (Path | None): Directory where the video will be saved.
+        _output_file_path (Path | None): Full path to the output video file.
 
     Args:
-        video_link (str): The TikTok video link or video ID.
-        config (ConfigProvider): The configuration provider instance that holds the app's configuration.
+        video_link (str): A full TikTok video URL, a shortened vt.tiktok.com URL, or a bare 19-digit video ID.
+        config (ConfigProvider): The configuration provider instance.
 
     Raises:
-        InvalidVideoLink: If the provided video link is not valid.
-        VideoFileAlreadyExistsError: If the video file already exists in the output directory.
+        InvalidVideoLinkError: If the provided video link cannot be normalized.
+        VideoFileAlreadyExistsError: If the video has already been downloaded.
 
     """
 
