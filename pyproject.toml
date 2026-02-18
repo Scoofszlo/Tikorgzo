@@ -116,17 +116,42 @@ typeCheckingMode = "strict"
 [tool.ruff.format]
 preview = true
 
-[tool.poe.tasks]
-test = "pytest"
-lint = "ruff check"
-lint-fix = "ruff check --fix"
-lint-watch = "ruff check --watch"
-lint-pylint = "pylint src"
-type = "pyright"
-type-watch = "pyright --watch"
-type-ty = "ty check"
-type-ty-watch = "ty check --watch"
-type-mypy = "mypy -p tikorgzo --check-untyped-defs --disallow-incomplete-defs --disallow-untyped-defs"
+[tool.poe.tasks.test]
+help = "Run tests"
+cmd = "pytest"
+
+[tool.poe.tasks.lint]
+help = "Run linters"
+parallel = [
+    { cmd = "ruff check" },
+    { cmd = "pylint src" },
+]
+ignore_fail = "return_non_zero"
+
+[tool.poe.tasks.lint-fix]
+help = "Fix linting issues (uses ruff)"
+cmd = "ruff check --fix"
+
+[tool.poe.tasks.lint-watch]
+help = "Watch for linting issues (uses ruff)"
+cmd = "ruff check --watch"
+
+[tool.poe.tasks.type]
+help = "Run type checking"
+parallel = [
+    { cmd = "pyright src" },
+    { cmd = "ty check src" },
+    { cmd = "mypy -p tikorgzo --check-untyped-defs --disallow-incomplete-defs --disallow-untyped-defs" },
+]
+ignore_fail = "return_non_zero"
+
+[tool.poe.tasks.type-watch]
+help = "Watch for type checking issues (uses pyright)"
+cmd = "pyright --watch"
+
+[tool.poe.tasks.type-watch-2]
+help = "Watch for type checking issues (uses ty)"
+cmd = "ty check --watch"
 
 [tool.setuptools_scm]
 version_file = "src/tikorgzo/_version.py"
