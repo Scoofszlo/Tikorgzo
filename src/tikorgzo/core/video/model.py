@@ -52,7 +52,7 @@ class Video:
         config: ConfigProvider,
     ) -> None:
         self.config = config
-        self._video_link = fn.validate_video_link(video_link)
+        self._video_link = fn.normalize_video_link(video_link)
         self._video_id: int = fn.extract_video_id(video_link)
 
         fn.check_if_already_downloaded(

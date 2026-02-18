@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     from tikorgzo.core.video.model import Video
 
 
-def validate_video_link(video_link: str) -> str:
-    """Checks if the video link is a valid TikTok video link or a valid video ID."""
+def normalize_video_link(video_link: str) -> str:
+    """Normalizes the TikTok video link into a standard format."""
 
     if re.search(NORMAL_TIKTOK_VIDEO_LINK_REGEX, video_link):
         return video_link
@@ -142,9 +142,8 @@ def _get_normalized_url(video_link: str) -> str:
     """Returns a normalized URL whenever the inputted video link doesn't contain the username and the video ID
     (e.g., https://vt.tiktok.com/AbCdEfGhI).
 
-    This is needed so that we can extract the username and the video ID when the normalized URL is extracted, which
-    are both needed so that when we have downloaded the video, they will be saved in the Downloads folder in which they
-    are grouped by username and the filename will be the video ID.
+    This is needed so that we can extract the username and the video ID, which are both needed later in the
+    program after we have downloaded the video so that we can assign the output file path and name for the video.
     """
 
     if not video_link.startswith(r"https://") and not video_link.startswith(r"http://"):
