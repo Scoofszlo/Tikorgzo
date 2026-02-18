@@ -52,7 +52,7 @@ class DirectExtractor(BaseExtractor):
 
             if video.username is None:
                 video.username = username
-                fn.get_output_paths(video)
+                fn.assign_output_paths(video)
 
             video.download_link = download_link
             video.file_size = float(best_quality_details["PlayAddr"]["DataSize"])

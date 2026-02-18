@@ -69,7 +69,7 @@ class Video:
         self._filename_template: str | None = config.get_value(ConfigKey.FILENAME_TEMPLATE)
         self._output_file_dir: Path | None = None
         self._output_file_path: Path | None = None
-        fn.get_output_paths(self)
+        fn.assign_output_paths(self)
 
     @property
     def username(self) -> str | None:

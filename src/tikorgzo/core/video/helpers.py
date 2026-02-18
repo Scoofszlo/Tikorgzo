@@ -110,8 +110,8 @@ def get_date(video_id: int) -> datetime:
     return datetime.fromtimestamp(unix_timestamp, tz=UTC)
 
 
-def get_output_paths(video: "Video") -> None:
-    """Determines and creates the output directory and file path for the video.
+def assign_output_paths(video: "Video") -> None:
+    """Assigns the output directory and file path for the Video object.
     If the video has been downloaded already, this will raise an error.
     """
 

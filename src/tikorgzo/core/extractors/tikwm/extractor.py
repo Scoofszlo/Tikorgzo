@@ -141,7 +141,7 @@ class TikWMExtractor(BaseExtractor):
 
         if video.username is None:
             video.username = username
-            fn.get_output_paths(video)
+            fn.assign_output_paths(video)
 
         video.file_size = await self._get_file_size(download_url)
         video.download_link = download_url
