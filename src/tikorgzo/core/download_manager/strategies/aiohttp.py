@@ -18,13 +18,9 @@ class AioHTTPDownloadStrategy(BaseDownloadStrategy):
         async with self.session.get(video.download_link) as response:
             if response.status != STATUS_OK:
                 video.download_status = DownloadStatus.INTERRUPTED
-                raise aiohttp.ClientResponseError(
-                    request_info=response.request_info,
-                    history=response.history,
-                    status=response.status,
-                    message=f"Failed to download {video.video_id}: {response.status}",
-                    headers=response.headers,
-                )
+                msg = f"[gray50]Failed to download {video.video_id} due to[/gray50]: [orange1]{response.status} status code[/orange1]"
+                progress.console.print(msg)
+                return
 
             total_size = video.file_size.get()
             assert isinstance(total_size, float)

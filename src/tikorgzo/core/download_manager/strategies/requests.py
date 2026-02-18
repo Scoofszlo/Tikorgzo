@@ -22,8 +22,9 @@ class RequestsDownloadStrategy(BaseDownloadStrategy):
 
             if response.status_code != STATUS_OK:
                 video.download_status = DownloadStatus.INTERRUPTED
-                msg = f"Failed to download {video.video_id}: {response.status_code}"
-                raise HTTPError(msg)  # noqa: TRY301
+                msg = f"[gray50]Failed to download {video.video_id} due to[/gray50]: [orange1]{response.status_code} status code[/orange1]"
+                progress.console.print(msg)
+                return
 
             total_size = video.file_size.get()
             assert isinstance(total_size, float)
