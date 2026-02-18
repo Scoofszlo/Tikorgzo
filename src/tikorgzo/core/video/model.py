@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from tikorgzo.config.model import ConfigKey
 from tikorgzo.config.provider import ConfigProvider
 from tikorgzo.constants import DownloadStatus
-from tikorgzo.core.video.processor import VideoInfoProcessor
+from tikorgzo.core.video import helpers as fn
 from tikorgzo.exceptions import FileSizeNotSetError, FileTooLargeError
 
 if TYPE_CHECKING:
@@ -17,8 +17,6 @@ VT_TIKTOK_VIDEO_LINK_REGEX = r"https?://vt\.tiktok\.com/"
 
 # File size conversion constant
 BYTES_PER_KB = 1024.0
-
-processor = VideoInfoProcessor()
 
 
 class Video:
@@ -54,24 +52,24 @@ class Video:
         config: ConfigProvider,
     ) -> None:
         self.config = config
-        self._video_link = processor.validate_video_link(video_link)
-        self._video_id: int = processor.extract_video_id(video_link)
+        self._video_link = fn.validate_video_link(video_link)
+        self._video_id: int = fn.extract_video_id(video_link)
 
-        processor.check_if_already_downloaded(
+        fn.check_if_already_downloaded(
             video_id=self._video_id,
             lazy_duplicate_check=config.get_value(ConfigKey.LAZY_DUPLICATE_CHECK),
             custom_download_dir=config.get_value(ConfigKey.DOWNLOAD_DIR),
         )
 
-        self._username: str | None = processor.process_username(video_link)
-        self._date: datetime = processor.get_date(self._video_id)
+        self._username: str | None = fn.process_username(video_link)
+        self._date: datetime = fn.get_date(self._video_id)
         self._download_link: str | None = None
         self._file_size = FileSize()
         self._download_status = DownloadStatus.UNSTARTED
         self._filename_template: str | None = config.get_value(ConfigKey.FILENAME_TEMPLATE)
         self._output_file_dir: Path | None = None
         self._output_file_path: Path | None = None
-        processor.process_output_paths(self)
+        fn.get_output_paths(self)
 
     @property
     def username(self) -> str | None:

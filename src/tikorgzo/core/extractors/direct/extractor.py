@@ -13,8 +13,8 @@ from tikorgzo.core.extractors.direct.helpers import (
     get_download_addresses,
     get_initial_url,
 )
+from tikorgzo.core.video import helpers as fn
 from tikorgzo.core.video.model import Video
-from tikorgzo.core.video.processor import VideoInfoProcessor
 from tikorgzo.exceptions import APIStructureMismatchError, MissingSourceDataError
 
 
@@ -51,10 +51,8 @@ class DirectExtractor(BaseExtractor):
             username = await self._get_username(source_data)
 
             if video.username is None:
-                processor = VideoInfoProcessor()
-
                 video.username = username
-                processor.process_output_paths(video)
+                fn.get_output_paths(video)
 
             video.download_link = download_link
             video.file_size = float(best_quality_details["PlayAddr"]["DataSize"])
