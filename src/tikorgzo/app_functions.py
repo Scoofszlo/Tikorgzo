@@ -2,7 +2,7 @@ import pathlib
 
 import requests
 
-from tikorgzo.console import console
+from tikorgzo.cli.text_printer import console
 from tikorgzo.constants import DIRECT_EXTRACTOR_NAME, TIKWM_EXTRACTOR_NAME, DownloadStatus
 from tikorgzo.core.extractors.direct.extractor import DirectExtractor
 from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor

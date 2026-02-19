@@ -1,5 +1,7 @@
 
 
+import asyncio
+
 from playwright.async_api import Browser, BrowserContext, Page, Playwright, async_playwright
 
 from tikorgzo.constants import CHROME_USER_DATA_DIR
@@ -32,17 +34,23 @@ class ScrapeBrowser:
                 ],
                 viewport={"width": 500, "height": 200},
             )
+        except asyncio.CancelledError:
+            await asyncio.sleep(1)
+            await self.cleanup()
+
+            raise
         except Exception as e:
-            if hasattr(self, "browser") and self._browser:
-                await self._browser.close()
-            if hasattr(self, "playwright") and self._playwright:
-                await self._playwright.stop()
+            await self.cleanup()
 
             if "Executable doesn't exist" in str(e) or "'chrome is not found" in str(e):
                 raise MissingChromeBrowserError from None
             raise e  # noqa: TRY201
 
     async def cleanup(self) -> None:
+        if self.page:
+            await self.page.close()
+        if self.context:
+            await self.context.close()
         if self._browser:
             await self._browser.close()
         if self._playwright:

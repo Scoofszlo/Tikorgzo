@@ -3,7 +3,7 @@ import asyncio
 import aiohttp
 from playwright.async_api import Page
 
-from tikorgzo.console import console
+from tikorgzo.cli.text_printer import console
 from tikorgzo.core.extractors.base import BaseExtractor
 from tikorgzo.core.extractors.tikwm.browser import ScrapeBrowser
 from tikorgzo.core.extractors.tikwm.constants import ELEMENT_LOAD_TIMEOUT, TIKTOK_DOWNLOADER_URL, WEBPAGE_LOAD_TIMEOUT
@@ -31,6 +31,10 @@ class TikWMExtractor(BaseExtractor):
         try:
             self.browser = ScrapeBrowser()
             await self.browser.initialize()
+        except asyncio.CancelledError:
+            if self.browser:
+                await self.browser.cleanup()
+            raise
         except Exception:
             if self.browser:
                 await self.browser.cleanup()

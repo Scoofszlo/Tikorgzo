@@ -8,10 +8,10 @@ from playwright.sync_api import Error as PlaywrightError
 from tikorgzo import app_functions as fn
 from tikorgzo import exceptions as exc
 from tikorgzo.cli.args_handler import ArgsHandler
+from tikorgzo.cli.text_printer import console
 from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.config.model import ConfigKey
 from tikorgzo.config.provider import ConfigProvider
-from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
@@ -60,6 +60,9 @@ def _load_config(args: Namespace) -> ConfigProvider:
         config.map_from_config_file(CONFIG_PATH_LOCATIONS)
     except exc.InvalidConfigDataError as e:
         console.print(f"[red]error:[/red] Invalid config data from {e.source}: {e}")
+        sys.exit(1)
+    except exc.InvalidConfigFileStructureError as e:
+        console.print(f"[red]error[/red]: Failed to parse config file from '{e.config_file_path}' due to '[blue]{e.exc.msg} (line {e.exc.lineno} column {e.exc.colno} char {e.exc.pos})[/blue]'.")
         sys.exit(1)
 
     return config
@@ -147,6 +150,9 @@ async def _extract_download_links(
         console.print("[red]error:[/red] Invalid extractor/extraction delay/session value provided for extractor creation.")
         await session.close()
         sys.exit(1)
+    except asyncio.CancelledError:
+        await session.close()
+        sys.exit(0)
     except (Exception, PlaywrightAsyncError) as e:
         console.print(f"[red]error:[/red] An unexpected error occurred during link extraction: {type(e).__name__}: {e}")
         await session.close()
@@ -175,10 +181,3 @@ async def _download_videos(
     downloader.cleanup_interrupted_downloads()
     fn.print_download_results(downloader.videos)
     await session.close()
-
-
-def run() -> None:
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        pass

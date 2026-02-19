@@ -5,7 +5,7 @@ from typing import Any
 import requests
 from bs4 import BeautifulSoup
 
-from tikorgzo.console import console
+from tikorgzo.cli.text_printer import console
 from tikorgzo.constants import TIKTOK_ID_LENGTH
 from tikorgzo.core.extractors.base import BaseExtractor
 from tikorgzo.core.extractors.direct.helpers import (

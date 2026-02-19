@@ -1,5 +1,9 @@
 
 
+from pathlib import Path
+
+import toml
+
 from tikorgzo.config.constants import MapSource
 
 
@@ -16,6 +20,16 @@ class MissingChromeBrowserError(Exception):
 
     def __init__(self) -> None:
         self.message = "Chrome browser isn't installed on this system. Please install Chrome to proceed."
+        super().__init__(self.message)
+
+
+class InvalidConfigFileStructureError(Exception):
+    """Raised when the config file structure is invalid, such as missing required sections or keys."""
+
+    def __init__(self, config_file_path: Path, exc: toml.TomlDecodeError) -> None:
+        self.message = f"Failed to parse TOML from '{config_file_path}' due to '{exc.msg} (line {exc.lineno} column {exc.colno} char {exc.pos})'."
+        self.config_file_path = config_file_path
+        self.exc = exc
         super().__init__(self.message)
 
 
