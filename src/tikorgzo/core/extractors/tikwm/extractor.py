@@ -31,6 +31,10 @@ class TikWMExtractor(BaseExtractor):
         try:
             self.browser = ScrapeBrowser()
             await self.browser.initialize()
+        except asyncio.CancelledError:
+            if self.browser:
+                await self.browser.cleanup()
+            raise
         except Exception:
             if self.browser:
                 await self.browser.cleanup()

@@ -147,6 +147,9 @@ async def _extract_download_links(
         console.print("[red]error:[/red] Invalid extractor/extraction delay/session value provided for extractor creation.")
         await session.close()
         sys.exit(1)
+    except asyncio.CancelledError:
+        await session.close()
+        sys.exit(0)
     except (Exception, PlaywrightAsyncError) as e:
         console.print(f"[red]error:[/red] An unexpected error occurred during link extraction: {type(e).__name__}: {e}")
         await session.close()
