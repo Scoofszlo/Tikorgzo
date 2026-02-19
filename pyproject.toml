@@ -38,7 +38,7 @@ dev = [
 ]
 
 [project.scripts]
-tikorgzo = "tikorgzo.cli.workflow:run"
+tikorgzo = "tikorgzo.app:run"
 
 [tool.pytest.ini_options]
 norecursedirs = ["playground"]

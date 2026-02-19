@@ -181,10 +181,3 @@ async def _download_videos(
     downloader.cleanup_interrupted_downloads()
     fn.print_download_results(downloader.videos)
     await session.close()
-
-
-def run() -> None:
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        pass
