@@ -4,7 +4,7 @@ import os
 import aiohttp
 from rich.progress import BarColumn, DownloadColumn, Progress, TextColumn, TimeRemainingColumn, TransferSpeedColumn
 
-from tikorgzo.console import console
+from tikorgzo.cli.text_printer import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_manager.strategies.aiohttp import AioHTTPDownloadStrategy
 from tikorgzo.core.download_manager.strategies.requests import RequestsDownloadStrategy

@@ -1,9 +1,9 @@
 from argparse import Namespace
 from typing import Any
 
+from tikorgzo.cli.text_printer import console
 from tikorgzo.config.constants import CONFIG_VARIABLES, MapSource
 from tikorgzo.config.validator import validate_config
-from tikorgzo.console import console
 
 
 def map_from_cli(args: Namespace) -> dict[str, Any]:

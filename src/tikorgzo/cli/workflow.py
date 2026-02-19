@@ -8,10 +8,10 @@ from playwright.sync_api import Error as PlaywrightError
 from tikorgzo import app_functions as fn
 from tikorgzo import exceptions as exc
 from tikorgzo.cli.args_handler import ArgsHandler
+from tikorgzo.cli.text_printer import console
 from tikorgzo.config.constants import CONFIG_PATH_LOCATIONS
 from tikorgzo.config.model import ConfigKey
 from tikorgzo.config.provider import ConfigProvider
-from tikorgzo.console import console
 from tikorgzo.constants import DownloadStatus
 from tikorgzo.core.download_manager.downloader import Downloader
 from tikorgzo.core.download_manager.queue import DownloadQueueManager
