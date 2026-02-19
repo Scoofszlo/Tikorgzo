@@ -61,6 +61,9 @@ def _load_config(args: Namespace) -> ConfigProvider:
     except exc.InvalidConfigDataError as e:
         console.print(f"[red]error:[/red] Invalid config data from {e.source}: {e}")
         sys.exit(1)
+    except exc.InvalidConfigFileStructureError as e:
+        console.print(f"[red]error[/red]: Failed to parse config file from '{e.config_file_path}' due to '[blue]{e.exc.msg} (line {e.exc.lineno} column {e.exc.colno} char {e.exc.pos})[/blue]'.")
+        sys.exit(1)
 
     return config
 
