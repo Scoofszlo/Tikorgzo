@@ -4,7 +4,6 @@ from argparse import Namespace
 
 from playwright.async_api import Error as PlaywrightAsyncError
 from playwright.sync_api import Error as PlaywrightError
-import requests
 
 from tikorgzo import app_functions as fn
 from tikorgzo import exceptions as exc
