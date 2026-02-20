@@ -49,10 +49,11 @@ def is_proxy_valid(value: str) -> None:
 def get_extractor(
         extractor: str,
         extraction_delay: float,
+        proxy: str | None,
         session: ClientSessionManager,
 ) -> "TikWMExtractor | DirectExtractor":
     if extractor == TIKWM_EXTRACTOR_NAME:
-        return TikWMExtractor(extraction_delay)
+        return TikWMExtractor(extraction_delay, proxy=proxy)
     if extractor == DIRECT_EXTRACTOR_NAME and isinstance(session.client_session, requests.Session):
         return DirectExtractor(extraction_delay, session.client_session)
     raise ExtractorCreationError

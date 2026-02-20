@@ -142,9 +142,10 @@ async def _extract_download_links(
 
     try:
         extractor = fn.get_extractor(
-            config.get_value(ConfigKey.EXTRACTOR),
-            config.get_value(ConfigKey.EXTRACTION_DELAY),
-            session,
+            extractor=config.get_value(ConfigKey.EXTRACTOR),
+            extraction_delay=config.get_value(ConfigKey.EXTRACTION_DELAY),
+            proxy=config.get_value(ConfigKey.PROXY),
+            session=session,
         )
         await extractor.initialize()
 

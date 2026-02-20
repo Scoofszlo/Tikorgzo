@@ -21,7 +21,7 @@ class ClientSessionManager:
         """Get a requests Session or aiohttp ClientSession depending on the chosen link extractor."""
 
         if extractor == TIKWM_EXTRACTOR_NAME:
-            return aiohttp.ClientSession(proxy="http://" + proxy if proxy else None)
+            return aiohttp.ClientSession(proxy="https://" + proxy if proxy else None)
 
         session = requests.Session()
         if proxy is not None:
