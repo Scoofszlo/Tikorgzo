@@ -2,8 +2,8 @@ import aiofiles
 import aiohttp
 from rich.progress import Progress
 
-from tikorgzo.constants import DownloadStatus
-from tikorgzo.core.download_manager.constants import CHUNK_SIZE, STATUS_OK
+from tikorgzo.constants import STATUS_OK, DownloadStatus
+from tikorgzo.core.download_manager.constants import CHUNK_SIZE
 from tikorgzo.core.download_manager.strategies._base import BaseDownloadStrategy
 from tikorgzo.core.video.model import Video
 

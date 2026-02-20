@@ -33,6 +33,14 @@ class InvalidConfigFileStructureError(Exception):
         super().__init__(self.message)
 
 
+class InvalidProxyError(Exception):
+    """Raised when the proxy provided is invalid or not responding."""
+
+    def __init__(self, proxy: str) -> None:
+        self.message = f"Proxy '{proxy}' is not responding or is not a valid proxy or "
+        super().__init__(self.message)
+
+
 class InvalidVideoLinkExtractionError(Exception):
     """Raised when there is no specified link or file for processing of links."""
 

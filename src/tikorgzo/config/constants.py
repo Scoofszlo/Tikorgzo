@@ -40,6 +40,10 @@ CONFIG_VARIABLES: dict[str, dict[str, Any]] = {
         "default": False,
         "type": bool,
     },
+    "proxy": {
+        "default": None,
+        "type": str,
+    },
 }
 
 DEFAULT_CONFIG_OPTS = {key: value["default"] for key, value in CONFIG_VARIABLES.items()}
