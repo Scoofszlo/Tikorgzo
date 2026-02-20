@@ -55,7 +55,7 @@ def check_if_already_downloaded(
     DOWNLOAD_PATH, to see if a file already exists whether the filename
     contains the video ID or not. If true, this will raise an error.
 
-    This function only runs when `--strict-duplicate-check` is enabled.
+    This whole function only runs when `--lazy-duplicate-check` is not enabled.
     """
 
     if lazy_duplicate_check is True:
