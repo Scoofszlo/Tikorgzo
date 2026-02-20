@@ -235,6 +235,23 @@ Alternatively, you can also set this in config file:
 extractor = "direct"
 ```
 
+### Custom proxy
+
+If you want to use a custom proxy for the app, you can use the `--proxy <proxy_url>` arg, where `<proxy_url>` is the URL of your desired proxy server. For example:
+
+```console
+tikorgzo -l 1234567898765432100 --proxy "255.255.255.255:8080"
+```
+
+Alternatively, you can also set this in config file:
+
+```toml
+[generic]
+proxy = "255.255.255.255:8080"
+```
+
+When you use a custom proxy, the app will attempt to check if the proxy is working properly by sending a request to `https://ifconfig.me/ip` before the app uses it. If the request fails, the app will display an error message and will now exit. Otherwise, it will be used during extraction and download processes.
+
 ### Using a config file
 
 This program can be configured via a TOML-formmatted config file so that you don't have to supply the same arguments every time you run the program.
