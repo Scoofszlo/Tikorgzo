@@ -1,6 +1,6 @@
 # Tikorgzo
 
-**Tikorgzo** is a TikTok video downloader written in Python that downloads videos in the highest available quality (4K, 2K, or 1080p), and saves them to your Downloads folder, organized by username. The project utilizes Playwright to obtain download links from the <b>[TikWM](https://www.tikwm.com/)</b> API. The project supports both Windows and Linux distributions.
+**Tikorgzo** is a TikTok video downloader written in Python that downloads videos in the highest available quality (4K, 2K, or 1080p), unlike other video downloaders. To obtain high quality videos, this app uses <b>[TikWM](https://www.tikwm.com/)</b> API and Playwright to obtain downloadable links, saving them to your Downloads folder organized by username. The app supports both Windows and Linux distributions.
 
 Some of the key features include:
 
@@ -9,7 +9,14 @@ Some of the key features include:
 - Set max number of simultaneous downloads.
 - Supports link extraction from a text file.
 - Customize the filename of downloaded videos.
+- Use custom proxy.
 - Config file support.
+
+## Why Tikorgzo?
+
+There are many TikTok video downloaders out there, but most of them usually download videos in 720p or 1080p quality. This is because they usually rely on the download links that is scrapable from the site itself, which is usually not the source video but a compressed version of it. You can use them if quality is not really much your concern. A very good open source example of this is [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+
+As a fan of archiving high quality videos, I researched and found that TikWM allows you to download videos in highest quality avaiable. I've been using it to archive videos but it is a bit inconvenient to copy and paste video links one by one to the website, so I decided to make this program to automate the process and make it more convenient for everyone who also face the same issue.
 
 ## Installation
 
@@ -21,8 +28,19 @@ Some of the key features include:
 
 ### Steps
 1. Install Python v3.12 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
-2. Install Google Chrome from the official website. For Linux users, choose the appropriate package according to your installed distribution.
-3. Open your command-line.
+2. Install Google Chrome from the official website. For Linux users, you can install Google Chrome with this command:
+
+    ```console
+    curl -O https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    sudo apt install ./google-chrome-stable_current_amd64.deb
+    ```
+
+    Alternatively, you can also use this command:
+
+    ```console
+    uvx playwright install chrome
+    ```
+3. Open your command-line if you haven't already.
 4. Install uv through `pip` command or via [Standalone installer](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer).
 
     ```console
@@ -43,28 +61,16 @@ Some of the key features include:
 
 6. For Windows users, if `warning: C:\Users\$USERNAME\.local\bin is not on your PATH...` appears, add the specified directory to your [user or system PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), then reopen your command-line.
 
-7. For Linux users who run Ubuntu through WSL, you can install Google Chrome with this command:
 
-    ```console
-    curl -O https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    sudo apt install ./google-chrome-stable_current_amd64.deb
-    ```
-
-    Alternatively, you can also use this command:
-
-    ```console
-    uvx playwright install chrome
-    ```
-
-8. You can now download a TikTok video by running the following command (replace the number with your actual video ID or link):
+7. You can now download a TikTok video by running the following command (replace the number with your actual video ID or link):
   
     ```console
     tikorgzo -l 7123456789109876543
     ```
 
-9. After running this command, Google Chrome will open automatically. If the Cloudflare verification does not complete on its own, manually check the box.
+8. After running this command, Google Chrome will open automatically. If the Cloudflare verification does not complete on its own, manually check the box.
 
-10. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
+9. Wait for the program to do it's thing. The downloaded video should appear in your Downloads folder.
 
 ## Usage
 
@@ -214,13 +220,9 @@ The downsides of this method include:
 - You cannot download 4K videos.
 - Certain videos will be downloaded at 720p even if a 1080p version is available.
 - Certain videos may not be downloadable.
-- Videos are downloaded one by one (see next two pararaphs if you are interested for technical explanation).
+- Videos may sometimes fail to download for some reason (e.g., 403 error may appear occasionally).
 
-For some reason, using an asynchronous library like `aiohttp` for scraping and downloading results in a 403 error, regardless when downloading a single video or more. Because of this, `requests` is used instead for these operations.
-
-However, since `requests` is not designed for asynchronous use, downloads are performed one by one, making simultaneous downloading impossible with this approach. Fortunately, this is still much faster than the default extractor because of its direct way of extracting download links.
-
-To use the alternative extractor despite the downsides, use the `--extractor <value>` arg, where `<value>` is `direct`. Putting `tikwm` or not using this arg option at all will use the default extractor (`tikwm`).
+To use the alternative extractor despite the downsides, use the `--extractor <value>` arg, where `<value>` is `direct`. Putting `tikwm` or not using this arg option at all will use the default extractor (`tikwm`):
 
 ```console
 tikorgzo -l 1234567898765432100 --extractor direct
@@ -262,7 +264,9 @@ lazy_duplicate_check = true
 filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
 ```
 
-The key name (i.e., `max_concurrent_downloads`, `lazy_duplicate_check`, `filename_template`) that you will put here must be the same as the command-line argument name that you used but in a snake_case form.
+Here's an improved version with better grammar and clarity:
+
+The key name (i.e., `max_concurrent_downloads`, `lazy_duplicate_check`, `filename_template`) that you will put here must match the command-line argument name shown when you run `tikorgzo` in the CLI, but with underscores (`_`) instead of hyphens (`-`) and without the leading double dash. For example, `--download-dir` becomes `download_dir`, `--extraction-delay` becomes `extraction_delay`, and so on.
 
 Take note that string values must be enclosed in double quotes (`"`), while boolean and integer values must not. Moreover, boolean values must be either `true` or `false` (all lowercase).
 
@@ -290,8 +294,9 @@ To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. T
 
 ## Reminders
 - Source/high-quality videos may not always be available, depending on the source. If not available, the downloaded videos are usually 1080p or 720p.
-- The program may be a bit slow during download link extraction (Stage 2), as it runs a browser in the background to extract the actual download link.
-- For this reason, the program is much more aligned to those who want to download multiple videos at once. However, you can still use it to download any number of videos you want.
+- The program may be a bit slow during download link extraction (Stage 2) when using the default extractor, as it runs a browser in the background to extract the actual download link.
+    - For this reason, the program is much more aligned to those who want to download multiple videos at once. However, you can still use it to download any number of videos you want.
+- Alternative extractor can be used to speed up the extraction process, but it may not always be able to get the highest quality video. Also take note that some videos may fail to download so you have to rerun the app again.
 - The program has been thoroughly tested on Windows 11 and is expected to work reliably on Windows systems. For Linux, testing was performed on a virtual machine running Linux Mint, as well as on Ubuntu through WSL so it should generally work fine on most Linux distributions, but compatibility is not guaranteed.
 - Recently, TikWM has implemented strict checks on their website visitors, which has affected the way the program works. Starting `v0.3.0`, the program now requires Google Chrome to be installed on your system (not required if you are using the alternative extractor). Additionally, every time you download, a browser will open in the background, which might be a bit annoying for some, but this is the best workaround (yet) I have found so far.
 
