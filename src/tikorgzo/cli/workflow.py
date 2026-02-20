@@ -4,6 +4,7 @@ from argparse import Namespace
 
 from playwright.async_api import Error as PlaywrightAsyncError
 from playwright.sync_api import Error as PlaywrightError
+import requests
 
 from tikorgzo import app_functions as fn
 from tikorgzo import exceptions as exc
@@ -135,7 +136,10 @@ async def _extract_download_links(
     """Stage 2 - extract direct download URLs for every queued video."""
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
-    session = ClientSessionManager(config.get_value(ConfigKey.EXTRACTOR))
+    session = ClientSessionManager(
+        extractor=config.get_value(ConfigKey.EXTRACTOR),
+        proxy=config.get_value(ConfigKey.PROXY),
+    )
 
     try:
         extractor = fn.get_extractor(
