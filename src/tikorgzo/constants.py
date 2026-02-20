@@ -17,6 +17,9 @@ TIKWM_EXTRACTOR_NAME = "tikwm"
 DIRECT_EXTRACTOR_NAME = "direct"
 
 
+STATUS_OK = 200
+
+
 class DownloadStatus(Enum):
     UNSTARTED = auto()
     QUEUED = auto()

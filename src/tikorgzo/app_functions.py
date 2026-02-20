@@ -3,12 +3,12 @@ import pathlib
 import requests
 
 from tikorgzo.cli.text_printer import console
-from tikorgzo.constants import DIRECT_EXTRACTOR_NAME, TIKWM_EXTRACTOR_NAME, DownloadStatus
+from tikorgzo.constants import DIRECT_EXTRACTOR_NAME, STATUS_OK, TIKWM_EXTRACTOR_NAME, DownloadStatus
 from tikorgzo.core.extractors.direct.extractor import DirectExtractor
 from tikorgzo.core.extractors.tikwm.extractor import TikWMExtractor
 from tikorgzo.core.session.model import ClientSessionManager
 from tikorgzo.core.video.model import Video
-from tikorgzo.exceptions import ExtractorCreationError, InvalidVideoLinkExtractionError
+from tikorgzo.exceptions import ExtractorCreationError, InvalidProxyError, InvalidVideoLinkExtractionError
 
 
 def extract_video_links(file_path: str | None, links: list[str]) -> set[str]:
@@ -27,13 +27,33 @@ def extract_video_links(file_path: str | None, links: list[str]) -> set[str]:
     raise InvalidVideoLinkExtractionError
 
 
+def is_proxy_valid(value: str) -> None:
+    proxies = {
+        "http": value,
+        "https": value,
+    }
+
+    try:
+        response = requests.get("https://ifconfig.me/ip", proxies=proxies, timeout=30)
+
+        if response.status_code != STATUS_OK:
+            raise InvalidProxyError(value)
+    except (
+        requests.exceptions.ProxyError,
+        requests.exceptions.ConnectionError,
+        requests.exceptions.Timeout,
+    ) as e:
+        raise InvalidProxyError(value) from e
+
+
 def get_extractor(
         extractor: str,
         extraction_delay: float,
+        proxy: str | None,
         session: ClientSessionManager,
 ) -> "TikWMExtractor | DirectExtractor":
     if extractor == TIKWM_EXTRACTOR_NAME:
-        return TikWMExtractor(extraction_delay)
+        return TikWMExtractor(extraction_delay, proxy=proxy)
     if extractor == DIRECT_EXTRACTOR_NAME and isinstance(session.client_session, requests.Session):
         return DirectExtractor(extraction_delay, session.client_session)
     raise ExtractorCreationError

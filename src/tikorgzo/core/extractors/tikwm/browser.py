@@ -2,7 +2,7 @@
 
 import asyncio
 
-from playwright.async_api import Browser, BrowserContext, Page, Playwright, async_playwright
+from playwright.async_api import Browser, BrowserContext, Page, Playwright, ProxySettings, async_playwright
 
 from tikorgzo.constants import CHROME_USER_DATA_DIR
 from tikorgzo.exceptions import MissingChromeBrowserError
@@ -13,7 +13,8 @@ class ScrapeBrowser:
     will be used for getting download links from TikWM API.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, proxy: str | None = None) -> None:
+        self._proxy = proxy
         self._playwright: Playwright | None = None
         self._browser: Browser | None = None
         self.context: BrowserContext | None = None
@@ -21,6 +22,16 @@ class ScrapeBrowser:
 
     async def initialize(self) -> None:
         """Initializes the Playwright browser instance."""
+
+        if self._proxy:
+            proxy: ProxySettings | None = {
+                "server": "https://" + self._proxy,
+                "bypass": None,
+                "username": None,
+                "password": None,
+            }
+        else:
+            proxy = None
 
         try:
             self._playwright = await async_playwright().start()
@@ -33,6 +44,7 @@ class ScrapeBrowser:
                     "--disable-blink-features=AutomationControlled",
                 ],
                 viewport={"width": 500, "height": 200},
+                proxy=proxy,
             )
         except asyncio.CancelledError:
             await asyncio.sleep(1)

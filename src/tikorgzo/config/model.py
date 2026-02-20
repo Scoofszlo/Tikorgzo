@@ -10,3 +10,4 @@ class ConfigKey(StrEnum):
     MAX_CONCURRENT_DOWNLOADS = "max_concurrent_downloads"
     FILENAME_TEMPLATE = "filename_template"
     LAZY_DUPLICATE_CHECK = "lazy_duplicate_check"
+    PROXY = "proxy"

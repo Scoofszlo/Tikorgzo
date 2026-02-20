@@ -15,8 +15,9 @@ from tikorgzo.exceptions import ExtractionTimeoutError, HrefLinkMissingError, Ht
 class TikWMExtractor(BaseExtractor):
     """A link extractor from TikWM API."""
 
-    def __init__(self, extraction_delay: float) -> None:
+    def __init__(self, extraction_delay: float, proxy: str | None = None) -> None:
         self.browser: ScrapeBrowser | None = None
+        self.proxy = proxy
         super().__init__(extraction_delay)
 
     async def process_video_links(self, videos: list[Video]) -> list[Video | BaseException]:
@@ -29,7 +30,7 @@ class TikWMExtractor(BaseExtractor):
 
     async def initialize(self) -> None:
         try:
-            self.browser = ScrapeBrowser()
+            self.browser = ScrapeBrowser(proxy=self.proxy)
             await self.browser.initialize()
         except asyncio.CancelledError:
             if self.browser:

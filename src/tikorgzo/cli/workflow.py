@@ -31,6 +31,7 @@ async def main() -> None:
 
     config = _load_config(args)
     video_links = _get_video_links(args.file, args.link)
+    _validate_proxy(config.get_value(ConfigKey.PROXY))
 
     # Stage 1
     download_queue = _validate_video_links(video_links, config)
@@ -82,12 +83,26 @@ def _get_video_links(file_path: str, links: list[str]) -> set[str]:
         sys.exit(1)
 
 
+def _validate_proxy(proxy: str | None) -> None:
+    if proxy is None:
+        return
+
+    with console.status(f"Checking proxy '[yellow]{proxy}[/yellow]'..."):
+        try:
+            fn.is_proxy_valid(proxy)
+            console.print(f"[gray50]Now using proxy '{proxy}'.[/gray50]")
+        except exc.InvalidProxyError:
+            error_msg = f"[blue]'proxy'[/blue] value '[yellow]{proxy}[/yellow]' is not a valid proxy or is not responding."
+            console.print(f"[red]error:[/red] {error_msg}")
+            sys.exit(1)
+
+
 def _validate_video_links(
     video_links: set[str],
     config: ConfigProvider,
 ) -> DownloadQueueManager:
     """Stage 1 - validate each link and populate the download queue."""
-    console.print("[b]Stage 1/3[/b]: Video Link/ID Validation")
+    console.print("\n[b]Stage 1/3[/b]: Video Link/ID Validation")
 
     download_queue = DownloadQueueManager()
 
@@ -120,13 +135,17 @@ async def _extract_download_links(
     """Stage 2 - extract direct download URLs for every queued video."""
     console.print("\n[b]Stage 2/3[/b]: Download Link Extraction")
 
-    session = ClientSessionManager(config.get_value(ConfigKey.EXTRACTOR))
+    session = ClientSessionManager(
+        extractor=config.get_value(ConfigKey.EXTRACTOR),
+        proxy=config.get_value(ConfigKey.PROXY),
+    )
 
     try:
         extractor = fn.get_extractor(
-            config.get_value(ConfigKey.EXTRACTOR),
-            config.get_value(ConfigKey.EXTRACTION_DELAY),
-            session,
+            extractor=config.get_value(ConfigKey.EXTRACTOR),
+            extraction_delay=config.get_value(ConfigKey.EXTRACTION_DELAY),
+            proxy=config.get_value(ConfigKey.PROXY),
+            session=session,
         )
         await extractor.initialize()
 

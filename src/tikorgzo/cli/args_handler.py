@@ -60,6 +60,11 @@ class ArgsHandler:
             default=None,
         )
         self._parser.add_argument(
+            "--proxy",
+            help="Set a proxy for link extraction and video downloading",
+            type=str,
+        )
+        self._parser.add_argument(
             "-v",
             help="Show the app's version",
             action="version",

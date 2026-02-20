@@ -6,10 +6,7 @@ from tikorgzo.config.model import ConfigKey
 from tikorgzo.exceptions import InvalidConfigDataError
 
 
-def validate_config(
-        config_key: str,
-        value: str | float | bool | None,
-        source: MapSource) -> None:
+def validate_config(config_key: str, value: str | float | bool | None, source: MapSource) -> None:
     """Validates config values to ensure that all are properly set."""
 
     error_msg: str | None = None

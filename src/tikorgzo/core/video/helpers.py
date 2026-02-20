@@ -15,14 +15,14 @@ if TYPE_CHECKING:
     from tikorgzo.core.video.model import Video
 
 
-def normalize_video_link(video_link: str) -> str:
+def normalize_video_link(video_link: str, proxy: str | None = None) -> str:
     """Normalizes the TikTok video link into a standard format."""
 
     if re.search(NORMAL_TIKTOK_VIDEO_LINK_REGEX, video_link):
         return video_link
 
     if re.search(VT_TIKTOK_VIDEO_LINK_REGEX, video_link):
-        return _get_normalized_url(video_link)
+        return _get_normalized_url(video_link, proxy=proxy)
 
     if len(video_link) == TIKTOK_ID_LENGTH and video_link.isdigit():
         return video_link
@@ -138,7 +138,7 @@ def assign_output_paths(video: "Video") -> None:
         video.output_file_path = video_file
 
 
-def _get_normalized_url(video_link: str) -> str:
+def _get_normalized_url(video_link: str, proxy: str | None = None) -> str:
     """Returns a normalized URL whenever the inputted video link doesn't contain the username and the video ID
     (e.g., https://vt.tiktok.com/AbCdEfGhI).
 
@@ -149,7 +149,12 @@ def _get_normalized_url(video_link: str) -> str:
     if not video_link.startswith(r"https://") and not video_link.startswith(r"http://"):
         video_link = "https://" + video_link
 
-    response = requests.get(video_link, allow_redirects=True, timeout=30)
+    if proxy is not None:
+        proxies = {"http": proxy, "https": proxy}
+    else:
+        proxies = None
+
+    response = requests.get(video_link, allow_redirects=True, timeout=30, proxies=proxies)
     return response.url
 
 
