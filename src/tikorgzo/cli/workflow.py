@@ -91,7 +91,7 @@ def _validate_proxy(proxy: str | None) -> None:
     with console.status(f"Checking proxy '[yellow]{proxy}[/yellow]'..."):
         try:
             fn.is_proxy_valid(proxy)
-            console.print(f"Proxy '[yellow]{proxy}[/yellow]' is [green]valid[/green]; it will now be used.")
+            console.print(f"[gray50]Now using proxy '{proxy}'.[/gray50]")
         except exc.InvalidProxyError:
             error_msg = f"[blue]'proxy'[/blue] value '[yellow]{proxy}[/yellow]' is not a valid proxy or is not responding."
             console.print(f"[red]error:[/red] {error_msg}")
