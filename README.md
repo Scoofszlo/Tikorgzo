@@ -4,25 +4,25 @@
 
 Some of the key features include:
 
-- Download TikTok video from command-line just by supplying the ID or video link.
-- Supports multiple links to be downloaded.
-- Set max number of simultaneous downloads.
-- Supports link extraction from a text file.
-- Customize the filename of downloaded videos.
-- Use custom proxy.
-- Config file support.
+- Download TikTok video from command-line just by supplying the ID or video link
+- Supports multiple links to be downloaded
+- Set max number of simultaneous downloads
+- Supports link extraction from a text file
+- Customize the filename of downloaded videos
+- Use custom proxy
+- Config file support
 
 ## Why Tikorgzo?
 
 There are many TikTok video downloaders out there, but most of them usually download videos in 720p or 1080p quality. This is because they usually rely on the download links that is scrapable from the site itself, which is usually not the source video but a compressed version of it. You can use them if quality is not really much your concern. A very good open source example of this is [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 
-As a fan of archiving high quality videos, I researched and found that TikWM allows you to download videos in highest quality avaiable. I've been using it to archive videos but it is a bit inconvenient to copy and paste video links one by one to the website, so I decided to make this program to automate the process and make it more convenient for everyone who also face the same issue.
+As a fan of archiving high quality videos, I have researched for sites and apps that allows downloading high quality videos. After that, I found that TikWM allows you to do that. I've been using it to archive videos but it is a bit inconvenient to copy and paste video links one by one to the website, so I decided to make this program to automate the process and make it more convenient for everyone who also face the same issue.
 
 ## Installation
 
 ### Requirements
 - Windows, or any Linux distros
-- Python `v3.12` or greater
+- Python (version 3.12 or above)
 - Google Chrome
 - uv
 
@@ -30,32 +30,32 @@ As a fan of archiving high quality videos, I researched and found that TikWM all
 1. Install Python v3.12 or above. For Windows users, ensure `Add Python x.x to PATH` is checked.
 2. Install Google Chrome from the official website. For Linux users, you can install Google Chrome with this command:
 
-    ```console
+    ```bash
     curl -O https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     sudo apt install ./google-chrome-stable_current_amd64.deb
     ```
 
-    Alternatively, you can also use this command:
+    Alternatively, you can also use this command (follow Step 4 if you haven't installed uv):
 
-    ```console
+    ```bash
     uvx playwright install chrome
     ```
 3. Open your command-line if you haven't already.
 4. Install uv through `pip` command or via [Standalone installer](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer).
 
-    ```console
+    ```bash
     pip install uv
     ```
 
 5. Install the latest published stable release into your system.
 
-    ```console
+    ```bash
     uv tool install tikorgzo
     ```
 
     Or if you want to get the latest features without having to wait for official release, choose this one instead:
 
-    ```console
+    ```bash
     uv tool install git+https://github.com/Scoofszlo/Tikorgzo
     ```
 
@@ -115,25 +115,25 @@ Filename template is built using the following placeholders:
 #### Examples
 
 - Save as just the video ID (you don't really need to do this as this is the default naming):
-    ```console
+    ```bash
     tikorgzo -l 1234567898765432100 --filename-template "{video_id}"
     # Result: 1234567898765432100.mp4
     ```
 
 - Save as username and video ID:
-    ```console
+    ```bash
     tikorgzo -l 1234567898765432100 --filename-template "{username}-{video_id}"
     # Result: myusername-1234567898765432100.mp4
     ```
 
 - Save as username, date, and video ID:
-    ```console
+    ```bash
     tikorgzo -l 1234567898765432100 --filename-template "{username}-{date}-{video_id}"
     # Result: myusername-20241230_235901-1234567898765432100.mp4
     ```
 
 - Save with a custom date format (e.g., `YYMMDD_HHMMSS`):
-    ```console
+    ```bash
     tikorgzo -l 1234567898765432100 --filename-template "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
     # Result: myusername-241230_235901-1234567898765432100.mp4
     ```
@@ -147,11 +147,11 @@ filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
 
 ### Changing the download directory
 
-By default, downloaded videos are saved in the `Tikorgzo` folder inside your system's Downloads directory.
+By default, downloaded videos are saved in the Tikorgzo folder inside your system's Downloads directory.
 
 If you want to save the downloaded videos to a different directory, you can use the `--download-dir <path>` arg, where `<path>` is the path to your desired download directory:
 
-```console
+```bash
 tikorgzo -l 1234567898765432100 --download-dir "C:\path\to\custom\downloads"
 ```
 
@@ -168,7 +168,7 @@ When downloading many videos, the program limits downloads to 4 at a time by def
 
 To change the maximum number of simultaneous downloads, use the `--max-concurrent-downloads <value>` arg, where `<value>` must be in range of 1 to 16:
 
-```console
+```bash
 tikorgzo -f "C:\path\to\100_video_files.txt" --max-concurrent-downloads 10
 ```
 
@@ -213,7 +213,7 @@ The value should be a non-negative integer or float (e.g., `2` or `0.5`).
 
 By default, this program uses `TikWMExtractor` as its extractor for grabbing high-quality download links for videos. However, you can choose `DirectExtractor` as an alternative if you prefer a faster method at the expense of potential lower resolution videos. This method directly scrapes download links from TikTok itself.
 
-The source data used here is similar to what `yt-dlp` uses, so the highest quality available quality it shows there should be also the same here.
+The source data used here is similar to what yt-dlp uses, so the highest quality available quality it shows there should be also the same here.
 
 The downsides of this method include:
 
@@ -281,9 +281,7 @@ lazy_duplicate_check = true
 filename_template = "{username}-{date:%y%m%d_%H%M%S}-{video_id}"
 ```
 
-Here's an improved version with better grammar and clarity:
-
-The key name (i.e., `max_concurrent_downloads`, `lazy_duplicate_check`, `filename_template`) that you will put here must match the command-line argument name shown when you run `tikorgzo` in the CLI, but with underscores (`_`) instead of hyphens (`-`) and without the leading double dash. For example, `--download-dir` becomes `download_dir`, `--extraction-delay` becomes `extraction_delay`, and so on.
+The key name (i.e., `max_concurrent_downloads`, `lazy_duplicate_check`, `filename_template`) that you will put here must match the command-line argument name shown when you run the app in the CLI, but with underscores (`_`) instead of hyphens (`-`) and without the leading double dash. For example, `--download-dir` becomes `download_dir`, `--extraction-delay` becomes `extraction_delay`, and so on.
 
 Take note that string values must be enclosed in double quotes (`"`), while boolean and integer values must not. Moreover, boolean values must be either `true` or `false` (all lowercase).
 
@@ -321,7 +319,7 @@ To uninstall the app, just run `uv tool uninstall tikorgzo` to remove the app. T
 
 Tikorgzo uses a custom project versioning policy. Minor version is bumped for every new feature added, while patch version is bumped for bug fixes and minor changes.
 
-Please take note that every new minor version may or may not introduce breaking changes, so be sure to check the changelog for details. This is the reason why major version is fixed to `0` for now.
+Please take note that every new minor version may or may not introduce breaking changes, so be sure to check the changelog for details. This is the reason why major version is fixed to "0" for now.
 
 ## License
 
